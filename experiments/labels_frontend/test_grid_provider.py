@@ -356,3 +356,36 @@ def test_grid_code_monitor_lifetime():
         assert all(data[k] for k in ('occupied_tool_preserved','retained_callback_restored','invalid_tool_rejected',
             'duplicate_start_and_code_rejected','active_removal_and_stop_rejected','cyclic_function_and_code_collected',
             'weak_registration_released','tool_global_events_and_callbacks_cleared'))
+
+
+def test_grid_code_monitor_trace_errors():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_code_monitor_error_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    assert data['controls']==(0 if sys.version_info<(3,12) else 14)
+    if sys.version_info>=(3,12):
+        assert all(all(row[k] for k in ('values_equal','events_equal','frame_flags_equal','post_context_equal')) for row in data['cases'])
+
+
+@pytest.mark.parametrize('mode',['return','unwind'])
+@pytest.mark.parametrize('adapter',[False,True])
+@pytest.mark.parametrize('tracing',[False,True])
+def test_grid_code_monitor_foreign_tool_errors(mode,adapter,tracing):
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    command=[sys.executable,'-B',str(directory/'grid_code_monitor_tool_error_child.py'),mode]
+    if adapter:command.append('--adapter')
+    if tracing:command.append('--trace')
+    result=subprocess.run(command,env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):assert data['controls']==0
+    else:
+        assert data['controls']==1 and data['outcomes_equal'] and data['events_equal']
+        assert data['unraisable_equal'] and data['tool_and_scopes_released']
+        assert data['counts_before_teardown']==[[3,1,int(mode=='unwind' and not adapter)]]

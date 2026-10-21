@@ -563,6 +563,26 @@ behavior still need qualification. No default startup or application acceptance
 is enabled. This follows the pinned [monitor dispatch](https://github.com/python/cpython/blob/v3.12.8/Python/instrumentation.c)
 and the [monitoring API](https://docs.python.org/3.12/library/sys.monitoring.html).
 
+`grid_code_monitor_error_child.py` compares fourteen tracer failures through this
+entry path, including exception/context chains, source events, frame flags and
+post-call handled state. Normal native return now clears borrowed handled-error
+identities, and traceback stripping requires an escaping error. This prevents
+allocator reuse from identifying an unrelated later monitor error. Return
+positions remain available until the invocation boundary because another tool
+can fail after a successful return notification and cause an unwinding return.
+
+`grid_code_monitor_tool_error_child.py` checks eight higher-priority foreign-tool
+failures across return/unwind, tracing and a nested explicit adapter. Values,
+exception/context chains and events match; teardown releases registrations and
+scopes. When a foreign unwind callback skips this tool's exit callback, a direct
+call can retain one completed scope until code removal. Recovery retires only
+detached completed synchronous frames on the original live thread, in stack
+order, at native monitor boundaries or before a stack-owned parent driver is
+destroyed. Counts remain read-only so this deferral stays visible. These checks
+prove explicit teardown recovery, not guaranteed immediate cleanup under
+arbitrary tool interference. Cross-thread retirement, thread exit, module and
+shutdown lifetime and independent ABI approval remain required.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

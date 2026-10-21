@@ -14,6 +14,22 @@ struct LFGridCodeMonitor {
     std::map<PyFrameObject*,LFGridMonitoredFrame> frames;
 };
 LFGridCodeMonitor* lfgm_owner=nullptr;
+void lfgm_retire_finished() noexcept {
+    auto* state=lfgm_owner;if(!state)return;
+    auto* thread=PyThreadState_Get();auto id=PyThreadState_GetID(thread);
+    while(lfgt_driver) {
+        auto found=state->frames.begin();
+        for(;found!=state->frames.end();++found)
+            if(found->second.scope.get()==lfgt_driver)break;
+        if(found==state->frames.end())break;
+        auto* scope=found->second.scope.get();
+        if(scope->thread!=thread || scope->thread_id!=id ||
+           found->first->f_frame->owner!=FRAME_OWNED_BY_FRAME_OBJECT)break;
+        // Only a detached, completed synchronous frame on its original live
+        // thread is safe to retire. Live/suspended/foreign-thread scopes stay.
+        state->frames.erase(found);
+    }
+}
 constexpr int lfgm_events[3]={1<<PY_MONITORING_EVENT_PY_START,
     1<<PY_MONITORING_EVENT_PY_RETURN,1<<PY_MONITORING_EVENT_PY_UNWIND};
 nb::object lfgm_call(LFGridCodeMonitor* state,const char* name,nb::tuple args) {
@@ -37,6 +53,7 @@ PyObject* lfgm_release(PyObject* capsule,PyObject* weak) {
 PyObject* lfgm_start(PyObject* capsule,PyObject* args) {
     try {
         auto* state=lfgm_state(capsule);
+        lfgm_retire_finished();
         if(PyTuple_GET_SIZE(args)!=2)throw nb::type_error("monitor start arguments changed");
         PyObject* code=PyTuple_GET_ITEM(args,0);
         if(state->codes.find(code)==state->codes.end())Py_RETURN_NONE;
@@ -55,7 +72,9 @@ PyObject* lfgm_start(PyObject* capsule,PyObject* args) {
 PyObject* lfgm_finish(PyObject* capsule,PyObject* args,bool failing) {
     try {
         auto* state=lfgm_state(capsule);
+        lfgm_retire_finished();
         if(PyTuple_GET_SIZE(args)!=3)throw nb::type_error("monitor completion arguments changed");
+        if(state->codes.find(PyTuple_GET_ITEM(args,0))==state->codes.end())Py_RETURN_NONE;
         auto* frame=PyEval_GetFrame();if(!frame)Py_RETURN_NONE;
         auto found=state->frames.find(frame);if(found==state->frames.end())Py_RETURN_NONE;
         if(lfgt_driver!=found->second.scope.get())throw nb::value_error("monitor scopes completed out of order");
@@ -81,10 +100,11 @@ void lfgm_initialize(nb::module_& module) {
     auto owner=std::make_unique<LFGridCodeMonitor>();
     nb::capsule capsule(owner.get(),[](void* value) noexcept {
         auto* state=static_cast<LFGridCodeMonitor*>(value);
-        if(lfgm_owner==state)lfgm_owner=nullptr;delete state;
+        if(lfgm_owner==state) {lfgm_owner=nullptr;lfgt_retire_finished=nullptr;}
+        delete state;
     });
     auto* state=owner.release();state->capsule=capsule.ptr();
-    module.attr("_grid_code_monitor_owner")=capsule;lfgm_owner=state;
+    module.attr("_grid_code_monitor_owner")=capsule;lfgm_owner=state;lfgt_retire_finished=lfgm_retire_finished;
 }
 #else
 void lfgm_initialize(nb::module_&) {}
@@ -92,6 +112,7 @@ void lfgm_initialize(nb::module_&) {}
 void lfgm_begin(int tool) {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;if(!state)throw nb::value_error("code monitor owner missing");
+    lfgm_retire_finished();
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     if(state->tool>=0)throw nb::value_error("code monitor already started");
     nb::object sys=lh_check(PyImport_ImportModule("sys"));
@@ -129,6 +150,7 @@ void lfgm_set(nb::handle code,bool enabled) {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;
     if(!state || state->tool<0)throw nb::value_error("code monitor is not started");
+    lfgm_retire_finished();
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     if(!PyCode_Check(code.ptr()))throw nb::type_error("prepared code required");
     auto found=state->codes.find(code.ptr());
@@ -161,6 +183,7 @@ void lfgm_set(nb::handle code,bool enabled) {
 void lfgm_end() {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;if(!state || state->tool<0)throw nb::value_error("code monitor is not started");
+    lfgm_retire_finished();
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     if(!state->codes.empty() || !state->frames.empty())throw nb::value_error("code monitor still has registrations or frames");
     for(int i=0;i<3;++i) {

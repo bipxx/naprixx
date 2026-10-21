@@ -1,6 +1,7 @@
 // Opt-in native source-line transport pilot. No application startup integration.
 struct LFGridLineDriver;
 thread_local LFGridLineDriver* lfgt_driver = nullptr;
+void (*lfgt_retire_finished)() noexcept = nullptr;
 int lfgt_proxy(PyObject*, PyFrameObject*, int, PyObject*);
 Py_ssize_t lfga_index();
 struct LFGridOpcodeState {
@@ -89,6 +90,7 @@ void lfgt_set_position(const LFGridFastLocals& locals,int offset,int line) {
 
 struct LFGridLineDriver {
     PyThreadState* thread = PyThreadState_Get();
+    uint64_t thread_id=PyThreadState_GetID(thread);
     Py_tracefunc previous = thread->c_tracefunc;
     nb::object previous_object = nb::borrow<nb::object>(thread->c_traceobj);
     LFGridLineDriver* parent = lfgt_driver;
@@ -110,6 +112,9 @@ struct LFGridLineDriver {
         }
     }
     ~LFGridLineDriver() {
+        // A higher-priority monitor can prevent a child's exit callback.
+        // Retire ended descendants before their stack-owned parent disappears.
+        if(lfgt_driver!=this && lfgt_retire_finished)lfgt_retire_finished();
         // A trace callback may replace or disable tracing. Preserve that choice.
         if (thread->c_tracefunc == lfgt_proxy)
             PyEval_SetTrace(previous, previous_object.ptr());
@@ -118,7 +123,7 @@ struct LFGridLineDriver {
 };
 
 void lfgt_strip_transport(PyFrameObject* frame,const LFGridOpcodeState& state,PyObject* error,PyObject* object) {
-    if(error!=state.reported_error || !PyTraceBack_Check(object)) return;
+    if(!state.escaping_error || error!=state.reported_error || !PyTraceBack_Check(object)) return;
     auto* traceback=reinterpret_cast<PyTracebackObject*>(object);
     if(traceback->tb_frame==frame && reinterpret_cast<PyObject*>(traceback->tb_next)==state.reported_traceback) {
         if(PyException_SetTraceback(error,state.reported_traceback)<0) throw nb::python_error();
@@ -183,7 +188,7 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         if (what == PyTrace_LINE || what == PyTrace_OPCODE) return 0;
         if(what==PyTrace_EXCEPTION) {
             auto found=lfgt_driver->states.find(frame);
-            if(found!=lfgt_driver->states.end() && found->second.reported_error && PyTuple_Check(arg) &&
+            if(found!=lfgt_driver->states.end() && found->second.escaping_error && found->second.reported_error && PyTuple_Check(arg) &&
                PyTuple_GET_SIZE(arg)==3 && PyTuple_GET_ITEM(arg,1)==found->second.reported_error) {
                 // The interpreter prepends the thin transport frame after the
                 // native handler has already supplied this source frame.
@@ -212,10 +217,9 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
                         static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(position,1))));
                 }
             }
-            // 3.11 installs the interpreter traceback after the trace callback.
-            // Retain escaping-error identity until the invocation boundary.
-            if(found==lfgt_driver->states.end() || !found->second.escaping_error)
-                lfgt_driver->states.erase(frame);
+            // Another monitor can fail after this return notification and
+            // trigger a second, unwinding return event. Keep its source point
+            // until the invocation boundary; a fresh entry resets recycled IDs.
             return result;
         }
         return lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
@@ -252,7 +256,13 @@ void lfgt_return(const LFGridFastLocals& locals,int index) {
     if(locals.completion)*locals.completion=index;
     if(!lfgt_driver) return;
     auto found=lfgt_driver->states.find(locals.frame);
-    if(found!=lfgt_driver->states.end()) found->second.return_point=index;
+    if(found!=lfgt_driver->states.end()) {
+        found->second.return_point=index;
+        // Handled errors can die before the VM runs return-monitor callbacks.
+        // Their borrowed addresses must not identify an unrelated later error.
+        found->second.reported_error=nullptr;found->second.reported_traceback=nullptr;
+        found->second.escaping_error=false;
+    }
 }
 void lfgt_error_point(const LFGridFastLocals& locals,int point) {
     if(!lfgt_driver) return;

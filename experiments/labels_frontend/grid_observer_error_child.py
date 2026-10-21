@@ -19,8 +19,8 @@ MODES=('call-runtime','line-runtime','opcode-runtime','exception-runtime',
        'ambient-line-runtime','handler-entry-runtime','return-opcode-runtime')
 
 
-def run(probe,code,shells,mode,native):
-    wrapper=LineProbe(probe,opcodes=True);events=[];frames=[];changed=False
+def run(probe,code,shells,mode,native,code_monitor=False):
+    wrapper=LineProbe(probe,opcodes=True,completion=code_monitor);events=[];frames=[];changed=False
     owner=(code.co_filename,code.co_qualname)
     decoded={item.offset:item for item in dis.get_instructions(code)}
     def summary(error):return None if error is None else (type(error).__name__,str(error))
@@ -32,13 +32,20 @@ def run(probe,code,shells,mode,native):
             tb=tb.tb_next
         return tuple(result)
     def invoke(function,args):
-        try:return wrapper.invoke(function,args) if native else function(*args)
+        if native and code_monitor:
+            probe.start_grid_code_monitor_probe(3)
+            probe.set_grid_code_monitor_probe(function.__code__,True)
+        try:return wrapper.invoke(function,args) if native and not code_monitor else function(*args)
         except BaseException as error:
             chain=[];seen=set();item=error
             while item is not None and id(item) not in seen:
                 seen.add(id(item));chain.append((summary(item),positions(item.__traceback__)))
                 item=item.__context__
             return ('raised',tuple(chain))
+        finally:
+            if native and code_monitor:
+                probe.set_grid_code_monitor_probe(function.__code__,False)
+                probe.stop_grid_code_monitor_probe()
     def trace(frame,event,arg):
         nonlocal changed
         if (frame.f_code.co_filename,frame.f_code.co_qualname)!=owner:return None
