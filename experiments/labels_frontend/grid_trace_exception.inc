@@ -7,17 +7,17 @@ void lfgt_exception(const LFGridFastLocals& locals,nb::python_error& error,bool 
     auto found=lfgt_driver->states.find(locals.frame);
     if(found==lfgt_driver->states.end()) return;
     auto& state=found->second;
-    if(state.error_point<0 && state.attribute_error_offset<0) return;
+    if(state.error_point<0 && state.operation_error_offset<0) return;
     nb::object points=lfgt_points(locals.code);
     if(!points.is_valid()) return;
     int point=state.error_point;
-    int offset=state.attribute_error_offset,line=state.attribute_error_line;
+    int offset=state.operation_error_offset,line=state.operation_error_line;
     if(point>=0) {
         PyObject* position=PyTuple_GET_ITEM(points.ptr(),point);
         offset=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(position,0)));
         line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(position,1)));
     }
-    state.attribute_error_offset=-1;
+    state.operation_error_offset=-1;
     nb::object traceback=nb::steal<nb::object>(PyException_GetTraceback(error.value().ptr()));
     if(PyErr_Occurred()) throw nb::python_error();
     nb::object previous=traceback.is_valid()?traceback:nb::none();

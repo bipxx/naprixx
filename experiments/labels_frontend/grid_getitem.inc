@@ -104,12 +104,7 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         T.line(167);
         nb::object result_type = N("result_type");
         nb::object arguments = lh_check(PySequence_Tuple(L("num_list").ptr()));
-        lfgo_op(locals,"starcall");
-        PyObject* raw_type = PyObject_CallObject(result_type.ptr(), arguments.ptr());
-        // CALL_FUNCTION_EX releases its callable/argument temporaries before
-        // STORE_FAST; finalizers may inspect or mutate the source frame here.
-        result_type.reset(); arguments.reset();
-        S("typ", lh_check(raw_type));
+        S("typ", O.starcall(std::move(result_type),std::move(arguments)));
         T.line(168);
         if (O.truth(A(L("self"), "sparse"))) {
             nb::object function;

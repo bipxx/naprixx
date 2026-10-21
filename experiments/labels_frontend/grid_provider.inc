@@ -144,8 +144,9 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         lh_metadata_values(source.source_metadata, 1);
         nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
         if (entry == -2) return lf_grid_sparse_comp(source, {frame, actual}).release().ptr();
-        return (entry == 0 ? lf_grid_getitem(source, {frame, actual}, comprehension) :
-                lf_grid_indices(source, {frame, actual})).release().ptr();
+        if(entry==0)return lf_grid_getitem(source,{frame,actual},comprehension).release().ptr();
+        try {return lf_grid_indices(source,{frame,actual}).release().ptr();}
+        catch(nb::python_error& error) {lfgt_exception({frame,actual},error,true);throw;}
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
 PyMethodDef lf_grid_frame_definition = {

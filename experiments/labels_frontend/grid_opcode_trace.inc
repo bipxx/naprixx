@@ -228,9 +228,15 @@ struct LFGridObservedOps {
             lfgt_error_point(locals,error_point);
         }
         lfgo_python_call_position(locals,function);
+        auto context=lfgo_context(locals);
+        if(context.state) {
+            context.state->operation_error_offset=PyFrame_GetLasti(locals.frame);
+            context.state->operation_error_line=PyFrame_GetLineNumber(locals.frame);
+        }
         PyObject* result=PyObject_Vectorcall(function.ptr(),raw.data(),args.size(),kw.size()?names.ptr():nullptr);
         function.reset(); for (auto& value:values) value.reset(); names.reset();
         if(result && point>=0) lfgt_error_point(locals,-1);
+        if(result && context.state)context.state->operation_error_offset=-1;
         return lh_check(result);
     }
     bool truth(nb::object value) {
@@ -239,6 +245,19 @@ struct LFGridObservedOps {
         target=lfgo_op(locals,"branch-truth");
 #endif
         if (!result) lfgo_branch(locals,target); return result;
+    }
+    nb::object starcall(nb::object function,nb::object arguments) {
+        lfgo_op(locals,"starcall");
+        auto context=lfgo_context(locals);
+        if(context.state) {
+            context.state->operation_error_offset=PyFrame_GetLasti(locals.frame);
+            context.state->operation_error_line=PyFrame_GetLineNumber(locals.frame);
+        }
+        PyObject* result=PyObject_CallObject(function.ptr(),arguments.ptr());
+        // CALL_FUNCTION_EX releases these before STORE_FAST or exception entry.
+        function.reset();arguments.reset();
+        if(result && context.state)context.state->operation_error_offset=-1;
+        return lh_check(result);
     }
     nb::object iter(nb::object value) {lfgo_op(locals,"iter"); return lh_iter(std::move(value));}
     nb::object next(nb::handle iterator) {
@@ -263,14 +282,14 @@ struct LFGridObservedOps {
         nb::object key=lh_name(source,name);
         auto context=lfgo_context(locals);
         if(context.state) {
-            context.state->attribute_error_offset=PyFrame_GetLasti(locals.frame);
-            context.state->attribute_error_line=PyFrame_GetLineNumber(locals.frame);
+            context.state->operation_error_offset=PyFrame_GetLasti(locals.frame);
+            context.state->operation_error_line=PyFrame_GetLineNumber(locals.frame);
         }
         nb::object result=nb::steal<nb::object>(PyObject_GetAttr(value.ptr(),key.ptr()));
         if(result.is_valid())lfga_after_attr(locals,value,type,version);
         value.reset();key.reset();
         if(!result.is_valid())throw nb::python_error();
-        if(context.state) context.state->attribute_error_offset=-1;
+        if(context.state) context.state->operation_error_offset=-1;
         return result;
     }
     nb::object slice(nb::object value,nb::object start,nb::object stop) {

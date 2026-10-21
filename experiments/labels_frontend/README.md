@@ -392,6 +392,17 @@ exception dispatch also synchronizes code-wide instrumentation before unwind.
 The controls cover this specific provider-callback transition, not general
 trace-object lifetimes, audit hooks, C tracers, reentry or monitoring tools.
 
+`grid_retained_frame_child.py --traced-only` compares sixteen post-completion
+frame observations across getter/indices success and provider-error paths with
+line or opcode tracing. The actual retained frame keeps its source completion
+position after the return callback; no new owning frame references are added.
+Ordinary calls and CALL_FUNCTION_EX preserve their failure-site position through
+native exception reporting, including the indices entry boundary. The strict
+command without flags also checks eight untraced observations. Those retained
+positions still expose the transport shim and remain required work. The finite
+traced result does not qualify full dead-frame, traceback, lifetime or observer
+ABI compatibility.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

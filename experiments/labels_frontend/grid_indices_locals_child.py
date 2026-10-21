@@ -24,7 +24,7 @@ if sys.version_info[:2] == (3, 12):
     MODES = tuple(mode for mode in MODES if not mode.startswith('delete-'))
 
 
-def run(probe, code, shell, mode, native, invoke=None):
+def run(probe, code, shell, mode, native, invoke=None, observe=None):
     events = []
     retained = []
     called = set()
@@ -79,6 +79,7 @@ def run(probe, code, shell, mode, native, invoke=None):
 
     def callback(event, frame, *args):
         assert frame.f_code.co_name == 'indices' and frame.f_globals is namespace
+        if observe is not None:observe(event,frame)
         retained.append(frame)
         events.append((event, args, snapshot(frame)))
         if event in called:

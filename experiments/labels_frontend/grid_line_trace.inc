@@ -9,8 +9,8 @@ struct LFGridOpcodeState {
     bool trailing_opcode = false;
     int return_point = -1;
     int error_point = -1;
-    int attribute_error_offset = -1;
-    int attribute_error_line = -1;
+    int operation_error_offset = -1;
+    int operation_error_line = -1;
     int return_offset = -1;
     int return_line = -1;
     PyObject* reported_error = nullptr;
@@ -200,6 +200,17 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
             else {
                 if(point<0) point=static_cast<int>(PyTuple_GET_SIZE(points.ptr())-1);
                 result=lfgt_dispatch(frame,what,arg,actual,points,point);
+            }
+            if(result==0) {
+                // RETURN has no further source instructions to execute. Keep
+                // its final position when CPython copies an escaped frame.
+                if(point<0 && found!=lfgt_driver->states.end() && found->second.return_offset>=0)
+                    lfgt_set_position({frame,actual},found->second.return_offset,found->second.return_line);
+                else {
+                    PyObject* position=PyTuple_GET_ITEM(points.ptr(),point);
+                    lfgt_set_position({frame,actual},static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(position,0))),
+                        static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(position,1))));
+                }
             }
             // 3.11 installs the interpreter traceback after the trace callback.
             // Retain escaping-error identity until the invocation boundary.
