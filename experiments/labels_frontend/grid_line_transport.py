@@ -91,7 +91,8 @@ def instructions(code):
         'BUILD_SLICE':'build-slice','BINARY_SLICE':'slice','BINARY_SUBSCR':'item','STORE_SUBSCR':'setitem',
         'GET_ITER':'iter','FOR_ITER':'next','UNPACK_SEQUENCE':'unpack','RETURN_VALUE':'return',
         'LOAD_CONST':'const','BUILD_LIST':'list','LIST_APPEND':'append','CALL_FUNCTION_EX':'starcall',
-        'COMPARE_OP':'compare','LOAD_FAST_AND_CLEAR':'take','MAKE_FUNCTION':'function'}
+        'COMPARE_OP':'compare','LOAD_FAST_AND_CLEAR':'take','MAKE_FUNCTION':'function',
+        'PUSH_EXC_INFO':'handled','POP_EXCEPT':'unhandled','CHECK_EXC_MATCH':'match','RERAISE':'reraise'}
     combined={'LOAD_FAST_LOAD_FAST':('load','load'),'STORE_FAST_STORE_FAST':('store','store'),
               'STORE_FAST_LOAD_FAST':('store','load')}
     rows=[]
@@ -107,12 +108,13 @@ def instructions(code):
                 item.argrepr if kind=='binary' else str(item.arg) if kind in ('tuple','list','build-slice','unpack','const') else '')
             action=((kind,value),)
         elif name=='TO_BOOL': action=(('truth',''),)
+        elif name.startswith('POP_JUMP') and decoded[decoded.index(item)-1].opname=='CHECK_EXC_MATCH': action=(('match-branch',''),)
         elif name.startswith('POP_JUMP') and name.endswith('NOT_NONE'): action=(('not-none',''),)
         elif name.startswith('POP_JUMP'): action=(('branch-truth' if separate_truth else 'truth',''),)
         elif name in ('CALL','CALL_KW'): action=(('call',''),)
         elif name.startswith('JUMP'): action=(('jump',''),)
         else: assert name in ('RESUME','PUSH_NULL','PRECALL','KW_NAMES','END_FOR','POP_TOP',
-                              'NOP','SWAP','COPY','PUSH_EXC_INFO','POP_EXCEPT','CHECK_EXC_MATCH','RERAISE'),name
+                              'NOP','SWAP','COPY'),name
         target=item.argval if name=='FOR_ITER' or 'JUMP' in name else -1
         rows.append((item.offset,name,action,target))
     return tuple(rows)

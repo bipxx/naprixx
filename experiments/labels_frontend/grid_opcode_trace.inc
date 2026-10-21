@@ -131,6 +131,18 @@ void lfgo_branch(const LFGridFastLocals& locals,long target) {
     auto context=lfgo_context(locals);
     if (context.state && target>=0) lfgo_seek(context,target);
 }
+void lfgo_exception_entry(const LFGridFastLocals& locals,const char* name,bool last=false) {
+    auto context=lfgo_context(locals);if(!context.state)return;
+    Py_ssize_t selected=-1;
+    for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(context.rows.ptr());++i) {
+        PyObject* row=PyTuple_GET_ITEM(context.rows.ptr(),i);
+        if(PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(row,1),name)==0) {
+            selected=i;if(!last)break;
+        }
+    }
+    if(selected<0)throw nb::type_error("source exception observer entry is missing");
+    context.state->pending.clear();context.state->cursor=selected;
+}
 void lfgo_align(const LFGridFastLocals& locals,long offset) {
     auto context=lfgo_context(locals);
     if (!context.state) return;

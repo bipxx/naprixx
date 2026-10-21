@@ -98,7 +98,7 @@ def test_grid_fallback_trace_transport():
     result=subprocess.run([sys.executable,'-B',str(directory/'grid_fallback_child.py')],
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
-    assert json.loads(result.stdout.splitlines()[0])['controls']==20
+    assert json.loads(result.stdout.splitlines()[0])['controls']==22
 
 
 def test_grid_getter_opcode_transport():
@@ -109,3 +109,13 @@ def test_grid_getter_opcode_transport():
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     assert json.loads(result.stdout.splitlines()[0])['controls']==(17 if sys.version_info>=(3,12) else 16)
+
+
+def test_grid_fallback_opcode_transport():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_fallback_opcode_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    assert json.loads(result.stdout.splitlines()[0])['controls']==22

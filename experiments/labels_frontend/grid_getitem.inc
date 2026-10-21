@@ -213,13 +213,18 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         return T.returned(L("nn"),74);
     } catch (nb::python_error& error) {
         T.exception(error);
+        T.enter_handler();
         LHHandledException handled(error.value());
         T.line(193);
         try {
         T.error_point(86);nb::object first = G("IndexError");
         T.error_point(87);nb::object second = G("TypeError");
-        T.error_point(88);bool matches=lf_matches_handler(error.value(), nb::make_tuple(first, second));
+        nb::object classes=O.pack(std::move(first),std::move(second));
+        T.error_point(88);lfgo_op(locals,"match");
+        bool matches=lf_matches_handler(error.value(),std::move(classes));
         T.error_point(-1);
+        long target=lfgo_op(locals,"match-branch");
+        if(!matches)lfgo_branch(locals,target);
         if (!matches) {
             T.reraise(error);
             throw;
@@ -244,12 +249,13 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
             nb::object array = T.call(80,N("arange"), {LFG(O.constant(nb::int_(0))), LFG(L("length")), LFG(O.constant(nb::int_(1)))},
                                       {LFG(L("typ"))}, lh_kw(source, "dtype"));
             nb::object scaled = binary(PyNumber_Multiply, std::move(array), L("step"));
-            return T.returned(binary(PyNumber_Add,std::move(scaled),L("start")),75);
+            return T.handler_return(binary(PyNumber_Add,std::move(scaled),L("start")),75,handled.previous);
         }
         T.line(208);
-        return T.returned(T.call(79,N("arange"),{LFG(L("start")),LFG(L("stop")),LFG(L("step"))}),76);
+        return T.handler_return(T.call(79,N("arange"),{LFG(L("start")),LFG(L("stop")),LFG(L("step"))}),76,handled.previous);
         } catch(nb::python_error& fallback_error) {
             T.exception(fallback_error,true);
+            T.unwind(handled.previous);
             throw;
         }
     }

@@ -274,10 +274,10 @@ container creation, canonical local operations, calls, indexing, branching and
 comprehension frames. The 3.11 line at comprehension GET_ITER is delivered
 before the operation; a queued opcode at the try NOP is delivered once when
 global tracing is disabled. The 3.13 conditional comparison converts truth
-inside COMPARE_OP before its branch event. Error/fallback opcode transport and
+inside COMPARE_OP before its branch event. General error-path observer and
 complete observer/lifetime compatibility are still open.
 
-The fallback pilot additionally compares twenty controls on each supported
+The fallback pilot additionally compares twenty-two controls on each supported
 minor. Caught length errors retain the source traceback before entering the
 handler. Escaping regular/complex `arange` errors retain the active handled
 exception, source event/return positions and the caller-visible traceback and
@@ -289,6 +289,15 @@ class names and invalid handler classes retain the handled exception context
 and their own lookup/matching positions.
 These controls use synthetic numeric leaves and do not qualify general
 exception, observer or lifetime compatibility.
+
+Run `grid_fallback_opcode_child.py` to enable opcode comparison for the same
+twenty-two exception controls on each minor. Native handler entry, exception
+class matching, successful return and error unwind now deliver source events
+around changes to the active handled exception. The comparisons include
+PUSH_EXC_INFO, CHECK_EXC_MATCH, POP_EXCEPT and RERAISE, caller-visible
+context chains and restoration of an ambient caller exception. Opcode presence
+is required. General exception/callback failures, complete source positions,
+observer ABI and lifetime behavior remain unqualified.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape

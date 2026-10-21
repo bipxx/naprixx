@@ -199,8 +199,20 @@ struct LFGridGetterLines {
         return LFGridObservedOps{locals}.call(std::move(function),args,kw,std::move(names),point);
     }
     void exception(nb::python_error& error,bool escaping=false) const {lfgt_exception(locals,error,escaping);}
+    void enter_handler() const {
+        lfgo_exception_entry(locals,"PUSH_EXC_INFO");lfgo_op(locals,"handled");
+    }
+    void unwind(nb::handle previous) const {
+        lfgo_exception_entry(locals,"COPY",true);lfgo_op(locals,"unhandled");
+        PyErr_SetHandledException(previous.ptr());lfgo_op(locals,"reraise");
+    }
+    nb::object handler_return(nb::object result,int point,nb::handle previous) const {
+        lfgo_op(locals,"unhandled");PyErr_SetHandledException(previous.ptr());
+        return returned(std::move(result),point);
+    }
     void error_point(int point) const {lfgt_error_point(locals,point);}
     void reraise(nb::python_error& error) const {
+        lfgo_op(locals,"reraise");
         if(!lfgt_driver) return;
         auto found=lfgt_driver->states.find(locals.frame);
         if(found!=lfgt_driver->states.end() && found->second.reported_error==error.value().ptr()) {
