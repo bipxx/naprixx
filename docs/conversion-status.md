@@ -55,6 +55,18 @@ distinct cases. The snapshot validates current bindings; authenticating the
 historical defining execution and publishing replacements atomically remain open.
 This packet removed another 21,830,189 bytes of settled target intermediates.
 
+The latest experiment adds native declaration-point capture of all 50 functions
+and four defining classes during fresh imports of the six real modules. It
+rejects identical replacements made before validation. Its 18 new checks bring
+the focused suite to 114 logical cases. A full run passed 113 and exposed one
+scope-retention failure; clearing temporary owners from retained import frames
+fixed the unchanged assertion, and all nine affected fresh-import cases passed.
+This is qualification across those processes, not a zero-failure 114-case run.
+The [local producer evidence](../.artifacts/labels-native-frontend-edit-owner-producer-capture-stage/progress.json)
+retains failures and limits. Cleanup removed another 9,054,638 bytes of settled
+intermediates. Default application capture, native preparation/publication and
+the remaining compatibility/review gates are still open.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).

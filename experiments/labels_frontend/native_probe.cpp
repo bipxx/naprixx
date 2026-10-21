@@ -4696,9 +4696,11 @@ void lfc_exports(nb::module_& m) {
 }
 
 }
+#include "producer_capture.inc"
 NB_MODULE(_frontend_policy_probe, m) {
     namespace nb = nanobind;
     nx::lfc_exports(m);
+    nx::lfp_exports(m);
     m.def("prepare_expression_codes_probe", &nx::lfe_prepare_codes);
     m.def("prepare_unified_expression_probe", [](nb::object function, int entry, nb::tuple shells,
         nb::tuple source_profiles, nb::tuple shell_profiles, nb::tuple expression_codes) {

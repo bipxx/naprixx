@@ -1,8 +1,9 @@
 # Labels frontend experiment
 
 This directory contains the handwritten C++ draft for 50 frontend bodies and
-seven lazy expressions, plus read-only validation of the current canonical
-module/class/decorator bindings. It is **not enabled in napari**. Building this
+seven lazy expressions, read-only canonical binding validation, and experimental
+declaration-point capture for 50 functions and four defining classes.
+It is **not enabled in napari**. Building this
 target does not install or replace either production extension.
 
 The translation unit consolidates handwritten source fragments; it is not
@@ -27,16 +28,31 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 .venv/Scripts/python.exe -B experiments/labels_frontend/run_tests.py -q
 ```
 
-The focused suite covers 72 binding/snapshot checks and 24 expression/frame/order
-checks. The runner denies access to ignored `.artifacts` files. Its compiler
+The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
+checks and 18 producer-capture checks. Nine producer scenarios use fresh child
+processes for the six real defining imports. The runner denies access to ignored
+`.artifacts` files. Its compiler
 profiles are derived for this checkout and interpreter from the manifest-pinned
 inputs, rather than reusing host-specific frozen profile filenames.
 
-The snapshot validates current registered bindings and detects changes between
-preparation and validation. It does **not** authenticate the historical defining
-execution: an identical function installed before the snapshot can pass. No code
-publication operation is exposed. Source-point producer capture, atomic handoff
-under audit/reentrant hooks, complete target/parent locals and tracing/release
+The snapshot alone validates current registered bindings; an identical function
+installed before that snapshot can pass. The experimental import collector adds
+an innermost native declaration decorator and captures actual functions/classes
+at exact frame/code/instruction positions before existing decorators. Removing
+the injected decorators must recover the original AST, including source locations.
+Captured function and class identities reject later identical substitutions.
+
+This import collector executes the existing Python implementations as controlled
+oracles. It is not the application's default loader and does not establish full
+native application ownership. Closed capture markers preserve later adapter
+factory behavior without enrolling new canonical producers. Weak markers avoid
+owning code cycles, and temporary session references are cleared even when import
+frames survive through provider tracebacks. The original loader metadata and
+genuine source caches are preserved.
+
+No code publication operation is exposed. Integrating the producer mechanism with
+native preparation/default startup, atomic handoff under audit/reentrant hooks,
+complete target/parent locals and tracing/release
 ABI, provider/default-grid conversion, effective independent review, and installed
 Viewer/plugin/shutdown qualification remain required. Legacy callable transports
 remain explicit probe interfaces and are not approved default application paths.

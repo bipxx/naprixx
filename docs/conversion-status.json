@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T04:40:09.584225+00:00",
+  "recorded_utc": "2026-10-21T05:05:28.194162+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -93,16 +93,16 @@
     },
     "raw_archive_published": false,
     "frontend_candidate": {
-      "path": ".artifacts/labels-native-frontend-edit-owner-canonical-snapshot-stage/progress.json",
-      "sha256": "2f78fbbb6f3ed3cb5bdc0fbaac5ff40a04d609596eff222f2fa39105e7280283",
-      "bytes": 11812
+      "path": ".artifacts/labels-native-frontend-edit-owner-producer-capture-stage/progress.json",
+      "sha256": "5fad4ee28e2fc1698915fa6202aab907b78152467a65f197ad4c5a7285377cdb",
+      "bytes": 17334
     }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Capture the actual defining execution for canonical module/class/decorator producers; a current binding snapshot alone permits pre-capture identical substitutions. Implement atomic full50 publication under audit/reentrant hooks. Complete target/parent fast locals, tracing/local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before application integration; then reuse43 qualified before cases and606 accepted regressions with real Viewer/plugin/save/reload/cancellation/shutdown checks.",
+  "next_work": "Connect captured declarations to native preparation and implement atomic full50 publication under audit/reentrant hooks. Review the default startup/producer boundary before enabling it. Complete target/parent fast locals, tracing/local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before application integration; then reuse43 qualified before cases and606 accepted regressions with real Viewer/plugin/save/reload/cancellation/shutdown checks.",
   "frontend_candidate": {
     "status": "tracked standalone experimental draft; no production installation/admission",
     "source_bodies": 50,
@@ -122,10 +122,17 @@
     "accepted_inputs_held": 2845,
     "package": "experiments/labels_frontend",
     "new_snapshot_cases": 72,
-    "packaged_distinct_cases": 96,
-    "packaged_archive_denied_run_passed": true,
+    "packaged_distinct_cases": 114,
+    "packaged_archive_access_denied": true,
+    "zero_failure_full_114_case_run_recorded": false,
     "defining_execution_authenticated": false,
     "atomic_publication_implemented": false,
-    "latest_cleanup_removed_bytes": 21830189
+    "latest_cleanup_removed_bytes": 9054638,
+    "new_producer_cases": 18,
+    "packaged_case_semantics": "113 passing cases/1 failure in the full run; unchanged failed assertion passed after import-session local-reference cleanup; final9 affected fresh-import cases passed. Not a zero-failure114-case single process.",
+    "controlled_import_functions_captured": 50,
+    "controlled_import_classes_captured": 4,
+    "controlled_import_defining_execution_authenticated": true,
+    "default_application_capture_enabled": false
   }
 }

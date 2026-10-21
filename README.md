@@ -11,7 +11,7 @@ all M0–M9 completion gates remain open. See the [current conversion status](do
 and [remaining checklist](docs/remaining-conversion-checklist.md).
 
 The [Labels frontend experiment](experiments/labels_frontend/README.md) publishes
-the next handwritten draft and a standalone 96-case suite. It is built separately
+the next handwritten draft and a standalone 114-case suite. It is built separately
 and is not enabled in the application.
 
 The handwritten application port includes dimension/camera/grid state, viewer
