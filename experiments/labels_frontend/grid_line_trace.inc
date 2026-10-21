@@ -48,7 +48,6 @@ struct LFGridLinePosition {
     int previous_line;
     _Py_CODEUNIT* previous_instruction;
     _Py_CODEUNIT* projected_instruction;
-    bool restore = true;
     LFGridLinePosition(PyFrameObject* value, PyCodeObject* code, int offset, int line)
         : frame(value), previous_line(value->f_lineno) {
 #if PY_VERSION_HEX >= 0x030D0000
@@ -63,7 +62,6 @@ struct LFGridLinePosition {
         value->f_lineno = line;
     }
     ~LFGridLinePosition() {
-        if(!restore)return;
 #if PY_VERSION_HEX >= 0x030D0000
         frame->f_frame->instr_ptr = previous_instruction;
 #else

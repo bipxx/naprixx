@@ -31,6 +31,7 @@
 #include <functional>
 #include <initializer_list>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <frameobject.h>

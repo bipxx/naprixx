@@ -131,7 +131,10 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         if (!PyTuple_CheckExact(payload.ptr()) || (PyTuple_GET_SIZE(payload.ptr()) < 3 || PyTuple_GET_SIZE(payload.ptr()) > 5) ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(payload.ptr(), 0), "naparixx.grid.v2") != 0)
             throw nb::type_error("Grid policy payload changed");
-        if(lfgt_driver && PyTuple_GET_SIZE(payload.ptr())==5) {
+        nb::object routes=lfgr_routes(actual);
+        std::unique_ptr<LFGridLineDriver> local_driver;
+        if(routes.is_valid() && !lfgt_driver)local_driver=std::make_unique<LFGridLineDriver>();
+        if(lfgt_driver && (PyTuple_GET_SIZE(payload.ptr())==5 || routes.is_valid())) {
             lfgt_driver->states[frame]=LFGridOpcodeState{};
             // RESUME changes instrumentation for the whole source code even
             // when this invocation fails before reaching an attribute site.
@@ -153,13 +156,20 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             try {result=lf_grid_indices(source,locals);}
             catch(nb::python_error& error) {lfgt_exception(locals,error,true);throw;}
         }
-        nb::object routes=lfgr_routes(actual);
-        if(routes.is_valid() && PyTuple_GET_SIZE(routes.ptr())>1) {
+        if(routes.is_valid()) {
+            if(PyTuple_GET_SIZE(routes.ptr())==1)completion=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(routes.ptr(),0)));
             if(completion<0)throw nb::type_error("native completion endpoint is missing");
-            return nb::make_tuple(result,nb::int_(completion)).release().ptr();
+            return nb::make_tuple(result,nb::int_(completion),nb::bool_(false)).release().ptr();
         }
         return result.release().ptr();
-        } catch(nb::python_error&) {lfgr_error_completion(locals,physical);throw;}
+        } catch(nb::python_error& error) {
+            if(!routes.is_valid())throw;
+            auto found=lfgt_driver->states.find(frame);
+            if(found==lfgt_driver->states.end() || found->second.reported_error!=error.value().ptr())
+                lfgt_exception(locals,error,true);
+            int offset=lfgr_error_endpoint(locals);
+            return nb::make_tuple(error.value(),nb::int_(offset/2),nb::bool_(true)).release().ptr();
+        }
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
 PyMethodDef lf_grid_frame_definition = {

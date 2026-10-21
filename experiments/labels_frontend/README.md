@@ -404,22 +404,26 @@ traced result does not qualify full dead-frame, traceback, lifetime or observer
 ABI compatibility.
 
 The opt-in `LineProbe(..., completion=True)` / `--completion-transport`
-prototype routes normal completion to the source RETURN_VALUE instruction.
-C++ chooses the endpoint; an inert, compile-only bridge template supplies VM
-call/jump transport. The template's lambda bodies are replaced with a native
-selector and are never executed or retained by the prepared function. A
-short-lived result/tag tuple occupies the VM operand stack for multi-return
-getters; the native selector transfers its value back to that same stack slot.
-Single-return indices/comprehension frames use a direct completion jump.
-Provider-error unwind keeps its source completion position through the explicit
-call adapter. This adds no owning frame reference or application-state mirror.
-`grid_completion_controls_child.py` explicitly selects this prototype when
-reusing the existing source comparisons; the default protocol stays unchanged.
+prototype uses a result-or-error carrier on the canonical VM operand stack.
+C++ chooses the endpoint and outcome kind; an inert compile-only bridge supplies
+VM transport. Lambda bodies in that template are replaced by a native selector
+and are never executed or retained by the prepared function. Normal completion
+transfers the result back to its stack slot and jumps to source RETURN_VALUE.
+Error completion transfers the exception and saved instruction position for
+RERAISE 1, preserving the source traceback without another transport frame.
+The carrier protocol is versioned separately from the source-policy payload.
+No owning frame keeper or application-state mirror is added.
+`grid_completion_controls_child.py` explicitly selects this prototype for the
+existing source comparisons; the default protocol stays unchanged.
 
-The twenty-four retained-frame cases pass with this protocol on the checked
-adapter path. A separate direct-call diagnostic preserves two provider-error
-completion failures; its six normal-return cases pass. Direct-call error handling,
-carrier/VM-stack GC and lifetime review, reentry, C profiling/monitoring, other
+The twenty-four adapter cases and eight untraced direct-call cases compare
+retained frame positions, values and owned-frame traceback/context chains.
+`--ambient` also checks direct calls inside an existing exception handler and
+restoration of that caller's handled exception. A body-local native driver
+supplies source positions when no explicit adapter is active. The strict
+`--direct-call --direct-traces` diagnostic preserves the remaining direct tracing
+event gap: transport events outside that body-local scope remain observable.
+VM-stack/carrier GC and lifetime review, reentry, C profiling/monitoring, other
 provider/SDK configurations and independent ABI approval remain required before
 integration or default activation.
 

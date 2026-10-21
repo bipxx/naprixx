@@ -222,3 +222,15 @@ def test_grid_retained_frames_completion_transport():
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     assert json.loads(result.stdout)['controls']==24
+
+
+@pytest.mark.parametrize('ambient',[False,True])
+def test_grid_completion_transport_direct_errors(ambient):
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    command=[sys.executable,'-B',str(directory/'grid_retained_frame_child.py'),'--completion-transport','--direct-call']
+    if ambient:command.append('--ambient')
+    result=subprocess.run(command,env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    assert json.loads(result.stdout)['controls']==8

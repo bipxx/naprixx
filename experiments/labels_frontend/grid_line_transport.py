@@ -121,6 +121,12 @@ def instructions(code):
 
 
 def _completion_bridge():
+    if (lambda: None)(-1) is not None:
+        pass
+        pass
+        pass
+        return None
+    pass
     if (lambda: None)(73):
         pass
         pass
