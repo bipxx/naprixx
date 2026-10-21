@@ -24,4 +24,5 @@ def prepare_grid(probe):
     exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),namespace)
     shells=namespace['_grid_getitem'],namespace['_grid_indices']
     return probe.prepare_grid_provider_plan_probe(shells,tuples([profile(code) for code in originals]),
-        tuples([profile(function.__code__) for function in shells]))
+        tuples([profile(function.__code__) for function in shells]),
+        namespace['_grid_sparse_comp'],tuples(profile(namespace['_grid_sparse_comp'].__code__)))

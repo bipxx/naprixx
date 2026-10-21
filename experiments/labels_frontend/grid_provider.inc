@@ -59,7 +59,27 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, nb::object dimensions,
     return result;
 }
 
-nb::object lf_grid_getitem(LabelsHistoryLocals& source, nb::object self, nb::object key) {
+nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, nb::object iterator) {
+    nb::object result = lh_check(PyList_New(0));
+    nb::object x, t;
+    while (nb::object pair = lh_next(iterator)) {
+        nb::object unpack = lh_iter(pair);
+        nb::object next_x = lh_next(unpack), next_t = lh_next(unpack);
+        if (!next_x.is_valid() || !next_t.is_valid()) {
+            PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 2, got %d)", next_x.is_valid() ? 1 : 0);
+            throw nb::python_error();
+        }
+        if (lh_next(unpack).is_valid()) throw nb::value_error("too many values to unpack (expected 2)");
+        x = std::move(next_x); t = std::move(next_t);
+        nb::object arange = lh_attr(source, lh_global(source, "_nx"), "arange");
+        nb::object value = lh_call(arange, {LFG(x)}, {LFG(t)}, lh_kw(source, "dtype"));
+        if (PyList_Append(result.ptr(), value.ptr()) < 0) throw nb::python_error();
+    }
+    return result;
+}
+
+nb::object lf_grid_getitem(LabelsHistoryLocals& source, nb::object self, nb::object key,
+                            nb::object comprehension) {
     auto G = [&](const char* name) { return lh_global(source, name); };
     auto A = [&](nb::object value, const char* name) {
         return lh_attr(source, std::move(value), name);
@@ -106,10 +126,19 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, nb::object self, nb::obj
         nb::object typ = lh_check(PyObject_CallObject(result_type.ptr(), args.ptr()));
         nb::object nn;
         if (lh_truth(attr(self, "sparse"))) {
-            nn = lh_check(PyList_New(0));
+            // CPython 3.11 creates the comprehension function before evaluating
+            // zip/GET_ITER. Its builtins snapshot belongs to that creation.
+            nb::object comp_function;
+            if (!comprehension.is_none())
+                comp_function = lh_check(PyFunction_New(comprehension.ptr(), source.source_globals.ptr()));
+            nb::object zip_callable = G("zip");
             nb::object size_len = lh_call(G("len"), {LFG(size)});
             nb::object repeated = arithmetic(PyNumber_Multiply, nb::make_tuple(typ), size_len);
-            nb::object zipped = lh_iter(lh_call(G("zip"), {LFG(size), LFG(repeated)}));
+            nb::object zipped = lh_iter(lh_call(zip_callable, {LFG(size), LFG(repeated)}));
+            if (comp_function.is_valid()) {
+                nn = lh_call(comp_function, {LFG(zipped)});
+            } else {
+            nn = lh_check(PyList_New(0));
             while (nb::object pair = lh_next(zipped)) {
                 nb::object pair_iter = lh_iter(pair);
                 nb::object x = lh_next(pair_iter), t = lh_next(pair_iter);
@@ -119,6 +148,7 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, nb::object self, nb::obj
                 }
                 if (lh_next(pair_iter).is_valid()) throw nb::value_error("too many values to unpack (expected 2)");
                 append(nn, lh_call(attr(nx(), "arange"), {LFG(x)}, {LFG(t)}, lh_kw(source, "dtype")));
+            }
             }
         } else {
             // Admission must route the genuine default indices body to
@@ -204,7 +234,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             throw nb::type_error("Grid policy entry is required");
         long entry = PyLong_AsLong(PyTuple_GET_ITEM(arguments, 0));
         if (entry == -1 && PyErr_Occurred()) throw nb::python_error();
-        if ((entry != 0 || count != 3) && (entry != 1 || count != 4))
+        if ((entry != 0 || count != 3) && (entry != 1 || count != 4) && (entry != -2 || count != 2))
             throw nb::type_error("Grid policy parameter declaration changed");
         PyFrameObject* frame = PyEval_GetFrame();
         if (!frame) throw nb::type_error("Grid policy genuine function frame is required");
@@ -215,14 +245,20 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         LabelsHistoryLocals source;
         source.source_globals = lh_check(PyFrame_GetGlobals(frame));
         source.source_builtins = lh_check(PyFrame_GetBuiltins(frame));
-        source.source_metadata = nb::borrow<nb::object>(
+        nb::object payload = nb::borrow<nb::object>(
             PyTuple_GET_ITEM(actual->co_consts, PyTuple_GET_SIZE(actual->co_consts) - 1));
+        if (!PyTuple_CheckExact(payload.ptr()) || PyTuple_GET_SIZE(payload.ptr()) != 3 ||
+            PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(payload.ptr(), 0), "naparixx.grid.v2") != 0)
+            throw nb::type_error("Grid policy payload changed");
+        source.source_metadata = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 1));
         lh_metadata_values(source.source_metadata, 0);
         lh_metadata_values(source.source_metadata, 1);
         auto arg = [&](int position) {
             return nb::borrow<nb::object>(PyTuple_GET_ITEM(arguments, position));
         };
-        return (entry == 0 ? lf_grid_getitem(source, arg(1), arg(2)) :
+        nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
+        if (entry == -2) return lf_grid_sparse_comp(source, arg(1)).release().ptr();
+        return (entry == 0 ? lf_grid_getitem(source, arg(1), arg(2), comprehension) :
                 lf_grid_indices(source, arg(1), arg(2), arg(3))).release().ptr();
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
@@ -231,8 +267,9 @@ PyMethodDef lf_grid_frame_definition = {
 
 nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
                            nb::object shell, nb::tuple complete_profile,
-                           nb::tuple shell_profile, int entry) {
-    if (entry != 0 && entry != 1)
+                           nb::tuple shell_profile, int entry,
+                           nb::object comp_shell = nb::none(), nb::object comp_profile = nb::none()) {
+    if (entry != 0 && entry != 1 && entry != -2)
         throw nb::value_error("Grid policy entry must name getitem or indices");
     if (!PyDict_CheckExact(defining_globals.ptr()) || !PyFunction_Check(shell.ptr()))
         throw nb::type_error("Grid policy defining dictionary and genuine shell are required");
@@ -251,7 +288,7 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
         transport->co_posonlyargcount != original->co_posonlyargcount ||
         transport->co_kwonlyargcount != original->co_kwonlyargcount)
         throw nb::type_error("Grid policy declaration signature changed");
-    if (original->co_argcount != (entry == 0 ? 2 : 3) ||
+    if (original->co_argcount != (entry == 0 ? 2 : entry == 1 ? 3 : 1) ||
         original->co_kwonlyargcount != 0 || original->co_posonlyargcount != 0 ||
         PyFunction_GetClosure(function.ptr()) != nullptr ||
         PyFunction_GetClosure(shell.ptr()) != nullptr ||
@@ -261,12 +298,29 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     const char* names0[] = {"self", "key"};
     const char* names1[] = {"dimensions", "dtype", "sparse"};
     for (int i = 0; i < original->co_argcount; ++i) {
-        const char* name = entry == 0 ? names0[i] : names1[i];
+        const char* name = entry == 0 ? names0[i] : entry == 1 ? names1[i] : ".0";
         nb::object source_names = lh_check(PyObject_GetAttrString(reinterpret_cast<PyObject*>(original), "co_varnames"));
         nb::object shell_names = lh_check(PyObject_GetAttrString(shell_code.ptr(), "co_varnames"));
         if (PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(source_names.ptr(), i), name) != 0 ||
-            PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(shell_names.ptr(), i), name) != 0)
+            PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(shell_names.ptr(), i), entry == -2 ? "_iterator" : name) != 0)
             throw nb::type_error("Grid policy parameter name changed");
+    }
+    nb::object comprehension = nb::none();
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(original->co_consts); ++i) {
+        PyObject* value = PyTuple_GET_ITEM(original->co_consts, i);
+        if (!PyCode_Check(value)) continue;
+        auto* child = reinterpret_cast<PyCodeObject*>(value);
+        if (entry != 0 || !comprehension.is_none() ||
+            PyUnicode_CompareWithASCIIString(child->co_name, "<listcomp>") != 0 ||
+            comp_shell.is_none() || !PyTuple_CheckExact(comp_profile.ptr()))
+            throw nb::type_error("Grid nested declaration is unsupported");
+        nb::object child_function = lh_check(PyFunction_New(value, defining_globals.ptr()));
+        nb::handle constants_profile(PyTuple_GET_ITEM(complete_profile.ptr(), 7));
+        nb::handle child_atom(PyTuple_GET_ITEM(PyTuple_GET_ITEM(constants_profile.ptr(), 1), i));
+        nb::tuple child_profile = nb::borrow<nb::tuple>(PyTuple_GET_ITEM(child_atom.ptr(), 1));
+        comprehension = lf_grid_prepare(child_function, defining_globals, comp_shell,
+            child_profile, nb::borrow<nb::tuple>(comp_profile), -2);
+        if (comprehension.is_none()) throw nb::type_error("Grid comprehension profile changed");
     }
     int entry_constants = 0;
     for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(transport->co_consts); ++i) {
@@ -290,7 +344,7 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     }
     if (!marker) throw nb::type_error("Grid policy owner-free transport marker is missing");
     PyTuple_SET_ITEM(constants.ptr(), PyTuple_GET_SIZE(transport->co_consts),
-                     le_metadata(original).release().ptr());
+                     nb::make_tuple("naparixx.grid.v2", le_metadata(original), comprehension).release().ptr());
     nb::dict keywords;
     keywords["co_consts"] = constants;
     keywords["co_filename"] = nb::borrow<nb::object>(original->co_filename);
@@ -298,6 +352,12 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     keywords["co_qualname"] = nb::borrow<nb::object>(original->co_qualname);
     keywords["co_firstlineno"] = nb::int_(original->co_firstlineno);
     keywords["co_flags"] = nb::int_(original->co_flags);
+    if (entry == -2) {
+        nb::object names = lh_check(PyObject_GetAttrString(shell_code.ptr(), "co_varnames"));
+        nb::object copy = lh_check(PySequence_List(names.ptr()));
+        if (PyList_SetItem(copy.ptr(), 0, PyUnicode_FromString(".0")) < 0) throw nb::python_error();
+        keywords["co_varnames"] = lh_check(PySequence_Tuple(copy.ptr()));
+    }
     nb::object replace = lh_check(PyObject_GetAttrString(shell_code.ptr(), "replace"));
     nb::object args = nb::tuple();
     nb::object replacement = lh_check(PyObject_Call(replace.ptr(), args.ptr(), keywords.ptr()));
@@ -329,7 +389,8 @@ struct LFGridPlan {
             if (current.anchors[i].ptr()!=bindings.anchors[i].ptr()) throw nb::type_error("grid provider bindings changed");
     }
 };
-nb::object lfg_prepare(nb::tuple shells,nb::tuple profiles,nb::tuple shell_profiles) {
+nb::object lfg_prepare(nb::tuple shells,nb::tuple profiles,nb::tuple shell_profiles,
+                       nb::object comp_shell,nb::object comp_profile) {
     if (shells.size()!=2 || profiles.size()!=2 || shell_profiles.size()!=2)
         throw nb::type_error("two complete grid provider controls required");
     LFGridPlan result;
@@ -337,7 +398,8 @@ nb::object lfg_prepare(nb::tuple shells,nb::tuple profiles,nb::tuple shell_profi
     for (int i=0;i<2;++i) {
         nb::object function=result.bindings.functions[i];
         nb::object code=lf_grid_prepare(function,nb::borrow<nb::object>(PyFunction_GetGlobals(function.ptr())),
-            nb::borrow<nb::object>(shells[i]),nb::borrow<nb::tuple>(profiles[i]),nb::borrow<nb::tuple>(shell_profiles[i]),i);
+            nb::borrow<nb::object>(shells[i]),nb::borrow<nb::tuple>(profiles[i]),nb::borrow<nb::tuple>(shell_profiles[i]),i,
+            comp_shell,comp_profile);
         if (code.is_none()) throw nb::type_error("canonical grid source profile changed");
         result.prepared.push_back(code);
     }
@@ -381,6 +443,12 @@ void lfg_exports(nb::module_& m) {
         .def("validate",&LFGridPlan::validate).def("publish_experiment",&lfg_publish)
         .def_prop_ro("functions",[](const LFGridPlan& value){value.validate();return lfc_tuple(value.bindings.functions);})
         .def_prop_ro("prepared_codes",[](const LFGridPlan& value){value.validate();return lfc_tuple(value.prepared);});
-    m.def("prepare_grid_provider_plan_probe",&lfg_prepare);
+    m.def("prepare_grid_provider_plan_probe",&lfg_prepare,
+        nb::arg("shells"),nb::arg("profiles"),nb::arg("shell_profiles"),
+        nb::arg("comp_shell").none()=nb::none(),nb::arg("comp_profile").none()=nb::none());
+    m.def("prepare_grid_function_probe",&lf_grid_prepare,
+        nb::arg("function"),nb::arg("defining_globals"),nb::arg("shell"),
+        nb::arg("profile"),nb::arg("shell_profile"),nb::arg("entry"),
+        nb::arg("comp_shell").none()=nb::none(),nb::arg("comp_profile").none()=nb::none());
 }
 }

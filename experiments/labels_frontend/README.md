@@ -15,8 +15,9 @@ attest release parity or independent source approval.
 
 Use an editable checkout installation of this repository with its normal GUI/test
 dependencies, nanobind and CMake. The experiment requires the normal CPython
-3.11–3.13 SDK including internal headers. Only Windows/CPython 3.12 has exercised
-this packaged target; other platforms and full frame compatibility remain open.
+3.11–3.13 SDK including internal headers. Windows/CPython 3.12 exercises the
+full packaged suite; 3.11/3.13 exercise selected isolated controls. Other
+platforms and full frame compatibility remain open.
 
 From the repository root, configure and build separately:
 
@@ -30,7 +31,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
-five native-first declaration checks and 14 NumPy grid-provider checks.
+five native-first declaration checks, 14 NumPy grid-provider checks and one
+isolated grid comprehension frame check (157 cases in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
@@ -79,7 +81,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-156-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+157-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -115,8 +117,20 @@ provider remain untouched. Sparse/dense, complex/single-slice, invalid input,
 exception-global and foreign numeric callback, alias, brush, GC and rejection
 controls pass. No blanket NumPy dependency exemption is introduced.
 
-Grid target/frame locals, 3.11 comprehension-frame details, exact temporary
-release/exception fidelity and precise `arange`/`empty`/`result_type`/reshape
+On 3.11 the sparse-grid comprehension now has a genuine function/frame with a
+handwritten C++ body. Its function is created before evaluating `zip` and its
+iterator, preserving the comprehension's own builtins snapshot. On 3.12/3.13
+the inlined comprehension retains the parent frame. An isolated stdlib-only
+control compares values and callback exceptions against the byte-pinned source,
+including callbacks that replace builtins and `zip` during argument/iterator
+evaluation. It passes on Windows CPython 3.11.11, 3.12.8 and 3.13.8; profile
+guards reject original grid-body execution during native runs. The 3.11/3.13
+controls use synthetic numeric leaves, not a full NumPy runtime qualification.
+Run `grid_comprehension_child.py` with the corresponding probe directory on
+`PYTHONPATH` to reproduce those controls.
+
+Grid target/frame locals, tracing, exact temporary release/exception fidelity
+and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions
 and installed configurations are unqualified. The adapted policies retain the
 [NumPy source notice](../../licenses/NumPy-BSD-3-Clause.txt).
