@@ -517,6 +517,31 @@ using the interpreter-wide hook. Default application startup remains unchanged.
 The implementation follows the pinned [function setter and version guard](https://github.com/python/cpython/blob/v3.12.8/Objects/funcobject.c)
 and [generic CALL guard](https://github.com/python/cpython/blob/v3.12.8/Python/bytecodes.c).
 
+`grid_function_caller_child.py` checks seventy-two cases across argument unpacking,
+direct positional calls, bound methods, keywords, descriptors and C forwarding
+through `itertools.starmap`. Thirty-six normal cases execute forty calls each;
+thirty-six provider-error cases also compare caller
+traceback positions. A 3.12 native scope now projects ordinary Python CALL
+positions over cache slots while the callee runs, restoring the physical caller
+position on success. After callee entry, error unwind retains the source
+cache-end position; pre-entry binding errors do not request that retention.
+The original lazy line-number field is restored so a caller that catches the
+error reports its current handler line. Error cases check that continuation.
+Projection requires the VM argument vector and matching callable slot, so a C
+forwarder does not accidentally advance its unrelated Python caller's CALL.
+Values, selected-frame events and caller tracebacks agree in these cases.
+Two 3.12 warmed subscription caller-position cases still differ; their strict
+diagnostic remains failing. The checked 3.13 cases agree. Python 3.11 remains open.
+
+The fixture primes the opcode request equally before installing each oracle's
+tracer. A pure-source control, without the native extension, reproduces why this
+matters: first and repeated opcode-tracing sessions can produce different events
+on a reused 3.12 interpreter. That observer-setup difference is retained in the
+evidence. Untraced exclusion of original bodies uses static converted-code
+admission; traced cases also check actual frame code. Broader caller
+specialization/handoff, binding failures, debugger jumps and complete observer,
+mutation and lifetime contracts remain unaccepted.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

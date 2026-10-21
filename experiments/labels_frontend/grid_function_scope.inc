@@ -18,6 +18,47 @@ PyObject* lfgv_release(PyObject* capsule,PyObject* weak) {
     Py_RETURN_NONE;
 }
 PyMethodDef lfgv_release_definition={"_grid_function_scope_release",lfgv_release,METH_O,nullptr};
+struct LFGridFunctionCallerPosition {
+    nb::object frame_owner,code_owner;
+    std::unique_ptr<LFGridLinePosition> position;
+    LFGridFunctionCallerPosition(vectorcallfunc previous,PyObject* function,
+                                 PyObject* const* args,size_t count,PyObject* names) {
+#if PY_VERSION_HEX < 0x030D0000
+        // The source interpreter advances an inlined Python CALL over its
+        // caches. A custom vectorcall takes the generic C-call path instead.
+        if(previous!=_PyFunction_Vectorcall ||
+           _PyInterpreterState_GetEvalFrameFunc(PyThreadState_Get()->interp)!=_PyEval_EvalFrameDefault)return;
+        auto* frame=PyEval_GetFrame();if(!frame)return;
+        frame_owner=nb::borrow<nb::object>(reinterpret_cast<PyObject*>(frame));
+        code_owner=lh_check(reinterpret_cast<PyObject*>(PyFrame_GetCode(frame)));
+        auto* code=reinterpret_cast<PyCodeObject*>(code_owner.ptr());
+        // A C extension may call this function while an unrelated Python
+        // CALL is suspended. Only project a direct VM argument vector whose
+        // callable slot is this exact function; C forwarding keeps its site.
+        auto begin=reinterpret_cast<uintptr_t>(frame->f_frame->localsplus+code->co_nlocalsplus);
+        auto end_stack=begin+sizeof(PyObject*)*code->co_stacksize;
+        auto address=reinterpret_cast<uintptr_t>(args);
+        Py_ssize_t total=PyVectorcall_NARGS(count)+(names?PyTuple_GET_SIZE(names):0);
+        if(address<begin+sizeof(PyObject*) || address>end_stack ||
+           total<0 || static_cast<size_t>(total)>(end_stack-address)/sizeof(PyObject*) || args[-1]!=function)return;
+        nb::object raw=lh_check(PyCode_GetCode(code));
+        int offset=PyFrame_GetLasti(frame),end=offset;
+        const auto* bytes=reinterpret_cast<const unsigned char*>(PyBytes_AS_STRING(raw.ptr()));
+        if(offset<0 || offset+2>PyBytes_GET_SIZE(raw.ptr()) || bytes[offset]!=CALL)return;
+        int declared=bytes[offset+1];
+        if(total!=declared && total!=declared+1)return;
+        while(end+2<PyBytes_GET_SIZE(raw.ptr()) && bytes[end+2]==CACHE)end+=2;
+        if(end>offset)position=std::make_unique<LFGridLinePosition>(frame,code,end,PyFrame_GetLineNumber(frame));
+#endif
+    }
+    void entered_error() {
+        // Once the genuine callee has entered, source unwind retains the
+        // cache-end position. Argument binding failures precede that advance.
+        if(position) {
+            position->previous_instruction=position->projected_instruction;
+        }
+    }
+};
 PyObject* lfgv_call(PyObject* function,PyObject* const* args,size_t count,PyObject* names) {
     try {
         if(!lfgv_owner)throw nb::type_error("function scope owner missing");
@@ -31,9 +72,11 @@ PyObject* lfgv_call(PyObject* function,PyObject* const* args,size_t count,PyObje
             Active(LFGridFunctionEntry& value):entry(value){++entry.active;}
             ~Active(){--entry.active;}
         } active(found->second);
+        LFGridFunctionCallerPosition caller_position(found->second.previous,function,args,count,names);
         LFGridLineDriver scope;
         PyObject* result=found->second.previous(function,args,count,names);
         if(!result && PyErr_Occurred()) {
+            if(!scope.states.empty())caller_position.entered_error();
             nb::python_error error;
             nb::object traceback=nb::steal<nb::object>(PyException_GetTraceback(error.value().ptr()));
             for(const auto& item:scope.states)

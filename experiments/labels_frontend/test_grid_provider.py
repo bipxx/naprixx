@@ -305,3 +305,22 @@ def test_grid_per_function_scope():
         assert data['controls']==24 and data['unhooked_original_source_oracle']
         assert data['unselected_source_positions_unchanged'] and data['enabled_cyclic_function_and_code_collected']
         assert all(all(row[k] for k in ('values_equal','events_equal','retained_equal','errors_equal')) for row in data['cases'])
+
+
+def test_grid_function_caller_positions():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_function_caller_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    gap=sys.version_info[:2]==(3,12)
+    assert result.returncode==int(gap),result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):
+        assert data['controls']==0 and data['status']=='OPEN_CP311_FUNCTION_CALL_BYPASS'
+        return
+    assert data['controls']==72
+    assert all(all(row[k] for k in ('values_equal','events_equal','caller_tracebacks_equal','caller_resume_lines_equal')) for row in data['cases'])
+    assert sum(not row['caller_positions_equal'] for row in data['cases'])==(2 if gap else 0)
+    assert all(row['style']=='descriptor' and row['policy']=='getitem' and not row['failing']
+               for row in data['cases'] if not row['caller_positions_equal'])
