@@ -92,11 +92,12 @@ def instrument(path,definitions,source=None):
 
 
 class CaptureSession:
-    def __init__(self,probe,groups):
+    def __init__(self,probe,groups,native_table=None):
         self.probe=probe
         self.groups=groups
         self.scopes={}
         self.original_loaders={}
+        self.native_table=native_table
 
 
 class CaptureLoader(importlib.machinery.SourceFileLoader):
@@ -115,7 +116,10 @@ class CaptureLoader(importlib.machinery.SourceFileLoader):
         assert hashlib.sha256(source).hexdigest()==definitions[0][1]['source']['sha256']
         code,rows=instrument(path,definitions,source)
         original=compile(source,str(path),'exec',dont_inherit=True)
-        owner=session.probe.prepare_producer_capture_probe(sys.modules[fullname],code,rows,original)
+        if session.native_table is None:
+            owner=session.probe.prepare_producer_capture_probe(sys.modules[fullname],code,rows,original)
+        else:
+            owner=session.probe.prepare_native_first_capture_probe(sys.modules[fullname],code,rows,original,session.native_table)
         session.scopes[fullname]=owner
         return owner.code
 
@@ -134,7 +138,7 @@ class CaptureFinder(importlib.abc.MetaPathFinder):
         return spec
 
 
-def import_captured(probe):
+def import_captured(probe,native_table=None):
     manifest=json.loads((STAGE/'manifest.json').read_text())
     for name,expected in manifest['source_inputs'].items():
         assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==expected, name
@@ -151,7 +155,7 @@ def import_captured(probe):
     ):
         groups[name].append((entry,dict(module=groups[name][0][1]['module'],qualname=qualname,occurrence=1)))
     assert not set(groups).intersection(sys.modules), 'Capture requires genuinely fresh source imports'
-    session=CaptureSession(probe,groups)
+    session=CaptureSession(probe,groups,native_table)
     finder=CaptureFinder(session)
     sys.meta_path.insert(0,finder)
     try:
@@ -173,4 +177,6 @@ def import_captured(probe):
         # Real importlib frames can outlive this call through provider error
         # tracebacks. Do not leave producer owners in their caller's locals.
         session.scopes.clear()
+        session.native_table=None
+        native_table=None
         owner=None

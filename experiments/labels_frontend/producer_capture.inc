@@ -9,7 +9,7 @@ struct LFProducerDeclaration {
 struct LFProducerScope {
     nb::object module,body,marker;
     std::vector<LFProducerDeclaration> declarations;
-    bool closed=false;
+    bool closed=false,native_first=false;
 };
 struct LFProducerMarker { nb::object weak_scope; bool closed=false; };
 struct LFProducerIdentityTicket {};
@@ -49,6 +49,8 @@ nb::object lfp_ticket(LFProducerMarker& marker,int entry) {
     for (size_t i=0;i<scope.declarations.size();++i) {
         const auto& declaration=scope.declarations[i];
         if (declaration.entry!=entry) continue;
+        if (scope.native_first && (entry==36 || entry==38))
+            throw nb::type_error("native factory children require their C++ producer");
         lfp_frame(scope,declaration,false);
         if (declaration.function.is_valid()) throw nb::type_error("producer declaration already captured");
         LFProducerTicket ticket;
@@ -203,6 +205,113 @@ nb::object lfp_validate(nb::tuple owners,nb::tuple wrapper_profile) {
 void lfp_validate_snapshot(nb::handle owners,nb::handle wrapper_profile) {
     (void)lfp_validate(nb::borrow<nb::tuple>(owners),nb::borrow<nb::tuple>(wrapper_profile));
 }
+// Native-first tables have no defining globals or capture owners in their code.
+// A module-specific factory copy adds only a weak marker for child enrollment.
+struct LFNativeDeclarationTable {std::vector<nb::object> codes;nb::object profiles;};
+nb::object lfp_native_table(nb::tuple originals,nb::tuple shells,nb::tuple source_profiles,
+        nb::tuple shell_profiles,nb::tuple expression_shells,nb::tuple expression_profiles) {
+    if (originals.size()!=50) throw nb::type_error("complete original source controls required");
+    nb::tuple parents=nb::make_tuple(originals[10],originals[11],originals[29],originals[3]);
+    nb::object expressions=lfe_prepare_codes_impl(parents,source_profiles,expression_shells,expression_profiles,true);
+    LFNativeDeclarationTable result;
+    result.profiles=source_profiles;
+    for (int i=0;i<50;++i) {
+        if (!PyCode_Check(originals[i].ptr())) throw nb::type_error("source compiler code required");
+        result.codes.push_back(lfu_prepare_code(reinterpret_cast<PyCodeObject*>(originals[i].ptr()),
+            i,shells,source_profiles,shell_profiles,expressions));
+    }
+    for (int entry:{35,37}) {
+        auto* code=reinterpret_cast<PyCodeObject*>(result.codes[entry].ptr());
+        PyObject* payload=PyTuple_GET_ITEM(code->co_consts,PyTuple_GET_SIZE(code->co_consts)-1);
+        result.codes[entry+1]=nb::borrow<nb::object>(PyTuple_GET_ITEM(payload,4));
+    }
+    return nb::cast(std::move(result));
+}
+nb::object lfp_factory_producer(nb::object code,nb::handle marker) {
+    auto* raw=reinterpret_cast<PyCodeObject*>(code.ptr());
+    Py_ssize_t count=PyTuple_GET_SIZE(raw->co_consts);
+    PyObject* payload=PyTuple_GET_ITEM(raw->co_consts,count-1);
+    nb::object values=lh_check(PyTuple_New(6));
+    for (int i=0;i<5;++i) PyTuple_SET_ITEM(values.ptr(),i,Py_NewRef(PyTuple_GET_ITEM(payload,i)));
+    PyTuple_SET_ITEM(values.ptr(),5,Py_NewRef(marker.ptr()));
+    nb::object constants=lh_check(PyTuple_New(count));
+    for (Py_ssize_t i=0;i<count-1;++i) PyTuple_SET_ITEM(constants.ptr(),i,Py_NewRef(PyTuple_GET_ITEM(raw->co_consts,i)));
+    PyTuple_SET_ITEM(constants.ptr(),count-1,values.release().ptr());
+    nb::dict kwargs;kwargs["co_consts"]=constants;
+    return lh_check(PyObject_Call(lh_check(PyObject_GetAttrString(code.ptr(),"replace")).ptr(),
+                                 lh_check(PyTuple_New(0)).ptr(),kwargs.ptr()));
+}
+nb::object lfp_replace_declarations(nb::object code,const std::vector<std::pair<nb::object,nb::object>>& replacements) {
+    for (const auto& entry:replacements) if (code.ptr()==entry.first.ptr()) return entry.second;
+    auto* raw=reinterpret_cast<PyCodeObject*>(code.ptr());
+    nb::object constants=lh_check(PyTuple_New(PyTuple_GET_SIZE(raw->co_consts)));
+    for (Py_ssize_t i=0;i<PyTuple_GET_SIZE(raw->co_consts);++i) {
+        PyObject* item=PyTuple_GET_ITEM(raw->co_consts,i);
+        nb::object replacement=PyCode_Check(item)?lfp_replace_declarations(nb::borrow<nb::object>(item),replacements):nb::borrow<nb::object>(item);
+        PyTuple_SET_ITEM(constants.ptr(),i,replacement.release().ptr());
+    }
+    nb::dict kwargs;kwargs["co_consts"]=constants;
+    return lh_check(PyObject_Call(lh_check(PyObject_GetAttrString(code.ptr(),"replace")).ptr(),
+                                 lh_check(PyTuple_New(0)).ptr(),kwargs.ptr()));
+}
+nb::object lfp_prepare_first(nb::object module,nb::object body,nb::tuple rows,nb::object original,LFNativeDeclarationTable& table) {
+    nb::object owner=lfp_prepare(module,body,rows,original);
+    auto& scope=*nb::inst_ptr<LFProducerScope>(owner);
+    scope.native_first=true;
+    std::vector<std::pair<nb::object,nb::object>> replacements;
+    std::vector<nb::object> native=table.codes;
+    native[35]=lfp_factory_producer(native[35],scope.marker);
+    native[37]=lfp_factory_producer(native[37],scope.marker);
+    for (auto& declaration:scope.declarations) {
+        if (declaration.entry<50) {
+            if (!lf_grid_profile_code(declaration.original,nb::handle(PyTuple_GET_ITEM(table.profiles.ptr(),declaration.entry))))
+                throw nb::type_error("native-first source declaration profile changed");
+            replacements.emplace_back(declaration.code,native[declaration.entry]);
+        }
+    }
+    scope.body=lfp_replace_declarations(scope.body,replacements);
+    for (auto& declaration:scope.declarations) {
+        if (declaration.entry==36 || declaration.entry==38) {
+            declaration.parent=native[declaration.entry-1];declaration.code=native[declaration.entry];
+        } else {
+            nb::object qual=lh_check(PyObject_GetAttrString(declaration.original.ptr(),"co_qualname"));
+            const char* name=PyUnicode_AsUTF8(qual.ptr());
+            if (!name) throw nb::python_error();
+            int occurrence=1;
+            for (nb::handle item:rows) {
+                if (nb::cast<int>(nb::borrow<nb::tuple>(item)[0])==declaration.entry)
+                    occurrence=nb::cast<int>(nb::borrow<nb::tuple>(item)[2]);
+            }
+            int seen=0;
+            declaration.parent.reset();declaration.code.reset();
+            lfp_find(scope.body,name,occurrence,seen,declaration.parent,declaration.code);
+            if (!declaration.code.is_valid()) throw nb::type_error("native-first declaration is missing");
+        }
+    }
+    return owner;
+}
+void lfp_native_child(nb::handle marker_object,nb::handle function,int entry) {
+    auto& marker=*nb::inst_ptr<LFProducerMarker>(marker_object);
+    if (marker.closed) return;
+    PyObject* raw=PyWeakref_GetObject(marker.weak_scope.ptr());
+    if (!raw || raw==Py_None) throw nb::type_error("native child producer expired");
+    auto& scope=*nb::inst_ptr<LFProducerScope>(raw);
+    if (!scope.native_first || (entry!=36 && entry!=38)) throw nb::type_error("native child producer changed");
+    PyFrameObject* frame=PyEval_GetFrame();
+    if (!frame) throw nb::type_error("actual native factory frame required");
+    nb::object parent=lh_check(reinterpret_cast<PyObject*>(PyFrame_GetCode(frame)));
+    nb::object globals=lh_check(PyFrame_GetGlobals(frame));
+    for (auto& declaration:scope.declarations) {
+        if (declaration.entry!=entry) continue;
+        if (declaration.function.is_valid() || parent.ptr()!=declaration.parent.ptr() ||
+            globals.ptr()!=PyModule_GetDict(scope.module.ptr()) || !PyFunction_Check(function.ptr()) ||
+            PyFunction_GetCode(function.ptr())!=declaration.code.ptr() || PyFunction_GetGlobals(function.ptr())!=globals.ptr())
+            throw nb::type_error("actual newly created native child required");
+        declaration.function=nb::borrow<nb::object>(function);
+        return;
+    }
+    throw nb::type_error("native child is not enrolled");
+}
 nb::object lfp_prepare_native(nb::tuple owners,nb::tuple shells,nb::tuple source_profiles,
         nb::tuple shell_profiles,nb::tuple expression_shells,nb::tuple expression_profiles,nb::tuple wrapper_profile) {
     (void)lfp_validate(owners,wrapper_profile);
@@ -282,7 +391,28 @@ PyType_Slot lfp_scope_slots[]={{Py_tp_traverse,reinterpret_cast<void*>(lfp_scope
     {Py_tp_clear,reinterpret_cast<void*>(lfp_scope_clear)},{0,nullptr}};
 PyType_Slot lfp_ticket_slots[]={{Py_tp_traverse,reinterpret_cast<void*>(lfp_ticket_traverse)},
     {Py_tp_clear,reinterpret_cast<void*>(lfp_ticket_clear)},{0,nullptr}};
+int lfp_table_traverse(PyObject* self,visitproc visit,void* arg) {
+    Py_VISIT(Py_TYPE(self));
+    if (nb::inst_ready(self)) {
+        const auto& table=*nb::inst_ptr<LFNativeDeclarationTable>(self);
+        Py_VISIT(table.profiles.ptr());
+        for (const auto& code:table.codes) Py_VISIT(code.ptr());
+    }
+    return 0;
+}
+int lfp_table_clear(PyObject* self) {
+    if (nb::inst_ready(self)) {
+        auto& table=*nb::inst_ptr<LFNativeDeclarationTable>(self);
+        table.profiles.reset();table.codes.clear();
+    }
+    return 0;
+}
+PyType_Slot lfp_table_slots[]={{Py_tp_traverse,reinterpret_cast<void*>(lfp_table_traverse)},
+    {Py_tp_clear,reinterpret_cast<void*>(lfp_table_clear)},{0,nullptr}};
 void lfp_exports(nb::module_& m) {
+    nb::class_<LFNativeDeclarationTable>(m,"NativeDeclarationTable",nb::is_weak_referenceable(),nb::type_slots(lfp_table_slots));
+    m.def("prepare_native_declaration_table_probe",&lfp_native_table);
+    m.def("prepare_native_first_capture_probe",&lfp_prepare_first);
     nb::class_<LFProducerScope>(m,"ProducerScope",nb::is_weak_referenceable(),nb::type_slots(lfp_scope_slots))
         .def_prop_ro("code",[](const LFProducerScope& scope){return scope.body;})
         .def("finish",&lfp_finish);

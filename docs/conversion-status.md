@@ -96,6 +96,20 @@ full frame/provider contracts and installed Viewer/plugin/lifecycle acceptance
 remain open. This packet removed 50,882,395 bytes of settled intermediates while
 preserving accepted inputs and production binaries.
 
+An optional native-first experiment now installs validated transport CodeTypes
+into module constants before the 50 selected functions are created. Native
+factories enroll their children directly. Creation watchers and exact declaration
+profiling observe native code from the start and zero executions of those 50
+original bodies in the tested imports/operations. Docstrings, generator completion,
+real painting/generic dispatch and table/scope release are checked. The final
+142-case suite passed without failures/errors/skips; 3.11/3.13 table-only build/GC
+smokes passed separately. The [native-first evidence](../.artifacts/labels-native-frontend-edit-owner-native-first-stage/progress.json)
+retains corrected test findings and another 37,424,074 bytes of settled cleanup.
+
+This remains isolated: unselected module/class/decorator policies still execute
+in Python, original loaders are restored, and production startup/reload ownership
+and broader observer/namespace/frame/provider compatibility require further work.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).

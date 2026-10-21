@@ -29,8 +29,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 ```
 
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
-checks, 31 capture/preparation/publication checks and ten batch-protocol checks.
-Twenty-one scenarios use fresh import child
+checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
+five native-first declaration checks. Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
 profiles are derived for this checkout and interpreter from the manifest-pinned
@@ -78,7 +78,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-137-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+142-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -88,8 +88,21 @@ complete target/parent locals and tracing/release
 ABI, provider/default-grid conversion, effective independent review, and installed
 Viewer/plugin/shutdown qualification remain required. Legacy callable transports
 remain explicit probe interfaces and are not approved default application paths.
-Production startup must prepare native declarations before application bodies
-can execute; enabling this Python-source oracle loader is not that implementation.
+An optional native-first import experiment now substitutes validated transport
+CodeTypes into module constants before function creation. Its native factories
+enroll their children directly. CREATE watchers and call profiling verify that
+all 50 selected functions begin with native code and none of their original
+bodies execute. Five fresh-process cases cover import, metadata, real painting
+and generic dispatch, generator completion, and table/scope release. Function
+docstrings are compiled into the inert transports so constant indices and
+generator return values remain correct. Table construction/release also passes
+on3.11/3.13 without importing the application modules.
+
+This is still an isolated import experiment. Unselected module/class/decorator
+policies remain Python, and original loader metadata is restored afterward;
+production startup/reload integration and complete module ownership are not
+implemented. The original observation mode remains available for before controls.
+No default application import path has been changed.
 
 The implementation was checked against the pinned
 [3.11 setter](https://github.com/python/cpython/blob/v3.11.11/Objects/funcobject.c),

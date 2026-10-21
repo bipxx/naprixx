@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T05:44:30.199466+00:00",
+  "recorded_utc": "2026-10-21T06:17:01.103697+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -93,16 +93,16 @@
     },
     "raw_archive_published": false,
     "frontend_candidate": {
-      "path": ".artifacts/labels-native-frontend-edit-owner-batch-publication-stage/progress.json",
-      "sha256": "64fe8977f06d18c0462216ab305564ecc2c6452ae774058203dbd0447d153329",
-      "bytes": 13348
+      "path": ".artifacts/labels-native-frontend-edit-owner-native-first-stage/progress.json",
+      "sha256": "f7af90551422e7b5ef983b3ee6f833dbb423a4b0f465748cef407f01509f0ee8",
+      "bytes": 13693
     }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Review/close experimental batch observer and foreign namespace-key compatibility. Design native declaration enrollment before application-body execution at default startup; do not enable the Python-source oracle as production. Complete target/parent fast locals, tracing/release/error/GC/frame ABI and default grid/providers. Obtain independent effective approval before application integration; then reuse43 before/606 accepted cases with real Viewer/plugin/save/reload/cancel/shutdown checks.",
+  "next_work": "Review native-first producer/observer/namespace compatibility and design permanent startup/reload ownership. Complete source target/parent fast locals, tracing/callback/evaluation/release/error/GC/frame ABI and grid/Pillow/skimage/provider boundaries. Unselected application policies remain required. Obtain independent effective approval before application integration; then reuse43 before/606 accepted regressions with real Viewer/plugin/save/reload/cancel/shutdown checks.",
   "frontend_candidate": {
     "status": "tracked standalone experimental draft; no production installation/admission",
     "source_bodies": 50,
@@ -122,13 +122,13 @@
     "accepted_inputs_held": 2845,
     "package": "experiments/labels_frontend",
     "new_snapshot_cases": 72,
-    "packaged_distinct_cases": 137,
+    "packaged_distinct_cases": 142,
     "packaged_archive_access_denied": true,
     "defining_execution_authenticated": false,
     "atomic_publication_implemented": true,
-    "latest_cleanup_removed_bytes": 50882395,
+    "latest_cleanup_removed_bytes": 37424074,
     "new_producer_cases": 18,
-    "packaged_case_semantics": "137 distinct outer cases, zero failures/errors/skips;21 real-import children and10 batch children. Separate311 seven/313 ten cases repeat the shared batch core, not extra application cases or accepted606/31.",
+    "packaged_case_semantics": "142 distinct outer cases, zero failures/errors/skips;26 real-import children and10 batch children.311/313 table-only construction/GC smokes are separate, not fullfrontend acceptance or extra142 cases.",
     "controlled_import_functions_captured": 50,
     "controlled_import_classes_captured": 4,
     "controlled_import_defining_execution_authenticated": true,
@@ -144,6 +144,12 @@
     "atomic_publication_scope": "Experimental normalGIL notification-before-commit batch; independent observer/namespace compatibility approval and default startup remain open",
     "published_bodies_in_controlled_process": 50,
     "default_application_enabled": false,
-    "namespace_key_compatibility_complete": false
+    "namespace_key_compatibility_complete": false,
+    "new_native_first_cases": 5,
+    "native_first_selected_functions": 50,
+    "selected_original_body_calls_observed": 0,
+    "selected_functions_native_at_creation": true,
+    "permanent_startup_reload_implemented": false,
+    "unselected_python_policies_remain": true
   }
 }

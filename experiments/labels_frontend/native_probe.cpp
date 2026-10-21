@@ -4302,7 +4302,9 @@ nb::object lfu_supplier_cell(nb::object supplier) {
         throw nb::type_error("one actual source closure cell is required");
     return nb::borrow<nb::object>(PyTuple_GET_ITEM(cells, 0));
 }
-nb::object lfu_factory_cell(const LFSource& source, nb::object cell, nb::object code) {
+void lfp_native_child(nb::handle marker,nb::handle function,int entry);
+nb::object lfu_factory_cell(const LFSource& source, nb::object cell, nb::object code,
+                           nb::object producer=nb::none(),int child_entry=-1) {
     if (!PyCode_Check(code.ptr())) throw nb::type_error("prepared adapter call code is required");
     nb::object wraps = source.global("wraps");
     PyObject* raw = PyCell_Get(cell.ptr());
@@ -4318,6 +4320,7 @@ nb::object lfu_factory_cell(const LFSource& source, nb::object cell, nb::object 
     nb::object function = lh_check(PyFunction_New(code.ptr(), source.globals.ptr()));
     nb::object closure = nb::make_tuple(cell);
     if (PyFunction_SetClosure(function.ptr(), closure.ptr()) < 0) throw nb::python_error();
+    if (!producer.is_none()) lfp_native_child(producer,function,child_entry);
     return lh_call(std::move(decorator), {LFF(function)});
 }
 
@@ -4336,7 +4339,7 @@ PyObject* lfu_frame(PyObject*, PyObject* args) {
         PyObject* constants = active->co_consts;
         if (PyTuple_GET_SIZE(constants)<1) throw nb::type_error("frontend payload is missing");
         PyObject* raw_payload = PyTuple_GET_ITEM(constants, PyTuple_GET_SIZE(constants) - 1);
-        if (!PyTuple_CheckExact(raw_payload) || PyTuple_GET_SIZE(raw_payload) != 5 ||
+        if (!PyTuple_CheckExact(raw_payload) || (PyTuple_GET_SIZE(raw_payload) != 5 && PyTuple_GET_SIZE(raw_payload) != 6) ||
             !PyUnicode_CheckExact(PyTuple_GET_ITEM(raw_payload, 0)) ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(raw_payload, 0), "frontend-probe-v0") != 0)
             throw nb::type_error("reviewed frontend payload is required");
@@ -4359,6 +4362,7 @@ PyObject* lfu_frame(PyObject*, PyObject* args) {
         lh_metadata_values(source.metadata, 0); lh_metadata_values(source.metadata, 1);
         nb::object transport_code = nb::borrow<nb::object>(PyTuple_GET_ITEM(raw_payload, 3));
         nb::object child = nb::borrow<nb::object>(PyTuple_GET_ITEM(raw_payload, 4));
+        nb::object producer=PyTuple_GET_SIZE(raw_payload)==6?nb::borrow<nb::object>(PyTuple_GET_ITEM(raw_payload,5)):nb::none();
         if (!PyCode_Check(transport_code.ptr()) && !PyTuple_CheckExact(transport_code.ptr()))
             throw nb::type_error("frontend protocol code or expression table is required");
         nb::object transport = nb::none();
@@ -4408,9 +4412,9 @@ PyObject* lfu_frame(PyObject*, PyObject* args) {
         case 32: result=lf_get_dtype(source,A(0)); break;
         case 33: result=lf_first_nonzero(source,A(0),A(1),A(2)); break;
         case 34: result=lf_mouse_coordinate(source,A(0),A(1)); break;
-        case 35: result=lfu_factory_cell(source,lfu_supplier_cell(A(0)),child); break;
+        case 35: result=lfu_factory_cell(source,lfu_supplier_cell(A(0)),child,producer,36); break;
         case 36: result=lf_interpolation_adapter_call(source,A(0),A(1),A(2),lfu_supplier_cell(A(3))); break;
-        case 37: result=lfu_factory_cell(source,lfu_supplier_cell(A(0)),child); break;
+        case 37: result=lfu_factory_cell(source,lfu_supplier_cell(A(0)),child,producer,38); break;
         case 38: result=lf_ray_adapter_call(source,A(0),A(1),A(2),lfu_supplier_cell(A(3))); break;
         case 39: result=lf_plain_real(source,A(0)); break;
         case 40: result=lf_property_get(source,A(0),7); break;

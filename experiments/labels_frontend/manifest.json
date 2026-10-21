@@ -15,8 +15,8 @@
   },
   "experiment_inputs": {
     "batch_child.py": "fccdc849272da9181d4f582629ceb02a41903ef1c3d046d369d2b23911a3f72a",
-    "batch_publication.inc": "9efd1f0b3b34fa0e44374ebd08bdbb6f14d20a6a41bb27266c1c9801cde3fc1c",
-    "capture_imports.py": "bde9a7976baef46ce3f24b6ea60d8315adc236980da826dec7a0404d511e0892",
+    "batch_publication.inc": "b665e10c796725c73b00a98aa75845f0f37d5ecac6ab2afb9d2b244b6175db08",
+    "capture_imports.py": "d5ebdb49eac41b76cb9265238be9765147db01d3da507fb4184baab5fc79e980",
     "CMakeLists.txt": "6842043bbad6caa2f935d7e5c139c1c05a5b564e6bd921b909e9c49315f9635e",
     "compiler_controls.py": "7974935f89f61ecbda69a0024c89f177c957f3c8e1face01fed028ee73f11bcd",
     "conftest.py": "496afab8e67c621b008c445d099f5371a785dd20328c9276e665a1419ee5d9cc",
@@ -24,10 +24,12 @@
     "freeze_transport.py": "35824e11f19fcc0c14669112bf3df2dc4d7eaf9061fc0fd10004bad15a8a5d3b",
     "frontend_shells.py": "fe016bd25ee87bfce9883361c20e43fa25cd6bdbfbb8286114ad5957b3720881",
     "inspect_inputs.py": "263bde77216e02517e71091c4779b8ceda84aa5a0b348c96e72a25df217f8d82",
-    "native_probe.cpp": "6fe45d0b663678efdc3289e20f20f09d196dab72ad62bad774a8a0ba8d92a77c",
-    "producer_capture.inc": "b9a7da0383679673cda9b60a0a0e184e0047fdb520babf15d2f29ffea228a8c5",
+    "native_declarations.py": "b0acea0ec92733e7b04811b0cf7dbac8e9f3e47b43ab13bccb7f48d873d0926b",
+    "native_first_child.py": "2e4406b9f1c14ccd609c732aea81e571e66b998d81c882ba5e53483dae2143fb",
+    "native_probe.cpp": "dc97e48f752f03f73960328d7478c0b523ec4b3494e980009053955277e11c31",
+    "producer_capture.inc": "626e8bb0cb91d662e6051c9c7e6e3759020dceb8292f6e67d79b9e332267dc9c",
     "producer_child.py": "f6d47775c8ed8df70625b48de2df3f1700894c9379ccb82b574ef2d63ac9b833",
-    "README.md": "a5de09504a6497a30ecb2849e0c74d8c1c07f7ce49db66f14e225c8ec1a42efe",
+    "README.md": "3ca7ca6e7b98a4e48cbf0875c012c3d23dca2bab5b4b59c3cbc3fff048ee1174",
     "reference_bindings.py": "559dc12b968ae908a0e7f46905a4547d0e84240ad02abafa972f47470f0e4305",
     "run_tests.py": "148f0c3868013ecc0227ffaf24d5c06fff6dd66a361a7ac76c82069804895112",
     "selection.json": "2e4817665e3e405d108ee9ded0ffde3d089b65cd73bb920ee099865cdaa9e309",
@@ -35,8 +37,9 @@
     "test_batch_publication.py": "5ccb233a5045588e5bb97eaf592b393dd49f7908dd925c569ff2ca932d5ef9ca",
     "test_canonical_snapshot.py": "3b95b296a2cb8b6340638414789ede383218a9a196bef15b0e4b02c1270bc0f6",
     "test_expression_order.py": "7b0219e6a4885da0fc1fa32b45b593602cea88008053c4e4208e19428f45fd81",
+    "test_native_first.py": "96d4c50ad808721e1275811954ffefdfd2dfee23d232e102c1c72f7ddfdb10a3",
     "test_producer_capture.py": "a847923ddac0aa6bdff23f0672519f0266e74d94f7dd2214920f77c18e33753c",
-    "update_manifest.py": "baaf2f8124c7b012595c89ffa9d7741fed000ea1f5b9479553383d924d48cc44"
+    "update_manifest.py": "5a824bf7d020bc5f0b9a4777c9bc3539fbe07dc228fa4ef71df0fa50a8c50b80"
   },
   "provenance": {
     "handwritten_native_draft": {
@@ -49,5 +52,6 @@
   "profile_policy": "Byte-verified compile-only sources and transport templates; derive raw18-field profiles for this checkout/interpreter. No original application execution or C++ generation in compiler controls.",
   "experimental_declaration_capture_implemented": true,
   "default_application_producer_capture_enabled": false,
-  "atomic_publication_scope": "Experimental GIL-held batch with notification-before-commit protocol; no default startup enablement or complete compatibility approval"
+  "atomic_publication_scope": "Experimental GIL-held batch with notification-before-commit protocol; no default startup enablement or complete compatibility approval",
+  "experimental_native_first_declarations_implemented": true
 }

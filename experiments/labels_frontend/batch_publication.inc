@@ -143,11 +143,12 @@ nb::object lfb_probe(nb::tuple functions,nb::tuple codes) {
 }
 #if PY_VERSION_HEX >= 0x030C0000
 int lfb_test_watcher(PyFunction_WatchEvent event,PyFunctionObject* function,PyObject* value) {
-    if (event!=PyFunction_EVENT_MODIFY_CODE) return 0;
     PyObject* module=PyDict_GetItemString(PyImport_GetModuleDict(),"_frontend_policy_probe");
+    PyObject* creation=module?PyDict_GetItemString(PyModule_GetDict(module),"_test_watcher_create"):nullptr;
+    if (event!=PyFunction_EVENT_MODIFY_CODE && !(event==PyFunction_EVENT_CREATE && creation==Py_True)) return 0;
     PyObject* callback=module?PyDict_GetItemString(PyModule_GetDict(module),"_test_watcher_callback"):nullptr;
     if (!callback) return 0;
-    PyObject* result=PyObject_CallFunctionObjArgs(callback,reinterpret_cast<PyObject*>(function),value,nullptr);
+    PyObject* result=PyObject_CallFunctionObjArgs(callback,reinterpret_cast<PyObject*>(function),value?value:Py_None,nullptr);
     if (!result) return -1;
     Py_DECREF(result);return 0;
 }
@@ -166,21 +167,23 @@ void lfb_exports(nb::module_& m) {
     });
 #endif
 #if PY_VERSION_HEX >= 0x030C0000
-    m.def("start_watcher_probe",[](nb::object callback){
+    m.def("start_watcher_probe",[](nb::object callback,bool observe_create){
         nb::object m=lfc_dict_value(PyImport_GetModuleDict(),"_frontend_policy_probe");
         if (!PyCallable_Check(callback.ptr()) || PyObject_HasAttrString(m.ptr(),"_test_watcher_id"))
             throw nb::type_error("one callable watcher probe is allowed");
         m.attr("_test_watcher_callback")=callback;
+        m.attr("_test_watcher_create")=nb::bool_(observe_create);
         int id=PyFunction_AddWatcher(&lfb_test_watcher);
         if (id<0) {PyObject_DelAttrString(m.ptr(),"_test_watcher_callback");throw nb::python_error();}
         m.attr("_test_watcher_id")=nb::int_(id);
-    });
+    },nb::arg("callback"),nb::arg("observe_create")=false);
     m.def("stop_watcher_probe",[](){
         nb::object m=lfc_dict_value(PyImport_GetModuleDict(),"_frontend_policy_probe");
         nb::object id=lh_check(PyObject_GetAttrString(m.ptr(),"_test_watcher_id"));
         if (PyFunction_ClearWatcher(nb::cast<int>(id))<0) throw nb::python_error();
         if (PyObject_DelAttrString(m.ptr(),"_test_watcher_id")<0 || PyObject_DelAttrString(m.ptr(),"_test_watcher_callback")<0)
             throw nb::python_error();
+        if (PyObject_DelAttrString(m.ptr(),"_test_watcher_create")<0) throw nb::python_error();
     });
 #endif
 }
