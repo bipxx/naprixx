@@ -24,7 +24,7 @@ if sys.version_info[:2] == (3, 12):
     MODES = tuple(mode for mode in MODES if not mode.startswith('delete-'))
 
 
-def run(probe, code, shell, mode, native):
+def run(probe, code, shell, mode, native, invoke=None):
     events = []
     retained = []
     called = set()
@@ -134,8 +134,9 @@ def run(probe, code, shell, mode, native):
         sys.setprofile(guard)
     try:
         try:
-            result = function(() if mode.startswith('empty-') else (2, 3), int,
-                              mode in ('sparse', 'empty-sparse'))
+            arguments = (() if mode.startswith('empty-') else (2, 3), int,
+                         mode in ('sparse', 'empty-sparse'))
+            result = function(*arguments) if invoke is None else invoke(function,arguments)
             outcome = ('return', normalize(result))
         except Exception as error:
             outcome = ('raise', type(error).__name__, str(error))

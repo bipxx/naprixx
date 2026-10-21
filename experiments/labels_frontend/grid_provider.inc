@@ -42,18 +42,26 @@ struct LFGridFastLocals {
     }
 };
 
+#include "grid_line_trace.inc"
+
 nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
     auto G = [&](const char* name) { return lh_global(source, name); };
     auto L = [&](const char* name) { return locals.load(name); };
     auto binary = [](binaryfunc operation, nb::object left, nb::object right) {
         return lh_check(operation(left.ptr(), right.ptr()));
     };
+    lfgt_line(locals, 0);
     locals.store("dimensions", lh_call(G("tuple"), {LFG(L("dimensions"))}));
+    lfgt_line(locals, 1);
     locals.store("N", lh_call(G("len"), {LFG(L("dimensions"))}));
+    lfgt_line(locals, 2);
     locals.store("shape", binary(PyNumber_Multiply, nb::make_tuple(1), L("N")));
+    lfgt_line(locals, 3);
     if (lh_truth(L("sparse"))) {
+        lfgt_line(locals, 4);
         locals.store("res", nb::tuple());
     } else {
+        lfgt_line(locals, 5);
         auto full_shape = [&]() {
             nb::object prefix = nb::make_tuple(L("N"));
             return binary(PyNumber_Add, std::move(prefix), L("dimensions"));
@@ -61,14 +69,17 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& 
         locals.store("res", lh_call(G("empty"), {LFG(full_shape())},
                                     {LFG(L("dtype"))}, lh_kw(source, "dtype")));
     }
+    lfgt_line(locals, 6);
     nb::object iterator = lh_iter(lh_call(G("enumerate"), {LFG(L("dimensions"))}));
     while (nb::object pair = lh_next(iterator)) {
         auto values = lf_unpack(std::move(pair), 2);
         locals.store("i", std::move(values[0]));
         locals.store("dim", std::move(values[1]));
+        lfgt_line(locals, 8);
         nb::object reshape = lh_attr(source,
             lh_call(G("arange"), {LFG(L("dim"))}, {LFG(L("dtype"))}, lh_kw(source, "dtype")), "reshape");
         auto reshape_shape = [&]() {
+            lfgt_line(locals, 9);
             nb::object left = lh_index(LFG(L("shape")),
                 LFG(lh_check(PySlice_New(Py_None, L("i").ptr(), Py_None))));
             nb::object middle = nb::make_tuple(L("dim"));
@@ -80,16 +91,23 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& 
             nb::object right = lh_index(LFG(L("shape")), LFG(right_key()));
             return binary(PyNumber_Add, std::move(first), std::move(right));
         };
-        locals.store("idx", lh_call(std::move(reshape), {LFG(reshape_shape())}));
+        nb::object shape = reshape_shape();
+        lfgt_line(locals, 10);
+        locals.store("idx", lh_call(std::move(reshape), {LFG(std::move(shape))}));
+        lfgt_line(locals, 11);
         if (lh_truth(L("sparse"))) {
+            lfgt_line(locals, 12);
             nb::object current = L("res");
             nb::object item = nb::make_tuple(L("idx"));
             locals.store("res", binary(PyNumber_Add, std::move(current), std::move(item)));
         } else {
+            lfgt_line(locals, 13);
             lh_set_item(LFG(L("idx")), LFG(L("res")), LFG(L("i")));
         }
+        lfgt_line(locals, 7);
     }
     iterator.reset();
+    lfgt_line(locals, 14);
     return L("res");
 }
 
@@ -146,7 +164,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         source.source_builtins = lh_check(PyFrame_GetBuiltins(frame));
         nb::object payload = nb::borrow<nb::object>(
             PyTuple_GET_ITEM(actual->co_consts, PyTuple_GET_SIZE(actual->co_consts) - 1));
-        if (!PyTuple_CheckExact(payload.ptr()) || PyTuple_GET_SIZE(payload.ptr()) != 3 ||
+        if (!PyTuple_CheckExact(payload.ptr()) || (PyTuple_GET_SIZE(payload.ptr()) != 3 && PyTuple_GET_SIZE(payload.ptr()) != 4) ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(payload.ptr(), 0), "naparixx.grid.v2") != 0)
             throw nb::type_error("Grid policy payload changed");
         source.source_metadata = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 1));
@@ -360,6 +378,7 @@ int lfg_clear(PyObject* self) {
 PyType_Slot lfg_slots[]={{Py_tp_traverse,reinterpret_cast<void*>(lfg_traverse)},
     {Py_tp_clear,reinterpret_cast<void*>(lfg_clear)},{0,nullptr}};
 void lfg_exports(nb::module_& m) {
+    lfgt_exports(m);
     nb::class_<LFGridPlan>(m,"GridProviderPlan",nb::is_weak_referenceable(),nb::type_slots(lfg_slots))
         .def("validate",&LFGridPlan::validate).def("publish_experiment",&lfg_publish)
         .def_prop_ro("functions",[](const LFGridPlan& value){value.validate();return lfc_tuple(value.bindings.functions);})

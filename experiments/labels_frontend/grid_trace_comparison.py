@@ -12,6 +12,7 @@ from grid_comprehension_child import deny_archive
 import grid_getitem_locals_child as getitem
 import grid_indices_locals_child as indices
 from inspect_inputs import walk
+from grid_line_transport import LineProbe
 
 DIRECTORY=Path(__file__).resolve().parent
 ROOT=DIRECTORY.parents[1]
@@ -60,7 +61,10 @@ def main():
                 sys.settrace(trace)
                 try:
                     if policy=='getitem': result=getitem.run(probe,code,shells,'sparse',native)
-                    else: result=indices.run(probe,code,shells['_grid_indices'],'dense',native)
+                    else:
+                        pilot=LineProbe(probe) if native and '--line-transport' in sys.argv else None
+                        result=indices.run(pilot if pilot else probe,code,shells['_grid_indices'],'dense',native,
+                            invoke=pilot.invoke if pilot else None)
                 finally:
                     sys.settrace(None)
                     controller.f_trace_opcodes=previous_opcodes

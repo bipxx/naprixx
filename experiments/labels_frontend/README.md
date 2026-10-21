@@ -33,7 +33,8 @@ The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
 isolated grid comprehension frame check, one indices-local check and one grid
-parent/inlined-local check and one temporary-lifetime check (160 cases
+parent/inlined-local check, one temporary-lifetime check and one native line
+transport check (161 cases
 in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
@@ -83,7 +84,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-160-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+161-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -200,7 +201,26 @@ These requirements follow the [CPython tracing issue](https://github.com/python/
 and the pinned [3.13 frame setters](https://github.com/python/cpython/blob/v3.13.8/Objects/frameobject.c).
 The initial incomplete observations are retained locally. Native source-event/
 position transport remains required. The diagnostic is not counted as a passing test
-in the finite 160-case policy suite.
+in the finite 161-case policy suite.
+
+An opt-in `indices` line-transport pilot now closes that function's normal line
+event comparison on 3.11/3.12/3.13. `grid_line_trace.inc` forwards the user's trace
+callback, filters thin-shell line/opcode events, and supplies source line/offset
+events from the handwritten native statements. Its code transport retains
+source line metadata over an inert NOP-padded shell, not executable original
+policy. `grid_line_transport.py` derives checked positions from compile-only
+metadata. Twelve controls compare line events, offsets, local names, mutation,
+line disabling, trace identity/restoration, global disabling and callback-error
+propagation against source. Prior local/lifetime controls remain separate.
+
+Run `grid_line_child.py` with the matching probe on `PYTHONPATH`. For the strict
+diagnostic, add `--line-transport`: the `indices` line row passes, but the overall
+command still exits 1 because opcode and `getitem` event parity remain open.
+The explicit `LineProbe`/native call adapter is required; no default application
+tracer or startup path is installed. Debugger jumps raise `NotImplementedError`
+when detected. Opcode delivery, complete exception/traceback and out-of-event
+positions, profiling/monitoring, C trace callbacks and general observer/reentry
+compatibility remain unqualified. This pilot does not accept the full frame ABI.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
