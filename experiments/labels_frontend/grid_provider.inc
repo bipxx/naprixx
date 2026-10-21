@@ -7,58 +7,6 @@ namespace nx {
 // Staged only: genuine-function admission and runtime qualification are required.
 // Source globals/builtins/metadata belong to each genuine function generation.
 // No ndarray/model/cache mirror or retained executable source body is used.
-nb::object lf_grid_indices(LabelsHistoryLocals& source, nb::object dimensions,
-                           nb::object dtype, nb::object sparse) {
-    auto G = [&](const char* name) { return lh_global(source, name); };
-    auto A = [&](nb::object value, const char* name) {
-        return lh_attr(source, std::move(value), name);
-    };
-    dimensions = lh_call(G("tuple"), {LFG(dimensions)});
-    nb::object n = lh_call(G("len"), {LFG(dimensions)});
-    nb::object one = nb::make_tuple(1);
-    nb::object shape = lh_check(PyNumber_Multiply(one.ptr(), n.ptr()));
-    nb::object result;
-    if (lh_truth(sparse)) {
-        result = nb::tuple();
-    } else {
-        nb::object prefix = nb::make_tuple(n);
-        nb::object full = lh_check(PyNumber_Add(prefix.ptr(), dimensions.ptr()));
-        result = lh_call(G("empty"), {LFG(full)}, {LFG(dtype)}, lh_kw(source, "dtype"));
-    }
-    nb::object iterator = lh_iter(lh_call(G("enumerate"), {LFG(dimensions)}));
-    while (nb::object pair = lh_next(iterator)) {
-        // The iterator is genuine enumerate; preserve tuple unpack errors if
-        // its defining global is deliberately replaced by an application callback.
-        nb::object unpack = lh_iter(pair);
-        nb::object i = lh_next(unpack), dim = lh_next(unpack);
-        if (!i.is_valid() || !dim.is_valid()) {
-            PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 2, got %d)", i.is_valid() ? 1 : 0);
-            throw nb::python_error();
-        }
-        if (lh_next(unpack).is_valid()) {
-            PyErr_SetString(PyExc_ValueError, "too many values to unpack (expected 2)");
-            throw nb::python_error();
-        }
-        nb::object values = lh_call(G("arange"), {LFG(dim)}, {LFG(dtype)}, lh_kw(source, "dtype"));
-        nb::object left_key = lh_check(PySlice_New(Py_None, i.ptr(), Py_None));
-        nb::object left = lh_item(shape, left_key);
-        nb::object middle = nb::make_tuple(dim);
-        nb::object index_next = lh_check(PyNumber_Add(i.ptr(), nb::int_(1).ptr()));
-        nb::object right_key = lh_check(PySlice_New(index_next.ptr(), Py_None, Py_None));
-        nb::object right = lh_item(shape, right_key);
-        nb::object first = lh_check(PyNumber_Add(left.ptr(), middle.ptr()));
-        nb::object reshaped_shape = lh_check(PyNumber_Add(first.ptr(), right.ptr()));
-        nb::object idx = lh_call(A(values, "reshape"), {LFG(reshaped_shape)});
-        if (lh_truth(sparse)) {
-            nb::object item = nb::make_tuple(idx);
-            result = lh_check(PyNumber_Add(result.ptr(), item.ptr()));
-        } else {
-            if (PyObject_SetItem(result.ptr(), i.ptr(), idx.ptr()) < 0) throw nb::python_error();
-        }
-    }
-    return result;
-}
-
 // The genuine frame owns these locals. No C++ carrier mirrors their mutable
 // values; callback writes through the supported interpreter frame interface
 // are therefore observed by the next source LOAD_FAST equivalent.
@@ -87,6 +35,56 @@ struct LFGridFastLocals {
         Py_XDECREF(previous);
     }
 };
+
+nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
+    auto G = [&](const char* name) { return lh_global(source, name); };
+    auto L = [&](const char* name) { return locals.load(name); };
+    auto binary = [](binaryfunc operation, nb::object left, nb::object right) {
+        return lh_check(operation(left.ptr(), right.ptr()));
+    };
+    locals.store("dimensions", lh_call(G("tuple"), {LFG(L("dimensions"))}));
+    locals.store("N", lh_call(G("len"), {LFG(L("dimensions"))}));
+    locals.store("shape", binary(PyNumber_Multiply, nb::make_tuple(1), L("N")));
+    if (lh_truth(L("sparse"))) {
+        locals.store("res", nb::tuple());
+    } else {
+        auto full_shape = [&]() {
+            nb::object prefix = nb::make_tuple(L("N"));
+            return binary(PyNumber_Add, std::move(prefix), L("dimensions"));
+        };
+        locals.store("res", lh_call(G("empty"), {LFG(full_shape())},
+                                    {LFG(L("dtype"))}, lh_kw(source, "dtype")));
+    }
+    nb::object iterator = lh_iter(lh_call(G("enumerate"), {LFG(L("dimensions"))}));
+    while (nb::object pair = lh_next(iterator)) {
+        auto values = lf_unpack(std::move(pair), 2);
+        locals.store("i", std::move(values[0]));
+        locals.store("dim", std::move(values[1]));
+        nb::object reshape = lh_attr(source,
+            lh_call(G("arange"), {LFG(L("dim"))}, {LFG(L("dtype"))}, lh_kw(source, "dtype")), "reshape");
+        auto reshape_shape = [&]() {
+            nb::object left = lh_index(LFG(L("shape")),
+                LFG(lh_check(PySlice_New(Py_None, L("i").ptr(), Py_None))));
+            nb::object middle = nb::make_tuple(L("dim"));
+            nb::object first = binary(PyNumber_Add, std::move(left), std::move(middle));
+            auto right_key = [&]() {
+                nb::object next = binary(PyNumber_Add, L("i"), nb::int_(1));
+                return lh_check(PySlice_New(next.ptr(), Py_None, Py_None));
+            };
+            nb::object right = lh_index(LFG(L("shape")), LFG(right_key()));
+            return binary(PyNumber_Add, std::move(first), std::move(right));
+        };
+        locals.store("idx", lh_call(std::move(reshape), {LFG(reshape_shape())}));
+        if (lh_truth(L("sparse"))) {
+            nb::object current = L("res");
+            nb::object item = nb::make_tuple(L("idx"));
+            locals.store("res", binary(PyNumber_Add, std::move(current), std::move(item)));
+        } else {
+            lh_set_item(LFG(L("idx")), LFG(L("res")), LFG(L("i")));
+        }
+    }
+    return L("res");
+}
 
 nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
     nb::object iterator = locals.load(".0");
@@ -259,7 +257,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             throw nb::type_error("Grid policy entry is required");
         long entry = PyLong_AsLong(PyTuple_GET_ITEM(arguments, 0));
         if (entry == -1 && PyErr_Occurred()) throw nb::python_error();
-        if ((entry != 0 || count != 3) && (entry != 1 || count != 4) && (entry != -2 || count != 1))
+        if ((entry != 0 || count != 3) && (entry != 1 || count != 1) && (entry != -2 || count != 1))
             throw nb::type_error("Grid policy parameter declaration changed");
         PyFrameObject* frame = PyEval_GetFrame();
         if (!frame) throw nb::type_error("Grid policy genuine function frame is required");
@@ -284,7 +282,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
         if (entry == -2) return lf_grid_sparse_comp(source, {frame, actual}).release().ptr();
         return (entry == 0 ? lf_grid_getitem(source, arg(1), arg(2), comprehension) :
-                lf_grid_indices(source, arg(1), arg(2), arg(3))).release().ptr();
+                lf_grid_indices(source, {frame, actual})).release().ptr();
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
 PyMethodDef lf_grid_frame_definition = {
@@ -377,11 +375,21 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     keywords["co_qualname"] = nb::borrow<nb::object>(original->co_qualname);
     keywords["co_firstlineno"] = nb::int_(original->co_firstlineno);
     keywords["co_flags"] = nb::int_(original->co_flags);
+    if (entry == 1) {
+        const char* names[] = {"dimensions", "dtype", "sparse", "N", "shape", "res", "i", "dim", "idx"};
+        if (original->co_nlocals != 9 || PyTuple_GET_SIZE(original->co_localsplusnames) != 9)
+            throw nb::type_error("Grid indices local layout changed");
+        for (int i = 0; i < 9; ++i)
+            if (PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, i), names[i]) != 0)
+                throw nb::type_error("Grid indices local name changed");
+    }
     if (entry == -2) {
         if (original->co_nlocals != 3 || PyTuple_GET_SIZE(original->co_localsplusnames) != 3 ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, 1), "_x") != 0 ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, 2), "_t") != 0)
             throw nb::type_error("Grid comprehension local layout changed");
+    }
+    if (entry == 1 || entry == -2) {
         keywords["co_varnames"] = lh_check(PyObject_GetAttrString(reinterpret_cast<PyObject*>(original), "co_varnames"));
         keywords["co_nlocals"] = nb::int_(original->co_nlocals);
     }

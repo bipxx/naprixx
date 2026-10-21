@@ -32,7 +32,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
-isolated grid comprehension frame check (157 cases in total).
+isolated grid comprehension frame check and one indices-local check (158 cases
+in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
@@ -81,7 +82,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-157-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+158-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -136,6 +137,24 @@ inspection, writes/deletion through `PyFrame_LocalsToFast`, and retained frame
 contents with the source. They demonstrate the previous missing-local defect
 and pass on 3.11.11 after the fix. This does not qualify the grid parent locals,
 the inlined 3.12/3.13 locals, source tracing or complete release behavior.
+
+`indices` now stores its nine source locals in the genuine parent frame and
+reads them again at the corresponding source operand evaluations. The inert
+shell passes only its dispatch entry; it does not retain argument copies in a
+native call tuple. Isolated controls compare dense/sparse/empty results,
+callback local inspection and mutation at `len`, `arange`, reshape lookup/call,
+errors and retained frames. Nine controls pass on 3.12.8 and eleven on 3.11.11
+and 3.13.8. The additional two controls cover checked deletion on 3.11 and the
+interpreter proxy's rejection of deletion on 3.13. These synthetic numeric
+controls do not qualify full NumPy on 3.11/3.13. Run
+`grid_indices_locals_child.py` with the matching probe on `PYTHONPATH`.
+
+The initial 3.12 deletion fixture incorrectly expected `UnboundLocalError` after
+clearing a definitely initialized argument through `PyFrame_LocalsToFast`.
+The source's unchecked `LOAD_FAST` instead consumed a NULL slot on that release
+build. The failing observation is retained locally; that low-level deletion
+behavior requires an explicit ABI decision and remains unqualified. It is not
+covered by the nine passing 3.12 controls.
 
 Grid target/frame locals, tracing, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
