@@ -213,7 +213,7 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         return T.returned(L("nn"),74);
     } catch (nb::python_error& error) {
         T.exception(error);
-        T.enter_handler();
+        T.enter_handler(error.value());
         LHHandledException handled(error.value());
         T.line(193);
         try {

@@ -79,7 +79,7 @@ void lfgo_emit(const LFGridFastLocals& locals, PyObject* row) {
     PyThreadState_EnterTracing(thread);
     int status = lfgt_driver->callback(lfgt_driver->previous_object.ptr(),locals.frame,PyTrace_OPCODE,Py_None);
     PyThreadState_LeaveTracing(thread);
-    if (status < 0) throw nb::python_error();
+    if (status < 0) {lfgt_callback_error(locals.frame,offset,line,PyTrace_OPCODE);throw nb::python_error();}
     if (position.jumped()) throw nb::type_error("native opcode pilot does not implement debugger jumps");
 }
 void lfgo_seek(const LFGridOpcodeContext& context, long offset) {

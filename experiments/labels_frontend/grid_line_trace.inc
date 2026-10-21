@@ -100,6 +100,30 @@ void lfgt_strip_transport(PyFrameObject* frame,const LFGridOpcodeState& state,Py
     }
 }
 
+void lfgt_callback_error(PyFrameObject* frame,int offset,int line,int event) {
+    nb::python_error error;
+    nb::object traceback=nb::steal<nb::object>(PyException_GetTraceback(error.value().ptr()));
+    if(PyErr_Occurred())throw nb::python_error();
+    nb::object previous=traceback.is_valid()?traceback:nb::none();
+    nb::object actual=previous;
+    // An exception-event callback failure leaves the already-unwinding source
+    // frame without adding that frame to the callback error's traceback.
+    bool omit_source=event==PyTrace_EXCEPTION;
+#if PY_VERSION_HEX < 0x030C0000
+    omit_source=omit_source || event==PyTrace_RETURN;
+#endif
+    if(!omit_source)
+        actual=lh_check(PyObject_CallFunctionObjArgs(reinterpret_cast<PyObject*>(&PyTraceBack_Type),
+            previous.ptr(),reinterpret_cast<PyObject*>(frame),nb::int_(offset).ptr(),nb::int_(line).ptr(),nullptr));
+    if(PyException_SetTraceback(error.value().ptr(),actual.ptr())<0)throw nb::python_error();
+    auto found=lfgt_driver->states.find(frame);
+    if(found!=lfgt_driver->states.end()) {
+        found->second.reported_error=error.value().ptr();found->second.reported_traceback=actual.ptr();
+        found->second.escaping_error=true;found->second.error_point=-1;
+    }
+    error.restore();
+}
+
 int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
                   PyCodeObject* code, nb::handle points, int index) {
     if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source point index changed");
@@ -108,6 +132,7 @@ int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
     int line = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point, 1)));
     LFGridLinePosition position(frame, code, offset, line);
     int result = lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
+    if(result<0)lfgt_callback_error(frame,offset,line,what);
     if (result == 0 && position.jumped()) {
         PyErr_SetString(PyExc_NotImplementedError, "native line pilot does not implement debugger jumps");
         return -1;
@@ -199,8 +224,15 @@ struct LFGridGetterLines {
         return LFGridObservedOps{locals}.call(std::move(function),args,kw,std::move(names),point);
     }
     void exception(nb::python_error& error,bool escaping=false) const {lfgt_exception(locals,error,escaping);}
-    void enter_handler() const {
-        lfgo_exception_entry(locals,"PUSH_EXC_INFO");lfgo_op(locals,"handled");
+    void enter_handler(nb::handle pending) const {
+        lfgo_exception_entry(locals,"PUSH_EXC_INFO");
+        try {lfgo_op(locals,"handled");}
+        catch(nb::python_error&) {
+            // The compiler's exceptional cleanup consumes the pending error
+            // as its saved handled state when tracing fails before PUSH.
+            PyErr_SetHandledException(pending.ptr());
+            throw;
+        }
     }
     void unwind(nb::handle previous) const {
         lfgo_exception_entry(locals,"COPY",true);lfgo_op(locals,"unhandled");

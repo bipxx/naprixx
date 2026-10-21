@@ -299,6 +299,18 @@ context chains and restoration of an ambient caller exception. Opcode presence
 is required. General exception/callback failures, complete source positions,
 observer ABI and lifetime behavior remain unqualified.
 
+Run `grid_observer_error_child.py` for fourteen trace-callback failure
+controls on each minor. Line/opcode failures retain their projected source
+frame; exception-event failures omit it, as do 3.11 return-event failures.
+The comparisons check traceback/context chains, disabled global/local tracing,
+ambient caller state and TypeError callbacks entering the source fallback.
+An opcode callback failing before PUSH_EXC_INFO leaves the pending error as
+handled state in the source interpreter. That state is compared explicitly,
+and only then reset between oracles with the public
+[handled-exception setter](https://docs.python.org/3.12/c-api/exceptions.html#c.PyErr_SetHandledException).
+This preserves the observed interpreter quirk; it is not full observer or
+lifetime approval. General failures and out-of-event frame positions remain open.
+
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions

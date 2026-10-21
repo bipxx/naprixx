@@ -20,7 +20,7 @@ if sys.version_info >= (3, 12):
     MODES += ['restore', 'restore-error']
 
 
-def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None):
+def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None, allow_empty=False):
     events, retained, parents, called = [], [], [], set()
 
     def normalize(value):
@@ -173,13 +173,13 @@ def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None):
             assert mode in ('restore-error','callback-error')
     finally:
         sys.setprofile(None)
-    assert events and parents
+    if not allow_empty: assert events and parents
     if mode=='restore-error': assert outcome==('raise','RuntimeError','inline body failure')
     if mode=='callback-error': assert outcome==('raise','RuntimeError','result type failure')
     if mode in ('restore','restore-error'):
         values = parents[-1].f_locals
         assert values['_x']==73 and values['_t'] is str, snapshot(parents[-1])
-    return outcome, events, snapshot(parents[-1]), snapshot(retained[-1])
+    return outcome, events, snapshot(parents[-1]) if parents else None, snapshot(retained[-1]) if retained else None
 
 
 def main():
