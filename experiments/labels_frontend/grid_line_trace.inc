@@ -2,12 +2,17 @@
 struct LFGridLineDriver;
 thread_local LFGridLineDriver* lfgt_driver = nullptr;
 int lfgt_proxy(PyObject*, PyFrameObject*, int, PyObject*);
+struct LFGridOpcodeState {
+    Py_ssize_t cursor = 1;
+    std::vector<std::pair<std::string,std::string>> pending;
+    bool trailing_opcode = false;
+};
 
 nb::object lfgt_points(PyCodeObject* code) {
     PyObject* constants = code->co_consts;
     if (PyTuple_GET_SIZE(constants) == 0) return {};
     PyObject* payload = PyTuple_GET_ITEM(constants, PyTuple_GET_SIZE(constants) - 1);
-    if (!PyTuple_CheckExact(payload) || PyTuple_GET_SIZE(payload) != 4) return {};
+    if (!PyTuple_CheckExact(payload) || (PyTuple_GET_SIZE(payload) != 4 && PyTuple_GET_SIZE(payload) != 5)) return {};
     PyObject* tag = PyTuple_GET_ITEM(payload, 0);
     if (!PyUnicode_CheckExact(tag) || PyUnicode_CompareWithASCIIString(tag, "naparixx.grid.v2") != 0) return {};
     PyObject* points = PyTuple_GET_ITEM(payload, 3);
@@ -68,6 +73,7 @@ struct LFGridLineDriver {
     nb::object previous_object = nb::borrow<nb::object>(thread->c_traceobj);
     LFGridLineDriver* parent = lfgt_driver;
     Py_tracefunc callback = parent && previous == lfgt_proxy ? parent->callback : previous;
+    std::map<PyFrameObject*,LFGridOpcodeState> states;
     LFGridLineDriver() {
         lfgt_driver = this;
         if (previous) PyEval_SetTrace(lfgt_proxy, previous_object.ptr());
@@ -102,20 +108,27 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         nb::object points = lfgt_points(actual);
         if (!points.is_valid())
             return lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
-        // Suppress interop-shell events; native statements supply source lines.
+        if (what == PyTrace_CALL) lfgt_driver->states[frame] = LFGridOpcodeState{};
+        // Suppress interop-shell events; native operations supply source events.
         if (what == PyTrace_LINE || what == PyTrace_OPCODE) return 0;
-        if (what == PyTrace_RETURN)
-            return lfgt_dispatch(frame, what, arg, actual, points, 15);
+        if (what == PyTrace_RETURN) {
+            int result = lfgt_dispatch(frame, what, arg, actual, points, 15);
+            lfgt_driver->states.erase(frame);
+            return result;
+        }
         return lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
     } catch (...) { lf_adapter_error(); return -1; }
 }
 
+#include "grid_opcode_trace.inc"
+
 void lfgt_line(const LFGridFastLocals& locals, int index) {
     if (!lfgt_driver || !lfgt_driver->callback ||
-        PyThreadState_Get()->c_tracefunc != lfgt_proxy || PyThreadState_Get()->tracing ||
-        !locals.frame->f_trace_lines) return;
+        PyThreadState_Get()->c_tracefunc != lfgt_proxy || PyThreadState_Get()->tracing) return;
     nb::object points = lfgt_points(locals.code);
     if (!points.is_valid()) return;
+    lfgo_align(locals, PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(points.ptr(), index), 0)));
+    if (!locals.frame->f_trace_lines) return;
     PyThreadState* thread = PyThreadState_Get();
     PyThreadState_EnterTracing(thread);
     int status;
@@ -123,9 +136,18 @@ void lfgt_line(const LFGridFastLocals& locals, int index) {
     catch (...) { PyThreadState_LeaveTracing(thread); throw; }
     PyThreadState_LeaveTracing(thread);
     if (status < 0) throw nb::python_error();
+#if PY_VERSION_HEX < 0x030C0000
+    // The legacy evaluator has already queued this instruction's opcode
+    // callback when a line callback disables global tracing.
+    if (!thread->c_tracefunc && locals.frame->f_trace_opcodes) {
+        auto found=lfgt_driver->states.find(locals.frame);
+        if(found!=lfgt_driver->states.end()) found->second.trailing_opcode=true;
+    }
+#endif
 }
 
-nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple profile, nb::tuple points) {
+nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple profile, nb::tuple points,
+                        nb::object instructions) {
     if (!PyCode_Check(replacement.ptr()) || !PyCode_Check(original.ptr()) ||
         !lf_grid_profile_code(original, profile) || points.size() != 16)
         throw nb::type_error("complete indices source compiler controls required");
@@ -154,8 +176,15 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
     if (!PyTuple_CheckExact(old) || PyTuple_GET_SIZE(old) != 3)
         throw nb::type_error("prepared grid source payload required");
     nb::object constants = lh_check(PySequence_List(shell->co_consts));
-    nb::object payload = nb::make_tuple(nb::handle(PyTuple_GET_ITEM(old, 0)),
+    nb::object payload;
+    if (instructions.is_none()) payload = nb::make_tuple(nb::handle(PyTuple_GET_ITEM(old, 0)),
         nb::handle(PyTuple_GET_ITEM(old, 1)), nb::handle(PyTuple_GET_ITEM(old, 2)), points);
+    else {
+        lfgo_validate(source, instructions);
+        instructions=lfgo_with_lines(source,instructions);
+        payload = nb::make_tuple(nb::handle(PyTuple_GET_ITEM(old, 0)),nb::handle(PyTuple_GET_ITEM(old, 1)),
+            nb::handle(PyTuple_GET_ITEM(old, 2)), points, instructions);
+    }
     if (PyList_SetItem(constants.ptr(), count - 1, payload.release().ptr()) < 0) throw nb::python_error();
     nb::dict keywords;
     keywords["co_code"] = nb::bytes(bytes.data(), bytes.size());
@@ -167,7 +196,8 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
 }
 
 void lfgt_exports(nb::module_& module) {
-    module.def("prepare_grid_line_transport_probe", &lfgt_prepare);
+    module.def("prepare_grid_line_transport_probe", &lfgt_prepare,nb::arg("replacement"),nb::arg("original"),
+        nb::arg("profile"),nb::arg("points"),nb::arg("instructions").none()=nb::none());
     module.def("call_grid_line_transport_probe", [](nb::object function, nb::tuple arguments) {
         LFGridLineDriver scope;
         return lh_check(PyObject_CallObject(function.ptr(), arguments.ptr()));

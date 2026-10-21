@@ -62,7 +62,8 @@ def main():
                 try:
                     if policy=='getitem': result=getitem.run(probe,code,shells,'sparse',native)
                     else:
-                        pilot=LineProbe(probe) if native and '--line-transport' in sys.argv else None
+                        pilot=LineProbe(probe,opcodes='--opcode-transport' in sys.argv) if native and (
+                            '--line-transport' in sys.argv or '--opcode-transport' in sys.argv) else None
                         result=indices.run(pilot if pilot else probe,code,shells['_grid_indices'],'dense',native,
                             invoke=pilot.invoke if pilot else None)
                 finally:

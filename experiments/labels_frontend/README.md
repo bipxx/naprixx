@@ -34,7 +34,7 @@ checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
 isolated grid comprehension frame check, one indices-local check and one grid
 parent/inlined-local check, one temporary-lifetime check and one native line
-transport check (161 cases
+transport check and one native opcode transport check (162 cases
 in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
@@ -84,7 +84,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-161-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+162-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -201,7 +201,7 @@ These requirements follow the [CPython tracing issue](https://github.com/python/
 and the pinned [3.13 frame setters](https://github.com/python/cpython/blob/v3.13.8/Objects/frameobject.c).
 The initial incomplete observations are retained locally. Native source-event/
 position transport remains required. The diagnostic is not counted as a passing test
-in the finite 161-case policy suite.
+in the finite 162-case policy suite.
 
 An opt-in `indices` line-transport pilot now closes that function's normal line
 event comparison on 3.11/3.12/3.13. `grid_line_trace.inc` forwards the user's trace
@@ -221,6 +221,31 @@ tracer or startup path is installed. Debugger jumps raise `NotImplementedError`
 when detected. Opcode delivery, complete exception/traceback and out-of-event
 positions, profiling/monitoring, C trace callbacks and general observer/reentry
 compatibility remain unqualified. This pilot does not accept the full frame ABI.
+
+The opt-in indices pilot also supplies opcode events at native operand
+boundaries. `grid_indices.inc` remains the handwritten algorithm;
+`grid_opcode_trace.inc` uses checked compiler instruction metadata solely to
+schedule observer events. It does not execute original Python policy. Hooks
+precede native global/local loads, stores, calls, arithmetic, slicing and branch
+decisions. Tests compare every event's line/offset/local names and resulting
+values with source, including mutation before loads, at calls after operand
+capture, and before stores. The 3.13 control also mutates a fused-load operand.
+Fifteen controls pass on 3.11/3.12 and sixteen on 3.13, retaining the twelve
+line/state controls with opcode delivery enabled.
+
+This includes the 3.11 opcode callback already queued when a line callback
+disables tracing, 3.13's separate truth conversion and fused instructions, and
+the cleanup markers skipped by iterator exhaustion. Original compiler line
+numbers are frozen into the observer metadata; padded-shell cache positions
+cannot supply them reliably. Initial cast, cleanup, trace-disable and 3.13
+metadata failures are retained locally.
+
+Run `grid_opcode_child.py` with the matching probe on `PYTHONPATH`. Add
+`--opcode-transport` to the strict diagnostic to pass both indices line and
+opcode rows on all three minors. The overall command still exits 1 for
+`getitem`; default activation, complete error/out-of-event positions, jumps,
+profiling/monitoring and general observer ABI remain open. The earlier line-only
+adapter remains available for its narrower controls.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
