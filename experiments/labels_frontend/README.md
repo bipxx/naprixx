@@ -169,7 +169,7 @@ native binary fails the new parent-local oracle. The runner
 `grid_getitem_locals_child.py` uses synthetic numeric leaves; full provider and
 frame ABI acceptance remain separate.
 
-Seven temporary-lifetime comparisons also pass on 3.11/3.12/3.13. They retain
+Eleven temporary-lifetime comparisons also pass on 3.11/3.12/3.13. They retain
 failures from the prior native binary and fix observable finalizer differences:
 the star-call callable is released before assigning `typ`, exhausted iterators
 before the following source assignment/return, a partial comprehension's
@@ -181,6 +181,26 @@ context; assertions require the relevant finalizers to have run before compariso
 `grid_temporary_lifetime_child.py` reproduces these finite comparisons using
 synthetic numeric leaves. It does not certify all temporary/error/GC/shutdown
 behavior or source tracing.
+
+The four latest controls cover transient `isinstance` operands/classes, a
+self-removing `isinstance` callable, and a transient comparison operand. Native
+call arguments and comparison operands now release before the conditional truth
+test, as the source does. Prior extra C++ owners delayed finalizers, changed
+the truth result and produced different grid values; the prior binary fails
+three of these controls. The fourth retains the already-correct callable timing.
+
+`grid_trace_comparison.py` is a strict, separate tracing diagnostic. Run it with
+the matching probe on `PYTHONPATH`. It currently exits 1 on 3.11/3.12/3.13:
+policy values match, but native transport events differ from source policy
+events. For example, the 3.12 grid line-trace comparison records 65 source
+events and 3 native events. Opcode observation is now complete on all three
+minors: the setup requests opcodes before installing the tracer on 3.12 and
+installs each frame's callback before enabling its opcode monitoring on 3.13.
+These requirements follow the [CPython tracing issue](https://github.com/python/cpython/issues/114480)
+and the pinned [3.13 frame setters](https://github.com/python/cpython/blob/v3.13.8/Objects/frameobject.c).
+The initial incomplete observations are retained locally. Native source-event/
+position transport remains required. The diagnostic is not counted as a passing test
+in the finite 160-case policy suite.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape

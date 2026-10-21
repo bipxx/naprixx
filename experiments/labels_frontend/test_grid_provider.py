@@ -58,4 +58,4 @@ def test_grid_temporary_lifetime():
     result=subprocess.run([sys.executable,'-B',str(directory/'grid_temporary_lifetime_child.py')],
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
-    assert json.loads(result.stdout.splitlines()[0])['controls']==7
+    assert json.loads(result.stdout.splitlines()[0])['controls']==11

@@ -10,16 +10,19 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         return lh_check(operation(left.ptr(), right.ptr()));
     };
     auto complex_step = [&]() {
-        nb::object callable = G("isinstance"), step = L("step");
-        nb::object floating = N("complexfloating"), complex = G("complex");
-        nb::object classes = nb::make_tuple(floating, complex);
-        return lh_truth(lh_call(std::move(callable), {LFG(step), LFG(classes)}));
+        auto classes = [&]() {
+            nb::object floating = N("complexfloating"), complex = G("complex");
+            return nb::make_tuple(floating, complex);
+        };
+        // CALL releases its operands before the conditional truth test. Do
+        // not keep additional C++ owners across an observable __bool__ call.
+        return lh_truth(lh_call(G("isinstance"), {LFG(L("step")), LFG(classes())}));
     };
     auto step_unequal_one = [&]() {
         nb::object value = L("step");
-        int result = PyObject_RichCompareBool(value.ptr(), nb::int_(1).ptr(), Py_NE);
-        if (result < 0) throw nb::python_error();
-        return result != 0;
+        PyObject* result = PyObject_RichCompare(value.ptr(), nb::int_(1).ptr(), Py_NE);
+        value.reset();
+        return lh_truth(lh_check(result));
     };
     auto normalized_start = [&]() {
         if (L("start").is_none()) locals.store("start", nb::int_(0));

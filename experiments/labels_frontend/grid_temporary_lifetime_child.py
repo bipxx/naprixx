@@ -17,11 +17,12 @@ from inspect_inputs import walk
 DIRECTORY=Path(__file__).resolve().parent
 ROOT=DIRECTORY.parents[1]
 MODES=('result-type','result-type-error','indices-iterator','indices-iterator-error',
-       'zip-iterator','zip-iterator-error','arange-callable')
+       'zip-iterator','zip-iterator-error','arange-callable','isinstance-operands',
+       'isinstance-classes','isinstance-callable','comparison-operand')
 
 
 def run(probe,codes,shells,mode,native):
-    events=[]; parents={}; aranges=0
+    events=[]; parents={}; aranges=0; flags={}; int_calls=0
 
     def write(frame,**updates):
         frame.f_locals.update(updates)
@@ -89,7 +90,63 @@ def run(probe,codes,shells,mode,native):
         def __getattribute__(self,name):
             if name=='result_type': return Callable()
             if name=='arange' and mode=='arange-callable': return ArangeCallable()
+            if name=='complexfloating' and mode=='isinstance-classes' and not flags.get('class-created'):
+                flags['class-created']=True
+                return ClassOperand()
             return object.__getattribute__(self,name)
+
+    class BooleanResult:
+        def __init__(self,flag): self.flag=flag
+        def __bool__(self):
+            events.append(('truth',self.flag,bool(flags.get(self.flag))))
+            return bool(flags.get(self.flag))
+
+    class StepOperand:
+        def __del__(self):
+            flags['step-dead']=True; events.append(('step-finalize',))
+
+    class ClassOperand:
+        def __del__(self):
+            flags['class-dead']=True; events.append(('class-finalize',))
+
+    class CompareOperand:
+        def __ne__(self,other):
+            parents['grid']=sys._getframe(1)
+            write(parents['grid'],step=2)
+            return BooleanResult('compare-dead')
+        def __del__(self):
+            flags['compare-dead']=True; events.append(('compare-finalize',))
+
+    class IsinstanceCallable:
+        def __call__(self,value,classes):
+            namespace.pop('isinstance')
+            return BooleanResult('isinstance-dead')
+        def __del__(self):
+            flags['isinstance-dead']=True; events.append(('isinstance-finalize',))
+
+    class OperandSlice:
+        start=0; stop=5
+        @property
+        def step(self):
+            if mode=='isinstance-operands' and not flags.get('step-created'):
+                flags['step-created']=True
+                return StepOperand()
+            return 2
+
+    def isinstance_callback(value,classes):
+        if not flags.get('isinstance-called'):
+            flags['isinstance-called']=True
+            if mode=='isinstance-operands':
+                parents['grid']=sys._getframe(1)
+                write(parents['grid'],step=1)
+                return BooleanResult('step-dead')
+            if mode=='isinstance-classes': return BooleanResult('class-dead')
+        return isinstance(value,classes)
+
+    def int_callback(value):
+        nonlocal int_calls
+        int_calls+=1
+        return CompareOperand() if int_calls==2 else int(value)
 
     class ArangeCallable:
         def __call__(self,value,*,dtype):
@@ -124,6 +181,9 @@ def run(probe,codes,shells,mode,native):
     namespace={'__builtins__':vars(builtins),'__name__':'numpy._core.numeric' if index_mode else 'numpy.lib._index_tricks_impl',
                'arange':arange,'enumerate':enumerate_callback,'zip':zip_callback,'math':math}
     numeric=Numeric(); numeric.arange=arange; namespace['_nx']=numeric
+    if mode in ('isinstance-operands','isinstance-classes'): namespace['isinstance']=isinstance_callback
+    if mode=='isinstance-callable': namespace['isinstance']=IsinstanceCallable()
+    if mode=='comparison-operand': namespace['int']=int_callback
     entry=1 if index_mode else 0
     code=codes[entry]; function=types.FunctionType(code,namespace)
     if native:
@@ -138,7 +198,9 @@ def run(probe,codes,shells,mode,native):
         sys.setprofile(guard)
     try:
         try:
-            value=function((2,3),int,True) if index_mode else function(types.SimpleNamespace(sparse=True),(slice(1,5,2),slice(0,3)))
+            key=(slice(0,4,3j),) if mode=='comparison-operand' else (
+                (OperandSlice(),) if mode.startswith('isinstance-') else (slice(1,5,2),slice(0,3)))
+            value=function((2,3),int,True) if index_mode else function(types.SimpleNamespace(sparse=True),key)
             outcome=('return',normalize(value))
         except RuntimeError as error:
             outcome=('raise',type(error).__name__,str(error))
@@ -150,6 +212,9 @@ def run(probe,codes,shells,mode,native):
     if mode=='zip-iterator-error': required.append('array-finalize')
     assert all(sum(row[0]==name for row in events)==1 for name in required),events
     if mode=='arange-callable': assert sum(row[0]=='arange-callable-finalize' for row in events)==2,events
+    for selected,event in (('isinstance-operands','step-finalize'),('isinstance-classes','class-finalize'),
+                           ('isinstance-callable','isinstance-finalize'),('comparison-operand','compare-finalize')):
+        if mode==selected: assert sum(row[0]==event for row in events)==1,events
     return outcome,events
 
 
