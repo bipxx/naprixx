@@ -14,7 +14,7 @@
     "cpp/include/arrays.hpp": "54d4bc5c10abaf514ec169f258578c83db520d5d2c02b81f34cc378f35e7196e"
   },
   "experiment_inputs": {
-    "capture_imports.py": "63ffb33a675a5fb094d59a24b4ce8f7e5c63248bc2c698d9ec5a9557a13af311",
+    "capture_imports.py": "bde9a7976baef46ce3f24b6ea60d8315adc236980da826dec7a0404d511e0892",
     "CMakeLists.txt": "6842043bbad6caa2f935d7e5c139c1c05a5b564e6bd921b909e9c49315f9635e",
     "compiler_controls.py": "7974935f89f61ecbda69a0024c89f177c957f3c8e1face01fed028ee73f11bcd",
     "conftest.py": "496afab8e67c621b008c445d099f5371a785dd20328c9276e665a1419ee5d9cc",
@@ -22,17 +22,17 @@
     "freeze_transport.py": "35824e11f19fcc0c14669112bf3df2dc4d7eaf9061fc0fd10004bad15a8a5d3b",
     "frontend_shells.py": "fe016bd25ee87bfce9883361c20e43fa25cd6bdbfbb8286114ad5957b3720881",
     "inspect_inputs.py": "263bde77216e02517e71091c4779b8ceda84aa5a0b348c96e72a25df217f8d82",
-    "native_probe.cpp": "8853cbeabf583b59b1a29e44abfc0baee2beddbad1b7a2813e58689d59b94b80",
-    "producer_capture.inc": "a6964209d238a1db18e20e5c2aacc5490129e1451b956a11262c1e115f9c1434",
-    "producer_child.py": "f7d636d28b2dd9e26f808730815dce752b75ab2c9228961a479c9bef6fb23911",
-    "README.md": "a953d8ec4e6f7ec4dd5e2a50e505f0260d1927d0500f925188aabd112152ce46",
+    "native_probe.cpp": "057db2293c22636057f48303bd4917b035c5fe6c18d8f70732b8fdc8ac11d9db",
+    "producer_capture.inc": "b9a7da0383679673cda9b60a0a0e184e0047fdb520babf15d2f29ffea228a8c5",
+    "producer_child.py": "6fe3fa8806251600a8709eda5f661fae6384c58b5cced1276787a3952a5b91de",
+    "README.md": "c4cb8b20d49e781774c3fe175e37e78eaca737bbb8d43bce9cb25529992a2e3b",
     "reference_bindings.py": "559dc12b968ae908a0e7f46905a4547d0e84240ad02abafa972f47470f0e4305",
     "run_tests.py": "148f0c3868013ecc0227ffaf24d5c06fff6dd66a361a7ac76c82069804895112",
     "selection.json": "2e4817665e3e405d108ee9ded0ffde3d089b65cd73bb920ee099865cdaa9e309",
     "state_protocol.py": "e37dc1a59c70e8a77a039b6f16fa6ffb5465d0d9257c89e30e37f9c4bc656c67",
     "test_canonical_snapshot.py": "3b95b296a2cb8b6340638414789ede383218a9a196bef15b0e4b02c1270bc0f6",
     "test_expression_order.py": "7b0219e6a4885da0fc1fa32b45b593602cea88008053c4e4208e19428f45fd81",
-    "test_producer_capture.py": "7bd845e7ef3281605f374f31f62f26aa5e32bb3e28b14ec0bf47f6ae71cff900",
+    "test_producer_capture.py": "0e25df2b0e5624e842ba781086a4aa26229d3e8806aca22d7d5f84bf893db9d2",
     "update_manifest.py": "d96ee48376e07c632653741949605d231378a448ec5588291cc4535691f638ee"
   },
   "provenance": {

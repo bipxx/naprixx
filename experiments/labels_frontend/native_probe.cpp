@@ -4211,8 +4211,8 @@ nb::object lfe_start(nb::object function, nb::object iterator) {
     return lh_call(std::move(protocol),{LFE(object)});
 }
 
-nb::object lfe_prepare_codes(nb::tuple parents, nb::tuple source_profiles,
-                             nb::tuple shells, nb::tuple shell_profiles) {
+nb::object lfe_prepare_codes_impl(nb::tuple parents, nb::tuple source_profiles,
+                             nb::tuple shells, nb::tuple shell_profiles, bool code_parents) {
     if (parents.size()!=4 || source_profiles.size()!=50 || shells.size()!=7 || shell_profiles.size()!=7)
         throw nb::type_error("complete frontend expression compiler tables are required");
     const int parent_slot[]={0,0,1,2,3,3,3}, parent_entry[]={10,10,11,29,3,3,3}, ordinal[]={0,1,0,0,0,1,2};
@@ -4221,8 +4221,9 @@ nb::object lfe_prepare_codes(nb::tuple parents, nb::tuple source_profiles,
     nb::object callback=lh_check(PyCFunction_NewEx(&lfe_frame_definition,nullptr,module.ptr()));
     for (int kind=0;kind<7;++kind) {
         PyObject* parent=parents[parent_slot[kind]].ptr();
-        if (!PyFunction_Check(parent)) throw nb::type_error("genuine expression parent function is required");
-        auto* parent_code=reinterpret_cast<PyCodeObject*>(PyFunction_GetCode(parent));
+        if (code_parents ? !PyCode_Check(parent) : !PyFunction_Check(parent))
+            throw nb::type_error("genuine expression parent declaration is required");
+        auto* parent_code=reinterpret_cast<PyCodeObject*>(code_parents?parent:PyFunction_GetCode(parent));
         if (!lf_grid_profile_code(nb::handle(reinterpret_cast<PyObject*>(parent_code)),source_profiles[parent_entry[kind]]))
             throw nb::type_error("expression parent compiler profile does not match");
         PyCodeObject* original=nullptr;
@@ -4279,6 +4280,9 @@ nb::object lfe_prepare_codes(nb::tuple parents, nb::tuple source_profiles,
 }
 #undef LFE
 
+nb::object lfe_prepare_codes(nb::tuple parents,nb::tuple source_profiles,nb::tuple shells,nb::tuple shell_profiles) {
+    return lfe_prepare_codes_impl(parents,source_profiles,shells,shell_profiles,false);
+}
 // Unified experimental dispatcher for all50 source-selected bodies. Profiles
 // reject incompatible templates; canonical declaration provenance is separate.
 #define LFF(value) [&]() -> nb::object { return (value); }
@@ -4637,11 +4641,14 @@ LFCanonicalBindings lfc_collect(nb::handle wrapper_profile) {
         if (state.functions[i].ptr()==state.functions[j].ptr()) throw nb::type_error("distinct canonical source functions are required");
     return state;
 }
+void lfp_validate_snapshot(nb::handle owners,nb::handle wrapper_profile);
 struct LFCanonicalSnapshot {
     LFCanonicalBindings bindings;
     nb::object wrapper_profile;
+    nb::object producer_scopes;
     std::vector<nb::object> prepared;
     void validate() const {
+        if (producer_scopes.is_valid()) lfp_validate_snapshot(producer_scopes,wrapper_profile);
         LFCanonicalBindings current=lfc_collect(wrapper_profile);
         if (current.anchors.size()!=bindings.anchors.size()) throw nb::type_error("canonical binding snapshot changed");
         for (size_t i=0;i<current.anchors.size();++i)
@@ -4656,6 +4663,7 @@ int lfc_traverse(PyObject* self,visitproc visit,void* arg) {
         for (const auto& value:state.bindings.functions) Py_VISIT(value.ptr());
         for (const auto& value:state.prepared) Py_VISIT(value.ptr());
         Py_VISIT(state.wrapper_profile.ptr());
+        Py_VISIT(state.producer_scopes.ptr());
     }
     return 0;
 }
@@ -4663,6 +4671,7 @@ int lfc_clear(PyObject* self) {
     if (nb::inst_ready(self)) {
         auto& state=*nb::inst_ptr<LFCanonicalSnapshot>(self);
         state.bindings.anchors.clear();state.bindings.functions.clear();state.prepared.clear();state.wrapper_profile.reset();
+        state.producer_scopes.reset();
     }
     return 0;
 }

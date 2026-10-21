@@ -29,7 +29,7 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 ```
 
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
-checks and 18 producer-capture checks. Nine producer scenarios use fresh child
+checks and 24 capture/preparation/source-buffer checks. Fourteen scenarios use fresh child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
 profiles are derived for this checkout and interpreter from the manifest-pinned
@@ -50,8 +50,16 @@ owning code cycles, and temporary session references are cleared even when impor
 frames survive through provider tracebacks. The original loader metadata and
 genuine source caches are preserved.
 
-No code publication operation is exposed. Integrating the producer mechanism with
-native preparation/default startup, atomic handoff under audit/reentrant hooks,
+Captured declarations now feed native preparation of all 50 replacements and
+seven expression transports. Original compiler controls and actual argument/cell
+layouts are checked before preparation, then captured identities are checked
+again before returning the plan. Preparation preserves the existing functions,
+descriptors, defaults and aliases. The plan owns its capture references through
+Python GC; prepared CodeTypes remain usable after the plan and scopes are released.
+Capture instrumentation and original controls use the same verified source buffer.
+
+No code publication operation is exposed. Default startup integration, atomic
+handoff under audit/reentrant hooks,
 complete target/parent locals and tracing/release
 ABI, provider/default-grid conversion, effective independent review, and installed
 Viewer/plugin/shutdown qualification remain required. Legacy callable transports

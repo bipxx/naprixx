@@ -14,7 +14,8 @@ from capture_imports import instrument, MARKER
 
 
 @pytest.mark.parametrize('scenario',['all50','identical-before-validation','identical-adapter','identical-class',
-    'missing-scope','duplicate-scope','closed-replay','factory-after-close','factory-after-scope-release'])
+    'missing-scope','duplicate-scope','closed-replay','factory-after-close','factory-after-scope-release',
+    'prepare-all50','prepare-runtime','prepare-profile-rejection','prepare-audit-mutation','prepare-plan-release'])
 def test_actual_defining_execution_capture(scenario):
     directory=Path(__file__).resolve().parent
     env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
@@ -100,3 +101,17 @@ def test_scope_code_weak_marker_and_module_cycle_are_collectible(tmp_path,monkey
     gc.collect()
     gc.collect()
     assert all(reference() is None for reference in references)
+
+
+def test_instrument_uses_the_supplied_source_buffer(tmp_path,monkeypatch):
+    path=tmp_path/'changed_after_read.py'
+    source=b'def f():\n    return 7\n'
+    path.write_bytes(b'def f():\n    return 99\n')
+    body,rows=instrument(path,[(5,{'qualname':'f','occurrence':1})],source)
+    module=ModuleType('_naparixx_source_buffer_fixture')
+    monkeypatch.setitem(sys.modules,module.__name__,module)
+    original=compile(source,str(path),'exec',dont_inherit=True)
+    scope=probe.prepare_producer_capture_probe(module,body,rows,original)
+    exec(scope.code,module.__dict__)
+    scope.finish()
+    assert module.f()==7

@@ -26,8 +26,8 @@ def is_marker(node):
             and isinstance(node.func.value,ast.Constant) and node.func.value.value==MARKER)
 
 
-def instrument(path,definitions):
-    original=ast.parse(path.read_bytes(),filename=str(path))
+def instrument(path,definitions,source=None):
+    original=ast.parse(path.read_bytes() if source is None else source,filename=str(path))
     tree=copy.deepcopy(original)
     entries={(row['qualname'],row['occurrence']):entry for entry,row in definitions}
     observed=set()
@@ -111,8 +111,11 @@ class CaptureLoader(importlib.machinery.SourceFileLoader):
         path=Path(self.path).resolve()
         definitions=session.groups[fullname]
         assert path==(ROOT/definitions[0][1]['module']).resolve()
-        code,rows=instrument(path,definitions)
-        owner=session.probe.prepare_producer_capture_probe(sys.modules[fullname],code,rows)
+        source=path.read_bytes()
+        assert hashlib.sha256(source).hexdigest()==definitions[0][1]['source']['sha256']
+        code,rows=instrument(path,definitions,source)
+        original=compile(source,str(path),'exec',dont_inherit=True)
+        owner=session.probe.prepare_producer_capture_probe(sys.modules[fullname],code,rows,original)
         session.scopes[fullname]=owner
         return owner.code
 

@@ -67,6 +67,18 @@ retains failures and limits. Cleanup removed another 9,054,638 bytes of settled
 intermediates. Default application capture, native preparation/publication and
 the remaining compatibility/review gates are still open.
 
+The latest candidate connects captured declarations to native preparation of all
+50 replacements and seven expression transports. Its final focused suite passed
+120 distinct cases with no failures/errors/skips, including 14 fresh-import child
+scenarios with archive access denied. New checks cover preparation, representative
+native execution, profile rejection, audit-hook mutation and plan/scope release;
+a source-buffer check closes the window between separate file reads. Canonical
+functions and production binaries remain unchanged. The
+[preparation evidence](../.artifacts/labels-native-frontend-edit-owner-captured-preparation-stage/progress.json)
+records this finite scope and another 9,086,580 bytes of settled cleanup. Atomic
+publication, default startup integration and the broader review/compatibility
+requirements remain open.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).

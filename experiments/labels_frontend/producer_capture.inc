@@ -4,7 +4,7 @@ namespace nx {
 struct LFProducerDeclaration {
     int entry=-1;
     int factory_begin=-1,factory_end=-1,apply_begin=-1,apply_end=-1;
-    nb::object parent,code,function;
+    nb::object parent,code,function,original;
 };
 struct LFProducerScope {
     nb::object module,body,marker;
@@ -122,7 +122,7 @@ void lfp_find(nb::handle parent,const char* qualname,int occurrence,int& seen,nb
         lfp_find(nb::handle(value),qualname,occurrence,seen,found_parent,found);
     }
 }
-nb::object lfp_prepare(nb::object module,nb::object code,nb::tuple rows) {
+nb::object lfp_prepare(nb::object module,nb::object code,nb::tuple rows,nb::object original_body) {
     if (!PyModule_CheckExact(module.ptr()) || !PyCode_Check(code.ptr()) || rows.size()==0)
         throw nb::type_error("actual module, compiled declaration body and entries are required");
     LFProducerScope value;value.module=module;
@@ -151,6 +151,13 @@ nb::object lfp_prepare(nb::object module,nb::object code,nb::tuple rows) {
             if (prior.entry==declaration.entry) throw nb::type_error("duplicate producer declaration entry");
         lfp_find(scope.body,qualname,occurrence,seen,declaration.parent,declaration.code);
         if (!declaration.code.is_valid()) throw nb::type_error("producer code declaration is missing");
+        if (!original_body.is_none()) {
+            if (!PyCode_Check(original_body.ptr())) throw nb::type_error("original compiled module control is required");
+            nb::object ignored_parent;
+            int original_seen=0;
+            lfp_find(original_body,qualname,occurrence,original_seen,ignored_parent,declaration.original);
+            if (!declaration.original.is_valid()) throw nb::type_error("original source declaration is missing");
+        }
         scope.declarations.push_back(std::move(declaration));
     }
     return owner;
@@ -193,13 +200,58 @@ nb::object lfp_validate(nb::tuple owners,nb::tuple wrapper_profile) {
     for (bool captured:seen) if (!captured) throw nb::type_error("complete fifty-function/four-class producer capture is required");
     return lfc_tuple(canonical.functions);
 }
+void lfp_validate_snapshot(nb::handle owners,nb::handle wrapper_profile) {
+    (void)lfp_validate(nb::borrow<nb::tuple>(owners),nb::borrow<nb::tuple>(wrapper_profile));
+}
+nb::object lfp_prepare_native(nb::tuple owners,nb::tuple shells,nb::tuple source_profiles,
+        nb::tuple shell_profiles,nb::tuple expression_shells,nb::tuple expression_profiles,nb::tuple wrapper_profile) {
+    (void)lfp_validate(owners,wrapper_profile);
+    if (source_profiles.size()!=50) throw nb::type_error("complete original compiler controls are required");
+    LFCanonicalSnapshot result;
+    result.producer_scopes=owners;result.wrapper_profile=wrapper_profile;
+    result.bindings=lfc_collect(wrapper_profile);
+    std::vector<nb::object> originals(50);
+    for (nb::handle owner:owners) {
+        const auto& scope=*nb::inst_ptr<LFProducerScope>(owner);
+        for (const auto& declaration:scope.declarations) {
+            if (declaration.entry>=50) continue;
+            if (!declaration.original.is_valid() || !lf_grid_profile_code(declaration.original,source_profiles[declaration.entry]))
+                throw nb::type_error("captured original source compiler profile does not match");
+            auto* source=reinterpret_cast<PyCodeObject*>(declaration.original.ptr());
+            auto* actual=reinterpret_cast<PyCodeObject*>(declaration.code.ptr());
+            if (source->co_argcount!=actual->co_argcount || source->co_posonlyargcount!=actual->co_posonlyargcount ||
+                source->co_kwonlyargcount!=actual->co_kwonlyargcount || source->co_flags!=actual->co_flags)
+                throw nb::type_error("captured source argument/generator ABI changed");
+            for (const char* name:{"co_varnames","co_freevars","co_cellvars"}) {
+                nb::object expected=lh_check(PyObject_GetAttrString(declaration.original.ptr(),name));
+                nb::object found=lh_check(PyObject_GetAttrString(declaration.code.ptr(),name));
+                int same=PyObject_RichCompareBool(expected.ptr(),found.ptr(),Py_EQ);
+                if (same<0) throw nb::python_error();
+                if (!same) throw nb::type_error("captured source local/cell binding ABI changed");
+            }
+            // Only the two factories contain a selected nested declaration.
+            // Other bodies must still match the full uninstrumented profile.
+            if (declaration.entry!=35 && declaration.entry!=37 &&
+                !lf_grid_profile_code(declaration.code,source_profiles[declaration.entry]))
+                throw nb::type_error("non-factory source body changed during capture");
+            originals[declaration.entry]=declaration.original;
+        }
+    }
+    nb::tuple parents=nb::make_tuple(originals[10],originals[11],originals[29],originals[3]);
+    nb::object expressions=lfe_prepare_codes_impl(parents,source_profiles,expression_shells,expression_profiles,true);
+    for (int i=0;i<50;++i)
+        result.prepared.push_back(lfu_prepare_code(reinterpret_cast<PyCodeObject*>(originals[i].ptr()),
+            i,shells,source_profiles,shell_profiles,expressions));
+    result.validate();
+    return nb::cast(std::move(result));
+}
 int lfp_scope_traverse(PyObject* self,visitproc visit,void* arg) {
     Py_VISIT(Py_TYPE(self));
     if (nb::inst_ready(self)) {
         const auto& scope=*nb::inst_ptr<LFProducerScope>(self);
         Py_VISIT(scope.module.ptr());Py_VISIT(scope.body.ptr());Py_VISIT(scope.marker.ptr());
         for (const auto& declaration:scope.declarations) {
-            Py_VISIT(declaration.parent.ptr());Py_VISIT(declaration.code.ptr());Py_VISIT(declaration.function.ptr());
+            Py_VISIT(declaration.parent.ptr());Py_VISIT(declaration.code.ptr());Py_VISIT(declaration.function.ptr());Py_VISIT(declaration.original.ptr());
         }
     }
     return 0;
@@ -239,7 +291,8 @@ void lfp_exports(nb::module_& m) {
         .def("__call__",[](LFProducerIdentityTicket&,nb::object value){return value;});
     nb::class_<LFProducerTicket>(m,"_ProducerTicket",nb::is_weak_referenceable(),nb::type_slots(lfp_ticket_slots))
         .def("__call__",&lfp_capture);
-    m.def("prepare_producer_capture_probe",&lfp_prepare);
+    m.def("prepare_producer_capture_probe",&lfp_prepare,nb::arg("module"),nb::arg("code"),nb::arg("rows"),nb::arg("original_body")=nb::none());
     m.def("validate_captured_frontend_probe",&lfp_validate);
+    m.def("prepare_captured_frontend_probe",&lfp_prepare_native);
 }
 }
