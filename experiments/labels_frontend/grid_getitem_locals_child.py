@@ -20,7 +20,7 @@ if sys.version_info >= (3, 12):
     MODES += ['restore', 'restore-error']
 
 
-def run(probe, code, shells, mode, native):
+def run(probe, code, shells, mode, native, invoke=None):
     events, retained, parents, called = [], [], [], set()
 
     def normalize(value):
@@ -105,6 +105,15 @@ def run(probe, code, shells, mode, native):
                 callback('lookup-'+name, sys._getframe(1))
             return object.__getattribute__(self, name)
 
+    class ZipStage:
+        def __init__(self, items, stage=0): self.items,self.stage=items,stage
+        def __iter__(self):
+            callback('zip-iter-'+str(self.stage),sys._getframe(1))
+            return ZipStage(self.items,self.stage+1)
+        def __next__(self):
+            value,dtype=next(self.items)
+            return value+(self.stage==2),dtype
+
     def result_type(*args):
         callback('result_type', sys._getframe(1), *args)
         return float if mode.startswith('complex-') else int
@@ -125,6 +134,7 @@ def run(probe, code, shells, mode, native):
         function = getattr(builtins, name)
         def call(*args):
             callback(name, sys._getframe(1), *args)
+            if name=='zip' and mode=='iterator-forward': return ZipStage(zip(*args))
             return function(*args)
         return call
 
@@ -145,11 +155,13 @@ def run(probe, code, shells, mode, native):
         def guard(frame,event,arg):
             if event=='call' and frame.f_code in originals: raise AssertionError('original grid body executed')
         sys.setprofile(guard)
-    key = Slice(1,5,2) if mode=='single' else Slice(1,5,3j) if mode=='complex-single' else (
+    key = () if mode.startswith('empty-') else Slice(1,5,2) if mode=='single' else Slice(1,5,3j) if mode=='complex-single' else (
         Slice(1,5,3j if mode=='complex-grid' else 2), Slice(0,3,1))
     try:
         try:
-            outcome = ('return',normalize(function(types.SimpleNamespace(sparse=mode!='dense'), key)))
+            arguments=(types.SimpleNamespace(sparse=mode not in ('dense','empty-dense')),key)
+            value=function(*arguments) if invoke is None else invoke(function,arguments)
+            outcome = ('return',normalize(value))
         except RuntimeError as error:
             outcome = ('raise',type(error).__name__,str(error))
             assert mode in ('restore-error','callback-error')

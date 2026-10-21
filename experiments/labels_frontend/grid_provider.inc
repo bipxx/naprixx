@@ -48,16 +48,27 @@ struct LFGridFastLocals {
 
 nb::object lf_grid_comprehension_body(LabelsHistoryLocals& source, const LFGridFastLocals& locals,
                                       nb::object& iterator) {
+    bool child=PyUnicode_CompareWithASCIIString(locals.code->co_name,"<listcomp>")==0;
+    if(child) lfgt_line(locals,0);
     nb::object result = lh_check(PyList_New(0));
+    if(!child) lfgt_line(locals,67);
     try {
-    while (nb::object pair = lh_next(iterator)) {
+#if PY_VERSION_HEX >= 0x030D0000
+    // 3.13's inlined comprehension re-applies GET_ITER after clearing the
+    // saved locals and allocating its list. A foreign iterator may redirect it.
+    if(!child) iterator=lh_iter(std::move(iterator));
+#endif
+    while (nb::object pair = lfgt_next(locals,iterator,child?3:68)) {
+        if(child) lfgt_line(locals,1);
         auto values = lf_unpack(std::move(pair), 2);
         locals.store("_x", std::move(values[0]));
         locals.store("_t", std::move(values[1]));
+        lfgt_line(locals,child?2:69);
         nb::object arange = lh_attr(source, lh_global(source, "_nx"), "arange");
         nb::object value = lh_call(std::move(arange), {LFG(locals.load("_x"))},
                                    {LFG(locals.load("_t"))}, lh_kw(source, "dtype"));
         if (PyList_Append(result.ptr(), value.ptr()) < 0) throw nb::python_error();
+        lfgt_line(locals,child?3:68);
     }
     } catch (...) {
         // The source unwinds the loop iterator before discarding the partial

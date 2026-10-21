@@ -6,6 +6,7 @@ struct LFGridOpcodeState {
     Py_ssize_t cursor = 1;
     std::vector<std::pair<std::string,std::string>> pending;
     bool trailing_opcode = false;
+    int return_point = -1;
 };
 
 nb::object lfgt_points(PyCodeObject* code) {
@@ -16,9 +17,9 @@ nb::object lfgt_points(PyCodeObject* code) {
     PyObject* tag = PyTuple_GET_ITEM(payload, 0);
     if (!PyUnicode_CheckExact(tag) || PyUnicode_CompareWithASCIIString(tag, "naparixx.grid.v2") != 0) return {};
     PyObject* points = PyTuple_GET_ITEM(payload, 3);
-    if (!PyTuple_CheckExact(points) || PyTuple_GET_SIZE(points) != 16)
+    if (!PyTuple_CheckExact(points) || PyTuple_GET_SIZE(points) < 2 || PyTuple_GET_SIZE(points) > 512)
         throw nb::type_error("native line point metadata changed");
-    for (Py_ssize_t i = 0; i < 16; ++i) {
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(points); ++i) {
         PyObject* point = PyTuple_GET_ITEM(points, i);
         if (!PyTuple_CheckExact(point) || PyTuple_GET_SIZE(point) != 2 ||
             !PyLong_CheckExact(PyTuple_GET_ITEM(point, 0)) || !PyLong_CheckExact(PyTuple_GET_ITEM(point, 1)))
@@ -88,6 +89,7 @@ struct LFGridLineDriver {
 
 int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
                   PyCodeObject* code, nb::handle points, int index) {
+    if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source point index changed");
     PyObject* point = PyTuple_GET_ITEM(points.ptr(), index);
     int offset = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point, 0)));
     int line = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point, 1)));
@@ -112,7 +114,10 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         // Suppress interop-shell events; native operations supply source events.
         if (what == PyTrace_LINE || what == PyTrace_OPCODE) return 0;
         if (what == PyTrace_RETURN) {
-            int result = lfgt_dispatch(frame, what, arg, actual, points, 15);
+            auto found=lfgt_driver->states.find(frame);
+            int point=found==lfgt_driver->states.end()?-1:found->second.return_point;
+            if(point<0) point=static_cast<int>(PyTuple_GET_SIZE(points.ptr())-1);
+            int result = lfgt_dispatch(frame, what, arg, actual, points, point);
             lfgt_driver->states.erase(frame);
             return result;
         }
@@ -127,6 +132,7 @@ void lfgt_line(const LFGridFastLocals& locals, int index) {
         PyThreadState_Get()->c_tracefunc != lfgt_proxy || PyThreadState_Get()->tracing) return;
     nb::object points = lfgt_points(locals.code);
     if (!points.is_valid()) return;
+    if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source line index changed");
     lfgo_align(locals, PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(points.ptr(), index), 0)));
     if (!locals.frame->f_trace_lines) return;
     PyThreadState* thread = PyThreadState_Get();
@@ -146,15 +152,32 @@ void lfgt_line(const LFGridFastLocals& locals, int index) {
 #endif
 }
 
+void lfgt_return(const LFGridFastLocals& locals,int index) {
+    if(!lfgt_driver) return;
+    auto found=lfgt_driver->states.find(locals.frame);
+    if(found!=lfgt_driver->states.end()) found->second.return_point=index;
+}
+#include "grid_trace_next.inc"
+struct LFGridGetterLines {
+    const LFGridFastLocals& locals;
+    void line(int source_line) const {lfgt_line(locals,source_line-146);}
+    void point(int index) const {lfgt_line(locals,index);}
+    nb::object returned(nb::object result,int point) const {lfgt_return(locals,point);return result;}
+};
+
 nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple profile, nb::tuple points,
                         nb::object instructions) {
     if (!PyCode_Check(replacement.ptr()) || !PyCode_Check(original.ptr()) ||
-        !lf_grid_profile_code(original, profile) || points.size() != 16)
-        throw nb::type_error("complete indices source compiler controls required");
+        !lf_grid_profile_code(original, profile) || points.size() < 2 || points.size() > 512)
+        throw nb::type_error("complete grid source compiler controls required");
     auto* source = reinterpret_cast<PyCodeObject*>(original.ptr());
     auto* shell = reinterpret_cast<PyCodeObject*>(replacement.ptr());
-    if (PyUnicode_CompareWithASCIIString(source->co_name, "indices") != 0 || shell->co_nlocals != 9)
-        throw nb::type_error("line transport currently owns indices only");
+    bool indices=PyUnicode_CompareWithASCIIString(source->co_name,"indices")==0 && shell->co_nlocals==9;
+    bool getter=PyUnicode_CompareWithASCIIString(source->co_name,"__getitem__")==0 &&
+        (shell->co_nlocals==14 || shell->co_nlocals==16);
+    bool child=PyUnicode_CompareWithASCIIString(source->co_name,"<listcomp>")==0 && shell->co_nlocals==3;
+    if(!indices && !getter && !child) throw nb::type_error("unsupported native grid trace declaration");
+    if(points.size()!=(indices?16:getter?77:5)) throw nb::type_error("native source point declaration changed");
     nb::object bytecode = lh_check(PyObject_GetAttrString(original.ptr(), "co_code"));
     nb::object transport = lh_check(PyObject_GetAttrString(replacement.ptr(), "co_code"));
     Py_ssize_t length = PyBytes_GET_SIZE(bytecode.ptr()), size = PyBytes_GET_SIZE(transport.ptr());

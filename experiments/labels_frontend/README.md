@@ -34,7 +34,7 @@ checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
 isolated grid comprehension frame check, one indices-local check and one grid
 parent/inlined-local check, one temporary-lifetime check and one native line
-transport check and one native opcode transport check (162 cases
+transport check, one native opcode transport check and one getter line check (163 cases
 in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
@@ -84,7 +84,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-162-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+163-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -201,7 +201,7 @@ These requirements follow the [CPython tracing issue](https://github.com/python/
 and the pinned [3.13 frame setters](https://github.com/python/cpython/blob/v3.13.8/Objects/frameobject.c).
 The initial incomplete observations are retained locally. Native source-event/
 position transport remains required. The diagnostic is not counted as a passing test
-in the finite 162-case policy suite.
+in the finite 163-case policy suite.
 
 An opt-in `indices` line-transport pilot now closes that function's normal line
 event comparison on 3.11/3.12/3.13. `grid_line_trace.inc` forwards the user's trace
@@ -246,6 +246,25 @@ opcode rows on all three minors. The overall command still exits 1 for
 `getitem`; default activation, complete error/out-of-event positions, jumps,
 profiling/monitoring and general observer ABI remain open. The earlier line-only
 adapter remains available for its narrower controls.
+
+The line adapter now also covers normal `nd_grid.__getitem__` paths and its
+genuine 3.11 comprehension frame. Return positions are selected per branch.
+Thirteen controls pass on 3.11 and fourteen on 3.12/3.13: sparse/dense/empty and
+complex grids, local/callback mutation, line/global disabling, restoration and
+custom iterator forwarding. The 3.13 inlined comprehension's second `GET_ITER`
+is now performed after clearing saved locals and allocating the list; a foreign
+iterator can redirect that call. A traced Python iterator's `StopIteration`
+event is reported before suppression. Both differences were caught by the
+source comparisons; their initial failures are retained locally.
+
+Run `grid_getter_line_child.py` with the matching probe on `PYTHONPATH`.
+With either explicit adapter, the strict normal-path getter line row now
+passes on all three minors. `--opcode-transport` also retains both passing
+indices rows, but the overall diagnostic still exits 1 for getter opcode
+events. Handled-exception/fallback tracing, complete traceback/out-of-event
+positions, jumps, profiling/monitoring/general observer ABI and permanent
+activation remain open. The original Python policies are never executed in
+the native comparisons.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape

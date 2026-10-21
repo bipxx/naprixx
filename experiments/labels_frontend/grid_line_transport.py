@@ -5,6 +5,46 @@ from freeze_transport import profile
 from native_declarations import tuples
 
 
+def getter_positions(code):
+    starts=list(dis.findlinestarts(code)); decoded=list(dis.get_instructions(code))
+    byline={}
+    for offset,line in starts: byline.setdefault(line,[]).append(offset)
+    placeholder=(byline[147][0],147)
+    points=[(byline[line][0],line) if line in byline else placeholder for line in range(146,209)]
+    points.extend([placeholder]*(77-len(points)))
+    loops=[item for item in decoded if item.opname=='FOR_ITER']
+    inline=len(loops)==4
+    for index,item,line in ((64,loops[0],152),(65,loops[-2],173),(66,loops[-1],187)):
+        points[index]=(item.offset,line)
+    # Parent CALL line for 3.11 and post-argument append line are repeated lines.
+    points[71]=(byline[169][-1],169)
+    points[72]=(byline[164][-1],164)
+    if inline:
+        loop=loops[1]; position=decoded.index(loop); first=position
+        if first and decoded[first-1].opname=='GET_ITER': first-=1
+        while first and decoded[first-1].opname=='EXTENDED_ARG': first-=1
+        points[67]=(decoded[first].offset,170); points[68]=(loop.offset,170)
+        body=next(offset for offset in byline[169] if offset>loop.offset)
+        points[69]=(body,169)
+        store=next(item for item in decoded if item.offset>loop.offset and item.opname.startswith('STORE_FAST') and
+                   'nn' in item.argrepr.split(', '))
+        points[70]=(store.offset,169)
+    for index,line in ((73,191),(74,192),(75,206),(76,208)):
+        candidates=[item.offset for item in decoded if item.opname=='RETURN_VALUE' and item.positions.lineno==line]
+        assert len(candidates)==1,(line,candidates)
+        points[index]=(candidates[0],line)
+    return tuple(points)
+
+
+def comprehension_positions(code):
+    decoded=list(dis.get_instructions(code)); first=code.co_firstlineno
+    unpack=next(item.offset for item in decoded if item.opname=='UNPACK_SEQUENCE')
+    body=next(item.offset for item in decoded if item.opname=='LOAD_GLOBAL')
+    loop=next(item.offset for item in decoded if item.opname=='FOR_ITER')
+    returned=next(item.offset for item in decoded if item.opname=='RETURN_VALUE')
+    return ((2,first),(unpack,first+1),(body,first),(loop,first),(returned,first))
+
+
 def positions(code):
     starts=list(dis.findlinestarts(code))
     first=next(line for offset,line in starts if line>code.co_firstlineno)
@@ -58,6 +98,15 @@ class LineProbe:
     def prepare_grid_function_probe(self,*args):
         original=args[0].__code__
         result=self.probe.prepare_grid_function_probe(*args)
+        if args[5]==0:
+            children=[item for item in original.co_consts if hasattr(item,'co_code')]
+            if children:
+                child=children[0]; payload=result.co_consts[-1]
+                converted=self.probe.prepare_grid_line_transport_probe(payload[2],child,
+                    tuples(profile(child)),comprehension_positions(child))
+                result=result.replace(co_consts=(*result.co_consts[:-1],(*payload[:2],converted)))
+            return self.probe.prepare_grid_line_transport_probe(result,original,
+                tuples(profile(original)),getter_positions(original))
         if args[5]!=1: return result
         return self.probe.prepare_grid_line_transport_probe(result,original,
             tuples(profile(original)),positions(original),instructions(original) if self.opcodes else None)
