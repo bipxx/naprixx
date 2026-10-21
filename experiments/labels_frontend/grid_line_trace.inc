@@ -9,6 +9,8 @@ struct LFGridOpcodeState {
     int return_point = -1;
     int error_point = -1;
     PyObject* reported_error = nullptr;
+    PyObject* reported_traceback = nullptr;
+    bool escaping_error = false;
 };
 void lfgt_error_point(const LFGridFastLocals& locals,int point);
 
@@ -90,6 +92,14 @@ struct LFGridLineDriver {
     }
 };
 
+void lfgt_strip_transport(PyFrameObject* frame,const LFGridOpcodeState& state,PyObject* error,PyObject* object) {
+    if(error!=state.reported_error || !PyTraceBack_Check(object)) return;
+    auto* traceback=reinterpret_cast<PyTracebackObject*>(object);
+    if(traceback->tb_frame==frame && reinterpret_cast<PyObject*>(traceback->tb_next)==state.reported_traceback) {
+        if(PyException_SetTraceback(error,state.reported_traceback)<0) throw nb::python_error();
+    }
+}
+
 int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
                   PyCodeObject* code, nb::handle points, int index) {
     if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source point index changed");
@@ -119,14 +129,22 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         if(what==PyTrace_EXCEPTION) {
             auto found=lfgt_driver->states.find(frame);
             if(found!=lfgt_driver->states.end() && found->second.reported_error && PyTuple_Check(arg) &&
-               PyTuple_GET_SIZE(arg)==3 && PyTuple_GET_ITEM(arg,1)==found->second.reported_error) return 0;
+               PyTuple_GET_SIZE(arg)==3 && PyTuple_GET_ITEM(arg,1)==found->second.reported_error) {
+                // The interpreter prepends the thin transport frame after the
+                // native handler has already supplied this source frame.
+                lfgt_strip_transport(frame,found->second,PyTuple_GET_ITEM(arg,1),PyTuple_GET_ITEM(arg,2));
+                return 0;
+            }
         }
         if (what == PyTrace_RETURN) {
             auto found=lfgt_driver->states.find(frame);
             int point=found==lfgt_driver->states.end()?-1:found->second.return_point;
             if(point<0) point=static_cast<int>(PyTuple_GET_SIZE(points.ptr())-1);
             int result = lfgt_dispatch(frame, what, arg, actual, points, point);
-            lfgt_driver->states.erase(frame);
+            // 3.11 installs the interpreter traceback after the trace callback.
+            // Retain escaping-error identity until the invocation boundary.
+            if(found==lfgt_driver->states.end() || !found->second.escaping_error)
+                lfgt_driver->states.erase(frame);
             return result;
         }
         return lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
@@ -180,7 +198,7 @@ struct LFGridGetterLines {
                     std::initializer_list<LHExpr> kw={},nb::object names={}) const {
         return LFGridObservedOps{locals}.call(std::move(function),args,kw,std::move(names),point);
     }
-    void exception(nb::python_error& error) const {lfgt_exception(locals,error);}
+    void exception(nb::python_error& error,bool escaping=false) const {lfgt_exception(locals,error,escaping);}
     nb::object returned(nb::object result,int point) const {lfgt_return(locals,point);return result;}
 };
 
@@ -242,6 +260,15 @@ void lfgt_exports(nb::module_& module) {
         nb::arg("profile"),nb::arg("points"),nb::arg("instructions").none()=nb::none());
     module.def("call_grid_line_transport_probe", [](nb::object function, nb::tuple arguments) {
         LFGridLineDriver scope;
-        return lh_check(PyObject_CallObject(function.ptr(), arguments.ptr()));
+        try {return lh_check(PyObject_CallObject(function.ptr(), arguments.ptr()));}
+        catch(nb::python_error& error) {
+            // A callback may disable tracing before the interpreter unwinds
+            // the transport shell, so its exception proxy never gets called.
+            nb::object traceback=nb::steal<nb::object>(PyException_GetTraceback(error.value().ptr()));
+            if(PyErr_Occurred()) throw nb::python_error();
+            if(traceback.is_valid()) for(const auto& entry:scope.states)
+                lfgt_strip_transport(entry.first,entry.second,error.value().ptr(),traceback.ptr());
+            throw;
+        }
     });
 }

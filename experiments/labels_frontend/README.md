@@ -266,6 +266,15 @@ positions, jumps, profiling/monitoring/general observer ABI and permanent
 activation remain open. The original Python policies are never executed in
 the native comparisons.
 
+The fallback pilot additionally compares fourteen controls on each supported
+minor. Caught length errors retain the source traceback before entering the
+handler. Escaping regular/complex `arange` errors retain the active handled
+exception, source event/return positions and the caller-visible traceback and
+context chain. The thin transport traceback is removed even when an exception
+callback disables tracing; 3.11 requires cleanup after its trace callback.
+These controls use synthetic numeric leaves and do not qualify general
+exception, observer or lifetime compatibility.
+
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions

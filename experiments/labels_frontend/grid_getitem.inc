@@ -204,6 +204,7 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         T.line(193);
         nb::object first = G("IndexError"), second = G("TypeError");
         if (!lf_matches_handler(error.value(), nb::make_tuple(first, second))) throw;
+        try {
         T.line(194);locals.store("step", A(L("key"), "step"));
         T.line(195);
         locals.store("stop", A(L("key"), "stop"));
@@ -228,5 +229,9 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         }
         T.line(208);
         return T.returned(T.call(79,N("arange"),{LFG(L("start")),LFG(L("stop")),LFG(L("step"))}),76);
+        } catch(nb::python_error& fallback_error) {
+            T.exception(fallback_error,true);
+            throw;
+        }
     }
 }
