@@ -98,4 +98,4 @@ def test_grid_fallback_trace_transport():
     result=subprocess.run([sys.executable,'-B',str(directory/'grid_fallback_child.py')],
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
-    assert json.loads(result.stdout.splitlines()[0])['controls']==14
+    assert json.loads(result.stdout.splitlines()[0])['controls']==20

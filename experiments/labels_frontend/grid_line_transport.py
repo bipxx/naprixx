@@ -12,7 +12,7 @@ def getter_positions(code):
     for offset,line in starts: byline.setdefault(line,[]).append(offset)
     placeholder=(byline[147][0],147)
     points=[(byline[line][0],line) if line in byline else placeholder for line in range(146,209)]
-    points.extend([placeholder]*(85-len(points)))
+    points.extend([placeholder]*(89-len(points)))
     loops=[item for item in decoded if item.opname=='FOR_ITER']
     inline=len(loops)==4
     for index,item,line in ((64,loops[0],152),(65,loops[-2],173),(66,loops[-1],187)):
@@ -46,6 +46,16 @@ def getter_positions(code):
         while position<len(cached) and cached[position].opname=='CACHE':
             offset=cached[position].offset;position+=1
         points[index+4]=(offset if sys.version_info<(3,13) else candidates[which].offset,line)
+    reraised=[item for item in decoded if item.opname=='RERAISE' and item.arg==0 and item.positions.lineno==193]
+    assert len(reraised)==1,reraised
+    points[85]=(reraised[0].offset,193)
+    for index,name in ((86,'IndexError'),(87,'TypeError')):
+        matches=[item for item in decoded if item.opname=='LOAD_GLOBAL' and item.argval==name and item.positions.lineno==193]
+        assert len(matches)==1,matches
+        points[index]=(matches[0].offset,193)
+    matched=[item for item in decoded if item.opname=='CHECK_EXC_MATCH']
+    assert len(matched)==1,matched
+    points[88]=(matched[0].offset,193)
     return tuple(points)
 
 

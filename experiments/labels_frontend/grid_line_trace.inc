@@ -199,6 +199,15 @@ struct LFGridGetterLines {
         return LFGridObservedOps{locals}.call(std::move(function),args,kw,std::move(names),point);
     }
     void exception(nb::python_error& error,bool escaping=false) const {lfgt_exception(locals,error,escaping);}
+    void error_point(int point) const {lfgt_error_point(locals,point);}
+    void reraise(nb::python_error& error) const {
+        if(!lfgt_driver) return;
+        auto found=lfgt_driver->states.find(locals.frame);
+        if(found!=lfgt_driver->states.end() && found->second.reported_error==error.value().ptr()) {
+            found->second.return_point=85;
+            found->second.escaping_error=true;
+        }
+    }
     nb::object returned(nb::object result,int point) const {lfgt_return(locals,point);return result;}
 };
 
@@ -214,7 +223,7 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
         (shell->co_nlocals==14 || shell->co_nlocals==16);
     bool child=PyUnicode_CompareWithASCIIString(source->co_name,"<listcomp>")==0 && shell->co_nlocals==3;
     if(!indices && !getter && !child) throw nb::type_error("unsupported native grid trace declaration");
-    if(points.size()!=(indices?16:getter?85:5)) throw nb::type_error("native source point declaration changed");
+    if(points.size()!=(indices?16:getter?89:5)) throw nb::type_error("native source point declaration changed");
     nb::object bytecode = lh_check(PyObject_GetAttrString(original.ptr(), "co_code"));
     nb::object transport = lh_check(PyObject_GetAttrString(replacement.ptr(), "co_code"));
     Py_ssize_t length = PyBytes_GET_SIZE(bytecode.ptr()), size = PyBytes_GET_SIZE(transport.ptr());

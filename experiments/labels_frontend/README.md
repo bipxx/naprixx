@@ -266,12 +266,16 @@ positions, jumps, profiling/monitoring/general observer ABI and permanent
 activation remain open. The original Python policies are never executed in
 the native comparisons.
 
-The fallback pilot additionally compares fourteen controls on each supported
+The fallback pilot additionally compares twenty controls on each supported
 minor. Caught length errors retain the source traceback before entering the
 handler. Escaping regular/complex `arange` errors retain the active handled
 exception, source event/return positions and the caller-visible traceback and
 context chain. The thin transport traceback is removed even when an exception
 callback disables tracing; 3.11 requires cleanup after its trace callback.
+Unmatched RuntimeError/SystemExit errors preserve the original traceback while
+reporting the handler RERAISE position for the return event. Missing exception
+class names and invalid handler classes retain the handled exception context
+and their own lookup/matching positions.
 These controls use synthetic numeric leaves and do not qualify general
 exception, observer or lifetime compatibility.
 

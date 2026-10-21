@@ -134,6 +134,9 @@ def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None):
         function = getattr(builtins, name)
         def call(*args):
             callback(name, sys._getframe(1), *args)
+            if name=='len' and mode in ('unhandled-len','unhandled-len-disable'):
+                raise RuntimeError('unhandled length failure')
+            if name=='len' and mode=='base-exception-len': raise SystemExit('length base exception')
             if name=='zip' and mode=='iterator-forward': return ZipStage(zip(*args))
             return function(*args)
         return call

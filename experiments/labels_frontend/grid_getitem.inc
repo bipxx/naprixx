@@ -202,9 +202,15 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         T.exception(error);
         LHHandledException handled(error.value());
         T.line(193);
-        nb::object first = G("IndexError"), second = G("TypeError");
-        if (!lf_matches_handler(error.value(), nb::make_tuple(first, second))) throw;
         try {
+        T.error_point(86);nb::object first = G("IndexError");
+        T.error_point(87);nb::object second = G("TypeError");
+        T.error_point(88);bool matches=lf_matches_handler(error.value(), nb::make_tuple(first, second));
+        T.error_point(-1);
+        if (!matches) {
+            T.reraise(error);
+            throw;
+        }
         T.line(194);locals.store("step", A(L("key"), "step"));
         T.line(195);
         locals.store("stop", A(L("key"), "stop"));

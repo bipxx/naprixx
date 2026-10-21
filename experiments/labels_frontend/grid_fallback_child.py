@@ -16,7 +16,9 @@ ROOT=DIRECTORY.parents[1]
 MODES=('single','complex-single','single-none-start','complex-single-one',
        'handler-mutation','exception-disable','handler-lines-off',
        'builtin-len','bound-len','callable-len','index-error',
-       'arange-error','complex-arange-error','arange-exception-disable')
+       'arange-error','complex-arange-error','arange-exception-disable',
+       'unhandled-len','unhandled-len-disable','base-exception-len',
+       'missing-indexerror','missing-typeerror','invalid-handler')
 
 
 def run(probe,code,shells,mode,native):
@@ -32,6 +34,10 @@ def run(probe,code,shells,mode,native):
         elif mode=='callable-len': namespace['len']=Length()
         elif mode=='index-error': namespace['len']=index_error
         elif mode in ('arange-error','complex-arange-error','arange-exception-disable'): namespace['_nx'].arange=arange_error
+        elif mode in ('missing-indexerror','missing-typeerror'):
+            namespace['__builtins__']=dict(vars(builtins))
+            del namespace['__builtins__']['IndexError' if mode=='missing-indexerror' else 'TypeError']
+        elif mode=='invalid-handler': namespace['IndexError']=int
     def error_summary(error):
         return None if error is None else (type(error).__name__,str(error))
     def traceback_positions(tb):
@@ -43,11 +49,13 @@ def run(probe,code,shells,mode,native):
         return tuple(items)
     def invoke(function,args):
         try: return wrapper.invoke(function,args) if native else function(*args)
-        except RuntimeError as error:
-            assert mode in ('arange-error','complex-arange-error','arange-exception-disable')
+        except BaseException as error:
+            assert mode in ('arange-error','complex-arange-error','arange-exception-disable',
+                            'unhandled-len','unhandled-len-disable','base-exception-len',
+                            'missing-indexerror','missing-typeerror','invalid-handler')
             context=error.__context__
             return ('caught',error_summary(error),traceback_positions(error.__traceback__),
-                    error_summary(context),traceback_positions(context.__traceback__))
+                    error_summary(context),traceback_positions(None if context is None else context.__traceback__))
     def trace(frame,event,arg):
         nonlocal changed
         if (frame.f_code.co_filename,frame.f_code.co_qualname)!=owner:return None
@@ -55,7 +63,7 @@ def run(probe,code,shells,mode,native):
         if event=='exception':
             actual=(arg[0].__name__,str(arg[1]),traceback_positions(arg[2]))
         events.append((event,frame.f_lineno,frame.f_lasti,tuple(sorted(frame.f_locals)),actual,error_summary(sys.exception())))
-        if event=='exception' and (mode=='exception-disable' or
+        if event=='exception' and (mode in ('exception-disable','unhandled-len-disable') or
                 mode=='arange-exception-disable' and isinstance(arg[1],RuntimeError)):
             changed=True;sys.settrace(None)
         elif mode=='handler-lines-off' and event=='line' and frame.f_lineno==193:
@@ -69,12 +77,13 @@ def run(probe,code,shells,mode,native):
     sys.settrace(trace)
     try:
         result=getter.run(wrapper if native else probe,code,shells,
-            mode if mode in ('single','complex-single','single-none-start','complex-single-one') else
+            mode if mode in ('single','complex-single','single-none-start','complex-single-one',
+                            'unhandled-len','unhandled-len-disable','base-exception-len') else
                 'complex-single' if mode=='complex-arange-error' else 'single',
             native,invoke=invoke,namespace_setup=setup)
-        assert sys.gettrace() is (None if mode in ('exception-disable','arange-exception-disable') else trace)
+        assert sys.gettrace() is (None if mode in ('exception-disable','arange-exception-disable','unhandled-len-disable') else trace)
     finally:sys.settrace(None)
-    if mode in ('handler-mutation','exception-disable','handler-lines-off','arange-exception-disable'):assert changed,mode
+    if mode in ('handler-mutation','exception-disable','handler-lines-off','arange-exception-disable','unhandled-len-disable'):assert changed,mode
     assert any(item[0]=='exception' for item in events)
     return result,events
 
