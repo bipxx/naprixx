@@ -339,17 +339,27 @@ first-use delay, cooldown, failed-specialization retry/backoff, type/function
 version invalidation and the lookup-hook transition after replacing a getter.
 No original executable code body or owning application references are retained.
 The three `grid_adaptive_mutation_child.py` controls compare forty invocations
-each after same-code assignment and getter replacement. Three
+each after same-code assignment and getter replacement. Five
 `grid_adaptive_lifetime_child.py` controls check original-code release, prepared
-code lifetime through an alias, and collection after the final alias.
+code lifetime through an alias, collection after the final alias, and release
+of both original and prepared code after warming.
 The CPython rules derive from pinned
 [specialize.c](https://github.com/python/cpython/blob/v3.12.8/Python/specialize.c),
 [function versions](https://github.com/python/cpython/blob/v3.12.8/Objects/funcobject.c)
 and [counter macros](https://github.com/python/cpython/blob/v3.12.8/Python/ceval_macros.h);
 [Python license notices](../../licenses/Python-PSF.txt) are retained.
 
+`grid_hot_handoff_child.py` compares seven already-warmed handoffs on 3.12,
+including scalar/complex, sparse/dense and invalidated getter caches. It runs
+eight original calls before cutover and four calls afterward; a profile guard
+rejects any original policy body after cutover. Preparation captures active
+Python getter/subscript cache kinds and their scalar version guards. A valid
+captured getter cache can identify the direct slot without another generic
+call. Neither the original code nor cached application functions gain owning
+references from the native observer state. Other cache families remain open.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
-other specialization/descriptor kinds, already-specialized input handoff,
+other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete
 error/GC/lifetime qualification still require implementation and review.
 

@@ -3,6 +3,7 @@
 // Cache/version rules are adapted from CPython v3.12.8 specialize.c,
 // ceval_macros.h and generated_cases.c.h; see licenses/Python-PSF.txt.
 #if PY_VERSION_HEX >= 0x030C0000 && PY_VERSION_HEX < 0x030D0000
+#include <opcode.h>
 struct LFGridAdaptiveSite {
     uint16_t counter=17;
     uint32_t type_version=0,function_version=0;
@@ -40,7 +41,15 @@ void lfga_prepare(PyCodeObject* source,PyCodeObject* target,nb::handle rows) {
             if(i+1>=PyTuple_GET_SIZE(rows.ptr()) || offset+2>=_PyCode_NBYTES(source))
                 throw nb::type_error("adaptive source cache position is missing");
             LFGridAdaptiveSite site;
-            site.counter=_PyCode_CODE(source)[offset/2+1].cache;
+            _Py_CODEUNIT* instruction=_PyCode_CODE(source)+offset/2;
+            site.counter=instruction[1].cache;
+            if(instruction->op.code==LOAD_ATTR_GETATTRIBUTE_OVERRIDDEN) {
+                if(offset+2*(1+INLINE_CACHE_ENTRIES_LOAD_ATTR)>_PyCode_NBYTES(source))
+                    throw nb::type_error("captured attribute cache is truncated");
+                auto* cache=reinterpret_cast<_PyLoadMethodCache*>(instruction+1);
+                site.kind=1;site.type_version=read_u32(cache->type_version);
+                site.function_version=read_u32(cache->keys_version);
+            } else if(instruction->op.code==BINARY_SUBSCR_GETITEM)site.kind=2;
             site.end=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(rows.ptr(),i+1),0)))-2;
             site.line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,4)));
             state->sites.emplace(offset,site);
@@ -98,6 +107,13 @@ void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
             hit=cached.getitem && PyFunction_Check(cached.getitem) &&
                 reinterpret_cast<PyFunctionObject*>(cached.getitem)->func_version==cached.getitem_version;
         } else if(!item && type->tp_version_tag==site.type_version) {
+            // A captured inline cache proves the direct slot only while both
+            // the receiver type and getter function versions still match.
+            if(!state.direct_getattribute && !lfga_lookup(type,"__getattr__")) {
+                PyObject* function=lfga_lookup(type,"__getattribute__");
+                if(lfga_simple(function,2) && reinterpret_cast<PyFunctionObject*>(function)->func_version==site.function_version)
+                    state.direct_getattribute=type->tp_getattro;
+            }
             PyObject* function=candidate();
             hit=function && reinterpret_cast<PyFunctionObject*>(function)->func_version==site.function_version;
         }
