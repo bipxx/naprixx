@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T06:17:01.103697+00:00",
+  "recorded_utc": "2026-10-21T06:37:07.927451+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -93,16 +93,16 @@
     },
     "raw_archive_published": false,
     "frontend_candidate": {
-      "path": ".artifacts/labels-native-frontend-edit-owner-native-first-stage/progress.json",
-      "sha256": "f7af90551422e7b5ef983b3ee6f833dbb423a4b0f465748cef407f01509f0ee8",
-      "bytes": 13693
+      "path": ".artifacts/labels-native-frontend-edit-owner-grid-runtime-stage/progress.json",
+      "sha256": "390887436a860bc8b00db3afe36521d90abce31b3eebe01ad46cc46c125f9ddf",
+      "bytes": 15287
     }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Review native-first producer/observer/namespace compatibility and design permanent startup/reload ownership. Complete source target/parent fast locals, tracing/callback/evaluation/release/error/GC/frame ABI and grid/Pillow/skimage/provider boundaries. Unselected application policies remain required. Obtain independent effective approval before application integration; then reuse43 before/606 accepted regressions with real Viewer/plugin/save/reload/cancel/shutdown checks.",
+  "next_work": "Finish grid source/frame/temporary-release fidelity and explicit primitive approvals, then Pillow/skimage and required provider parents. Review native-first producer/observer/namespace and permanent startup/reload ownership; finish target/parent fastlocals, tracing/evaluation/release/error/GC/frame ABI. Unselected application policies remain required. Independent effective approval precedes application integration; then43 before/606 accepted regressions and real Viewer/plugin/save/reload/cancel/shutdown checks.",
   "frontend_candidate": {
     "status": "tracked standalone experimental draft; no production installation/admission",
     "source_bodies": 50,
@@ -122,13 +122,13 @@
     "accepted_inputs_held": 2845,
     "package": "experiments/labels_frontend",
     "new_snapshot_cases": 72,
-    "packaged_distinct_cases": 142,
+    "packaged_distinct_cases": 156,
     "packaged_archive_access_denied": true,
     "defining_execution_authenticated": false,
     "atomic_publication_implemented": true,
-    "latest_cleanup_removed_bytes": 37424074,
+    "latest_cleanup_removed_bytes": 10016350,
     "new_producer_cases": 18,
-    "packaged_case_semantics": "142 distinct outer cases, zero failures/errors/skips;26 real-import children and10 batch children.311/313 table-only construction/GC smokes are separate, not fullfrontend acceptance or extra142 cases.",
+    "packaged_case_semantics": "156 distinct outer cases (142 retained+14 provider scenarios), zero failures/errors/skips. Nested comparison controls are not additional pytest cases; accepted606/31 remains separate.",
     "controlled_import_functions_captured": 50,
     "controlled_import_classes_captured": 4,
     "controlled_import_defining_execution_authenticated": true,
@@ -150,6 +150,10 @@
     "selected_original_body_calls_observed": 0,
     "selected_functions_native_at_creation": true,
     "permanent_startup_reload_implemented": false,
-    "unselected_python_policies_remain": true
+    "unselected_python_policies_remain": true,
+    "new_numpy_grid_cases": 14,
+    "numpy_grid_policies_runtime_implemented": 2,
+    "numpy_grid_provider_accepted": false,
+    "tested_numpy_version": "2.5.3"
   }
 }

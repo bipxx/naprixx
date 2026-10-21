@@ -20,6 +20,7 @@ if __name__=='__main__':
         for path in sorted(DIRECTORY.iterdir()) if path.is_file() and path.name!='manifest.json'}
     data['experimental_declaration_capture_implemented']=True
     data['experimental_native_first_declarations_implemented']=True
+    data['experimental_numpy_grid_policies_implemented']=True
     data['default_application_producer_capture_enabled']=False
     data['atomic_publication_implemented']=True
     data['atomic_publication_scope']='Experimental GIL-held batch with notification-before-commit protocol; no default startup enablement or complete compatibility approval'

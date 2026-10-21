@@ -1,0 +1,17 @@
+{
+  "schema": "naparixx.grid-provider-controls.v1",
+  "tested_numpy_version": "2.5.3",
+  "sources": [
+    {
+      "package_path": "numpy/lib/_index_tricks_impl.py",
+      "qualname": "nd_grid.__getitem__",
+      "sha256": "3f2a02c7c241ace7b73e7d9c1044dbcdf2d1f954f9060fa895ae306bce57a185"
+    },
+    {
+      "package_path": "numpy/_core/numeric.py",
+      "qualname": "indices",
+      "sha256": "1701f78f500b8ba6beb435f8861db4d9ba900c3625c5b7d8237cb39c49fce3dc"
+    }
+  ],
+  "provenance": "Handwritten staged grid-policy.cpp.inc plus source-global exception resolution correction; runtime/ABI acceptance remains required."
+}

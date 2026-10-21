@@ -30,7 +30,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
-five native-first declaration checks. Twenty-six scenarios use fresh import child
+five native-first declaration checks and 14 NumPy grid-provider checks.
+Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
 profiles are derived for this checkout and interpreter from the manifest-pinned
@@ -78,7 +79,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-142-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+156-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -103,6 +104,22 @@ policies remain Python, and original loader metadata is restored afterward;
 production startup/reload integration and complete module ownership are not
 implemented. The original observation mode remains available for before controls.
 No default application import path has been changed.
+
+The grid-provider experiment admits the actual NumPy `nd_grid.__getitem__` and
+`numeric.indices` functions with complete compiler profiles and defining-module
+identity checks, then publishes handwritten bodies through the same batch core.
+Aliases retain their genuine function identity. The current provider sources
+are byte-pinned in `grid_provider_controls.json` and tested with NumPy 2.5.3.
+Grid tests run in separate processes; the normal test process and application
+provider remain untouched. Sparse/dense, complex/single-slice, invalid input,
+exception-global and foreign numeric callback, alias, brush, GC and rejection
+controls pass. No blanket NumPy dependency exemption is introduced.
+
+Grid target/frame locals, 3.11 comprehension-frame details, exact temporary
+release/exception fidelity and precise `arange`/`empty`/`result_type`/reshape
+primitive approvals remain required before acceptance. Other provider versions
+and installed configurations are unqualified. The adapted policies retain the
+[NumPy source notice](../../licenses/NumPy-BSD-3-Clause.txt).
 
 The implementation was checked against the pinned
 [3.11 setter](https://github.com/python/cpython/blob/v3.11.11/Objects/funcobject.c),

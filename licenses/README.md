@@ -2,6 +2,11 @@ The bundled application sources and native implementations derive from napari 0.
 commit `595639295a153c84bcb127a9e07d801355440a35`.
 The original BSD 3-Clause notice is retained in `napari-BSD-3-Clause.txt`.
 
+The experimental handwritten grid policies in
+`experiments/labels_frontend/grid_provider.inc` derive from NumPy 2.5.3's
+`numpy/lib/_index_tricks_impl.py` and `numpy/_core/numeric.py`.
+The NumPy BSD 3-Clause notice is retained in `NumPy-BSD-3-Clause.txt`.
+
 The event implementation in `src/napari/utils/events/event.py` derives from
 Vispy's event system. Its BSD 3-Clause notice is retained in that Python source
 and `VisPy-BSD-3-Clause.txt`, including for the handwritten native event

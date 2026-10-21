@@ -110,6 +110,19 @@ This remains isolated: unselected module/class/decorator policies still execute
 in Python, original loaders are restored, and production startup/reload ownership
 and broader observer/namespace/frame/provider compatibility require further work.
 
+The grid experiment now executes handwritten `nd_grid.__getitem__` and
+`numeric.indices` policies on the actual NumPy functions, preserving saved
+aliases. Fourteen provider scenarios compare pre-publication outcomes for
+sparse/dense grids, slices, errors, callbacks and real brush painting; the final
+combined suite passed 156 distinct cases with no failures/errors/skips. Provider
+sources are pinned to the tested NumPy 2.5.3 files and its source notice is
+retained. [Grid runtime evidence](../.artifacts/labels-native-frontend-edit-owner-grid-runtime-stage/progress.json)
+records this finite scope and 10,016,350 bytes of settled cleanup.
+
+Provider frame/local-release fidelity, exact leaf approvals, other configurations
+and independent effective review remain required. These results do not accept
+the provider boundary or enable default application startup.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).
