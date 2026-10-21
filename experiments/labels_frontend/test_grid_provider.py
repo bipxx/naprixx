@@ -234,3 +234,14 @@ def test_grid_completion_transport_direct_errors(ambient):
     result=subprocess.run(command,env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     assert json.loads(result.stdout)['controls']==8
+
+
+def test_grid_trace_callback_reentry():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_reentry_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    assert data['controls']==64 and data['nested_prepared_code_release_checked']

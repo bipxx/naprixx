@@ -1,8 +1,8 @@
 // Report a native-caught error at its checked source call position before
 // entering the source except handler. The original policy is never executed.
 void lfgt_exception(const LFGridFastLocals& locals,nb::python_error& error,bool escaping) {
-    if(!lfgt_driver || PyThreadState_Get()->tracing) return;
-    lfgt_driver->refresh();
+    if(!lfgt_driver) return;
+    if(!PyThreadState_Get()->tracing)lfgt_driver->refresh();
     lfga_sync(locals);
     auto found=lfgt_driver->states.find(locals.frame);
     if(found==lfgt_driver->states.end()) return;
@@ -32,7 +32,7 @@ void lfgt_exception(const LFGridFastLocals& locals,nb::python_error& error,bool 
     found->second.return_point=point;
     found->second.return_offset=offset;
     found->second.return_line=line;
-    if(!lfgt_driver->callback || PyThreadState_Get()->c_tracefunc!=lfgt_proxy)return;
+    if(PyThreadState_Get()->tracing || !lfgt_driver->callback || PyThreadState_Get()->c_tracefunc!=lfgt_proxy)return;
     nb::object argument=nb::make_tuple(nb::handle(reinterpret_cast<PyObject*>(Py_TYPE(error.value().ptr()))),error.value(),actual);
     PyThreadState* thread=PyThreadState_Get();PyThreadState_EnterTracing(thread);
     int status;

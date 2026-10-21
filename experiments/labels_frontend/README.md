@@ -427,6 +427,26 @@ VM-stack/carrier GC and lifetime review, reentry, C profiling/monitoring, other
 provider/SDK configurations and independent ABI approval remain required before
 integration or default activation.
 
+`grid_reentry_child.py` compares sixty-four nested calls entered from line
+or opcode trace callbacks, with original or converted outer callers and direct
+or adapter invocation of the nested getter/indices. Metadata advances and
+tracebacks are built while Python suppresses recursive observer delivery; native
+line/opcode/exception callbacks stay suppressed in that interval. The controls
+compare parent events/state, nested values, provider and retained positions,
+exception-context chains and caller handled-exception restoration. Explicit GC
+runs while the outer call is suspended, and weak references check release of
+each nested prepared code object after its frame holders leave scope.
+
+A profile guard cannot enforce original-body exclusion inside a suppressed trace
+callback. This fixture instead checks converted-code admission and preserves the
+normal runtime guards outside that callback. Installing an otherwise ineffective
+profile guard changes the suspended caller's instrumentation on the checked
+interpreter; a pure-source control reproduces that change without the C++ module.
+The nested fixture therefore uses the same observer setup for both oracles.
+`grid_trace_state_probe` is a read-only diagnostic of that setup. These finite
+checks do not approve general reentry, active-carrier GC, audit hooks, cross-thread
+observers or the complete VM-stack/lifetime ABI.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

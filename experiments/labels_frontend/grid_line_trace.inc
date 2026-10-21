@@ -225,12 +225,12 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
 #include "grid_opcode_trace.inc"
 
 void lfgt_line(const LFGridFastLocals& locals, int index) {
-    if (!lfgt_driver || PyThreadState_Get()->tracing) return;
+    if (!lfgt_driver) return;
     nb::object points = lfgt_points(locals.code);
     if (!points.is_valid()) return;
     if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source line index changed");
     lfgo_align(locals, PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(points.ptr(), index), 0)));
-    if (!lfgt_driver->callback || PyThreadState_Get()->c_tracefunc!=lfgt_proxy || !locals.frame->f_trace_lines) return;
+    if (PyThreadState_Get()->tracing || !lfgt_driver->callback || PyThreadState_Get()->c_tracefunc!=lfgt_proxy || !locals.frame->f_trace_lines) return;
     PyThreadState* thread = PyThreadState_Get();
     PyThreadState_EnterTracing(thread);
     int status;
@@ -362,6 +362,25 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
 }
 
 void lfgt_exports(nb::module_& module) {
+    module.def("grid_trace_state_probe",[](nb::handle value) {
+        if(!PyFrame_Check(value.ptr()))throw nb::type_error("frame required");
+        auto* frame=reinterpret_cast<PyFrameObject*>(value.ptr());
+        nb::object owner=lh_check(reinterpret_cast<PyObject*>(PyFrame_GetCode(frame)));
+        auto* code=reinterpret_cast<PyCodeObject*>(owner.ptr());
+        auto* thread=PyThreadState_Get();nb::dict state;
+        state["tracing"]=thread->tracing;
+        state["proxy"]=thread->c_tracefunc==lfgt_proxy;
+#if PY_VERSION_HEX >= 0x030C0000
+#if PY_VERSION_HEX < 0x030D0000
+        state["opcode_requested"]=thread->interp->f_opcode_trace_set;
+        state["monitoring_version"]=thread->interp->monitoring_version;
+#endif
+        state["global_instruction_tools"]=thread->interp->monitors.tools[PY_MONITORING_EVENT_INSTRUCTION];
+        state["code_instruction_tools"]=code->_co_monitoring?code->_co_monitoring->active_monitors.tools[PY_MONITORING_EVENT_INSTRUCTION]:0;
+        state["code_monitoring_version"]=code->_co_instrumentation_version;
+#endif
+        return state;
+    });
     module.def("prepare_grid_line_transport_probe", &lfgt_prepare,nb::arg("replacement"),nb::arg("original"),
         nb::arg("profile"),nb::arg("points"),nb::arg("instructions").none()=nb::none(),
         nb::arg("completion").none()=nb::none());

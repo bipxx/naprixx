@@ -49,8 +49,8 @@ struct LFGridOpcodeContext {
     LFGridOpcodeState* state = nullptr;
 };
 LFGridOpcodeContext lfgo_context(const LFGridFastLocals& locals) {
-    if (!lfgt_driver || PyThreadState_Get()->tracing) return {};
-    lfgt_driver->refresh();
+    if (!lfgt_driver) return {};
+    if(!PyThreadState_Get()->tracing)lfgt_driver->refresh();
     PyObject* constants = locals.code->co_consts;
     PyObject* payload = PyTuple_GET_ITEM(constants,PyTuple_GET_SIZE(constants)-1);
     if (!PyTuple_CheckExact(payload) || PyTuple_GET_SIZE(payload) != 5) return {};
@@ -69,7 +69,7 @@ void lfgo_emit(const LFGridFastLocals& locals, PyObject* row) {
     int offset = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,0)));
     int line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,4)));
     auto found=lfgt_driver->states.find(locals.frame);
-    if (!locals.frame->f_trace_opcodes || (PyThreadState_Get()->c_tracefunc!=lfgt_proxy &&
+    if (PyThreadState_Get()->tracing || !locals.frame->f_trace_opcodes || (PyThreadState_Get()->c_tracefunc!=lfgt_proxy &&
        (found==lfgt_driver->states.end() || !found->second.trailing_opcode))) {
         lfgt_set_position(locals,offset,line);return;
     }
