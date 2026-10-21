@@ -271,3 +271,21 @@ def test_grid_completion_carrier_cycles_and_profile_unwind():
     assert sum(row['native_cycle_release_checks'] for row in data['cases'])==18
     assert sum(row['source_cycle_release_checks'] for row in data['cases'])==12
     assert all(row['values_and_nested_outcome_equal'] and row['caller_handled_exception_restored'] for row in data['cases'])
+
+
+@pytest.mark.parametrize('source_without_hook',[False,True])
+def test_grid_explicit_evaluator_scope(source_without_hook):
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    command=[sys.executable,'-B',str(directory/'grid_eval_scope_child.py')]
+    if source_without_hook:command.append('--source-without-hook')
+    result=subprocess.run(command,env=env,capture_output=True,text=True,timeout=30)
+    expected_gap=source_without_hook and sys.version_info<(3,13)
+    assert result.returncode==int(expected_gap),result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    assert data['controls']==24 and data['duplicate_enable_active_disable_and_duplicate_disable_rejected']
+    assert all(row['policy_values_equal'] for row in data['cases'])
+    assert sum(not row['events_equal'] for row in data['cases'])==(4 if expected_gap else 0)
+    assert sum(not row['retained_equal'] for row in data['cases'])==(3 if expected_gap else 0)
+    assert sum(not row['errors_equal'] for row in data['cases'])==(3 if expected_gap else 0)

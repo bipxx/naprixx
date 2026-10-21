@@ -472,6 +472,27 @@ profilers fail at RETURN. Outcomes and release checks agree, while profile-event
 and exception-chain parity remain unaccepted. This is finite lifetime evidence,
 not approval of arbitrary profilers or the complete observer/GC ABI.
 
+`grid_eval_scope.inc` is a separate, explicitly installed PEP 523 experiment.
+It wraps the previous evaluator and creates a native trace-driver scope around
+the entire genuine selected frame, including transport entry and return. Import
+does not install it. Duplicate installation, removal during active evaluation
+and removal after another hook replaced it are rejected; explicit removal
+restores the previous evaluator. The previous evaluator still executes every
+frame; the handwritten policies execute selected application operations.
+
+`grid_eval_scope_child.py` compares twenty-four direct getter/indices cases with
+line/opcode tracing or no tracing. With the same hook installed for both source
+and native oracles, all cases agree on the checked interpreters. Comparing an
+unhooked original source to the hooked native candidate retains four event and
+three retained/error-position differences on 3.11/3.12; the twenty-four cases
+agree on 3.13. Evaluator hooks disable Python-call inlining on earlier versions,
+so native CALL positions now distinguish that interpreter configuration.
+These baseline failures remain required work. This interpreter-wide candidate
+does not establish transparent effects on unselected/plugin frames, hook
+composition, thread/subinterpreter behavior, audit/profiling, specialization or
+complete lifetime/observer compatibility, and is not enabled by application
+startup. Same-hook comparisons do not establish unmodified-source parity.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

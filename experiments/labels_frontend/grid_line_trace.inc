@@ -361,7 +361,10 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
     return result;
 }
 
+#include "grid_eval_scope.inc"
+
 void lfgt_exports(nb::module_& module) {
+    module.def("set_grid_eval_scope_probe",&lfge_set,nb::arg("enabled"));
     module.def("grid_completion_carrier_probe",[](nb::handle value) {
         if(!PyFrame_Check(value.ptr()))throw nb::type_error("frame required");
         auto* frame=reinterpret_cast<PyFrameObject*>(value.ptr());

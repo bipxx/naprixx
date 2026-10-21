@@ -87,6 +87,7 @@ void lfgo_emit(const LFGridFastLocals& locals, PyObject* row) {
 }
 void lfgo_python_call_position(const LFGridFastLocals& locals,nb::handle function) {
 #if PY_VERSION_HEX < 0x030D0000
+    if(_PyInterpreterState_GetEvalFrameFunc(PyThreadState_Get()->interp)!=_PyEval_EvalFrameDefault)return;
     PyObject* callable=PyMethod_Check(function.ptr())?PyMethod_GET_FUNCTION(function.ptr()):function.ptr();
     if(!PyFunction_Check(callable))return;
     auto context=lfgo_context(locals);if(!context.state)return;
@@ -223,7 +224,8 @@ struct LFGridObservedOps {
             int error_point=point;
 #if PY_VERSION_HEX < 0x030D0000
             PyObject* callable=PyMethod_Check(function.ptr())?PyMethod_GET_FUNCTION(function.ptr()):function.ptr();
-            if(PyFunction_Check(callable)) error_point+=4;
+            if(PyFunction_Check(callable) &&
+               _PyInterpreterState_GetEvalFrameFunc(PyThreadState_Get()->interp)==_PyEval_EvalFrameDefault)error_point+=4;
 #endif
             lfgt_error_point(locals,error_point);
         }
