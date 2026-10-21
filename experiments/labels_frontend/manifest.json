@@ -1,0 +1,42 @@
+{
+  "schema": "naparixx.frontend-experiment.v1",
+  "production_enabled": false,
+  "historical_defining_execution_authenticated": false,
+  "atomic_publication_implemented": false,
+  "source_inputs": {
+    "src/napari/layers/labels/labels.py": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+    "src/napari/layers/labels/_labels_mouse_bindings.py": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+    "src/napari/layers/labels/_labels_utils.py": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+    "src/naparixx/_adapters.py": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+    "src/napari/layers/base/base.py": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+    "src/napari/utils/interactions.py": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+    "src/naparixx/_backend.py": "b94c75d26c911b87b0e7ded077645c84faecc80996dea1d2396e75b65d295a60",
+    "cpp/include/arrays.hpp": "54d4bc5c10abaf514ec169f258578c83db520d5d2c02b81f34cc378f35e7196e"
+  },
+  "experiment_inputs": {
+    "CMakeLists.txt": "6842043bbad6caa2f935d7e5c139c1c05a5b564e6bd921b909e9c49315f9635e",
+    "compiler_controls.py": "7974935f89f61ecbda69a0024c89f177c957f3c8e1face01fed028ee73f11bcd",
+    "conftest.py": "496afab8e67c621b008c445d099f5371a785dd20328c9276e665a1419ee5d9cc",
+    "expression_shells.py": "43410857efb35acb34e702fbf1398ed9eea28514b6392b47b1c260c3276a0797",
+    "freeze_transport.py": "35824e11f19fcc0c14669112bf3df2dc4d7eaf9061fc0fd10004bad15a8a5d3b",
+    "frontend_shells.py": "fe016bd25ee87bfce9883361c20e43fa25cd6bdbfbb8286114ad5957b3720881",
+    "inspect_inputs.py": "263bde77216e02517e71091c4779b8ceda84aa5a0b348c96e72a25df217f8d82",
+    "native_probe.cpp": "99628b47128ce8590e989edea1f61f62350e2fa6ebec7536492171fb72a67184",
+    "README.md": "56583db48ab1fdb1c26d6026dc234d3f037cc647e155625a110244d99bf2251e",
+    "reference_bindings.py": "559dc12b968ae908a0e7f46905a4547d0e84240ad02abafa972f47470f0e4305",
+    "run_tests.py": "148f0c3868013ecc0227ffaf24d5c06fff6dd66a361a7ac76c82069804895112",
+    "selection.json": "2e4817665e3e405d108ee9ded0ffde3d089b65cd73bb920ee099865cdaa9e309",
+    "state_protocol.py": "e37dc1a59c70e8a77a039b6f16fa6ffb5465d0d9257c89e30e37f9c4bc656c67",
+    "test_canonical_snapshot.py": "3b95b296a2cb8b6340638414789ede383218a9a196bef15b0e4b02c1270bc0f6",
+    "test_expression_order.py": "7b0219e6a4885da0fc1fa32b45b593602cea88008053c4e4208e19428f45fd81"
+  },
+  "provenance": {
+    "handwritten_native_draft": {
+      "path": ".artifacts/labels-native-frontend-edit-owner-canonical-snapshot-stage/frontend-policy-probe.cpp",
+      "sha256": "99628b47128ce8590e989edea1f61f62350e2fa6ebec7536492171fb72a67184",
+      "bytes": 267646
+    },
+    "selection_sha256": "2e4817665e3e405d108ee9ded0ffde3d089b65cd73bb920ee099865cdaa9e309"
+  },
+  "profile_policy": "Byte-verified compile-only sources and transport templates; derive raw18-field profiles for this checkout/interpreter. No original application execution or C++ generation in compiler controls."
+}

@@ -10,6 +10,10 @@ on Windows with CPython 3.12 and PyQt6. The full application conversion and
 all M0–M9 completion gates remain open. See the [current conversion status](docs/conversion-status.md)
 and [remaining checklist](docs/remaining-conversion-checklist.md).
 
+The [Labels frontend experiment](experiments/labels_frontend/README.md) publishes
+the next handwritten draft and a standalone 96-case suite. It is built separately
+and is not enabled in the application.
+
 The handwritten application port includes dimension/camera/grid state, viewer
 navigation, transform math, slice coordinate planning, image/multiscale/point/
 vector/surface slice requests, layer loading and asynchronous slice scheduling.

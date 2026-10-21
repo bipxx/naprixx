@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T04:29:30.035085+00:00",
+  "recorded_utc": "2026-10-21T04:40:09.584225+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -93,18 +93,18 @@
     },
     "raw_archive_published": false,
     "frontend_candidate": {
-      "path": ".artifacts/labels-native-frontend-edit-owner-expression-order-stage/progress.json",
-      "sha256": "2c4dee07d0c2d138572007ea3359671f96e50da41b3599cfdb7d22234dfaeb0a",
-      "bytes": 15282
+      "path": ".artifacts/labels-native-frontend-edit-owner-canonical-snapshot-stage/progress.json",
+      "sha256": "2f78fbbb6f3ed3cb5bdc0fbaac5ff40a04d609596eff222f2fa39105e7280283",
+      "bytes": 11812
     }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Review and implement canonical module/class/decorator provenance and atomic full50 handoff; complete source target/parent fast locals, tracing, local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before integration; then reuse43 qualified before cases and606 accepted regressions with real Viewer/shutdown checks. Real plugin save/reload and cancellation/close remain required.",
+  "next_work": "Capture the actual defining execution for canonical module/class/decorator producers; a current binding snapshot alone permits pre-capture identical substitutions. Implement atomic full50 publication under audit/reentrant hooks. Complete target/parent fast locals, tracing/local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before application integration; then reuse43 qualified before cases and606 accepted regressions with real Viewer/plugin/save/reload/cancellation/shutdown checks.",
   "frontend_candidate": {
-    "status": "isolated handwritten draft; not installed or accepted",
+    "status": "tracked standalone experimental draft; no production installation/admission",
     "source_bodies": 50,
     "expression_format_yield_sites": 21,
     "lazy_expressions": 7,
@@ -119,6 +119,13 @@
     "canonical_admission_proven": false,
     "full_frame_abi_proven": false,
     "cleanup_removed_bytes": 38851185,
-    "accepted_inputs_held": 2845
+    "accepted_inputs_held": 2845,
+    "package": "experiments/labels_frontend",
+    "new_snapshot_cases": 72,
+    "packaged_distinct_cases": 96,
+    "packaged_archive_denied_run_passed": true,
+    "defining_execution_authenticated": false,
+    "atomic_publication_implemented": false,
+    "latest_cleanup_removed_bytes": 21830189
   }
 }

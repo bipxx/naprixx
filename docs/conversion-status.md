@@ -45,6 +45,16 @@ provenance, atomic handoff, full fast-local/tracing/release compatibility,
 default grid and required provider policies, independent effective source/ABI
 review, and real Viewer/shutdown qualification remain required.
 
+The [tracked frontend experiment](../experiments/labels_frontend/README.md) now
+publishes the handwritten draft and a read-only C++ binding snapshot. Its 72 new
+checks cover all 50 current targets, changed-binding rejection and a GC cycle.
+The packaged suite combines these with 24 retained expression checks: all 96
+passed on its standalone Windows/CPython 3.12 Release build, including a run
+with access to `.artifacts` denied. These repeated runs are not additional
+distinct cases. The snapshot validates current bindings; authenticating the
+historical defining execution and publishing replacements atomically remain open.
+This packet removed another 21,830,189 bytes of settled target intermediates.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).

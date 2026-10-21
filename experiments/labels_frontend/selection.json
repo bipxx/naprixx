@@ -1,0 +1,2305 @@
+{
+  "schema": "naparixx.labels-frontend-native-owner-source-selection.v1",
+  "status": "FROZEN_SOURCE_ONLY_FEC1_FEC2_CORRECTION_REQUIRED_PROVIDER_POLICY_OPEN",
+  "pinned_commit": "595639295a153c84bcb127a9e07d801355440a35",
+  "scope": "Conventional left press/move/release stroke, fill and polygon API geometry/validation, pick and modifier brush policy, and necessary default helper/descriptor/dispatcher controls. Encircle/polygon GUI overlays and full save/close remain explicitly required parents.",
+  "definitions": [
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._validate_label_in_range:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._validate_label_in_range",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 780,
+      "end_line": 790,
+      "signature": "self, label: int",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "cf58b4108e149ba9b27394a4cdc592e11c067c29a341ccacb07853d0e0cd8a07",
+      "normalized_AST_sha256": "95b0d91cbb719f11497436fb7cb7d97720252d332b54a9701a1f947079635c0d",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "WrongSelectedLabelError",
+        "get_dtype",
+        "get_dtype_limits"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._validate_non_painted_coord:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._validate_non_painted_coord",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 792,
+      "end_line": 805,
+      "signature": "self, slice_coord: list[int], dims_to_paint: list[int]",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "84c2abce5907345944c793429828f5d0a4325d5b9fefff36d55dc604e3d7a770",
+      "normalized_AST_sha256": "d1d9cf2f6a9988d277d32501d1e769939dc3a9871b8f3fb66097e41b2034bdec",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "IndexError",
+        "enumerate"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.fill:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.fill",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1204,
+      "end_line": 1253,
+      "signature": "self, coord: Sequence[float], new_label: int, refresh: bool=True",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "eb80d7362771f334f679c1cc2ef167fd4c9365d7a1c8e91a2b4db5c1fc881be3",
+      "normalized_AST_sha256": "033bb46ccbe2fa7eb09dd248de7d94cbb0c90b1c2d789dd99fc55eefa02d5b00",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "int",
+        "np.round",
+        "self._build_slice_key",
+        "self._get_flood_mask_and_bbox",
+        "self._get_shape_and_dims_to_paint",
+        "self._paint_region_with_mask",
+        "self._validate_label_in_range",
+        "self._validate_non_painted_coord"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._get_flood_mask_and_bbox:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._get_flood_mask_and_bbox",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1255,
+      "end_line": 1339,
+      "signature": "self, coord: Sequence[float], new_label: int, dims_to_paint: list[int]",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "c28bb121c59da9df1da1e4bfb87fc39c786fcd38282bd24536de78deaa4b3cbe",
+      "normalized_AST_sha256": "cbdc12eaa1377fbe4f66d790f6d7fcb793be305cfa5e091107210e7416da7c61",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "flood",
+        "list",
+        "mask.all",
+        "np.any",
+        "np.array",
+        "np.asarray",
+        "np.asarray(self.data[int_coord]).item",
+        "np.greater_equal",
+        "np.less",
+        "np.round",
+        "np.round(coord).astype",
+        "np.zeros",
+        "self._compute_mask_bbox",
+        "self._get_preserve_labels_source_label",
+        "slice",
+        "tuple",
+        "zip"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._draw:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._draw",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1365,
+      "end_line": 1394,
+      "signature": "self, new_label, last_cursor_coord, coordinates",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "59025a06b9ca279cfa6fe08101255775c259b8c71f7709772cb82d84198609cb",
+      "normalized_AST_sha256": "c06b8f10982573c4e4bcd0976cddc0b4bb306c64b6b8840ea7506953f6d062da",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "interpolate_coordinates",
+        "np.round",
+        "np.round(c).astype",
+        "self._partial_labels_refresh",
+        "self.fill",
+        "self.paint",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.paint:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.paint",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1396,
+      "end_line": 1437,
+      "signature": "self, coord: Sequence[float], new_label: int, refresh: bool=True",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "d3c0c3a2c89f6af323d8e69e1656fe0c65019cfd63dff07fbdd90aadacffd98e",
+      "normalized_AST_sha256": "06d34b2e38e769422aff3a3cb63e71a9a01dceead2fa58f53b460f5f210ca9ab",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "int",
+        "np.round",
+        "self._build_slice_key",
+        "self._get_brush_mask_and_bbox",
+        "self._get_shape_and_dims_to_paint",
+        "self._paint_region_with_mask",
+        "self._validate_label_in_range",
+        "self._validate_non_painted_coord"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._get_brush_mask_and_bbox:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._get_brush_mask_and_bbox",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1439,
+      "end_line": 1505,
+      "signature": "self, coord: Sequence[float], dims_to_paint: list[int], shape: list[int]",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "a639c04b8d89ff3274bd2bb73f75ccf0ef8dd37ff2d188802186cbea61cec709",
+      "normalized_AST_sha256": "3617c9c6f6243d277d0d063b1b6990fb9520959506632c98d03795cbc35046de",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "np.abs",
+        "np.any",
+        "np.array",
+        "np.floor",
+        "np.floor(radius / normalized_scale).astype",
+        "np.maximum",
+        "np.min",
+        "np.minimum",
+        "np.round",
+        "np.round(coord_paint).astype",
+        "self._create_brush_mask",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.paint_polygon:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.paint_polygon",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1507,
+      "end_line": 1543,
+      "signature": "self, points: list | np.ndarray, new_label: int",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "3cc609f67b4bdc482d1986d64821883b1e9b702f386e76d16545737d9140a5ca",
+      "normalized_AST_sha256": "ed18adf1bf8a82dda4037a15883cf2f55ffca1de85f6fbb4725e82ea12459b5e",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "np.array",
+        "points[0].tolist",
+        "self._build_slice_key",
+        "self._get_polygon_mask_and_bbox",
+        "self._get_shape_and_dims_to_paint",
+        "self._paint_region_with_mask",
+        "self._validate_label_in_range",
+        "self._validate_non_painted_coord"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._get_polygon_mask_and_bbox:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._get_polygon_mask_and_bbox",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1545,
+      "end_line": 1603,
+      "signature": "self, points: np.ndarray, dims_to_paint: list[int], shape: list[int]",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "fc61185e0fa2a87d036c458b622a9c9fa0688d3cdf2d649f12a863d1f9b9423e",
+      "normalized_AST_sha256": "35b68117bcab0b8540af7f51044b14ce4c8a6d128320781fa0f1bd8a931e23af",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "NotImplementedError",
+        "len",
+        "list",
+        "np.any",
+        "np.max",
+        "np.maximum",
+        "np.min",
+        "np.minimum",
+        "self._create_polygon_mask"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._create_polygon_mask:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._create_polygon_mask",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1606,
+      "end_line": 1631,
+      "signature": "points2d: np.ndarray, shape: list[int]",
+      "decorators": [
+        "staticmethod"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "68019271dbe90b84d852372ad2538f4c7e93915c876decbabe354606eaf6e5de",
+      "normalized_AST_sha256": "98400fa0e6d67b90f20c4ff47d40d10186da2c36b198bbc9bc8f8ca0c5395088",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "Image.new",
+        "ImageDraw.Draw",
+        "draw.polygon",
+        "np.array",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._create_brush_mask:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._create_brush_mask",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1634,
+      "end_line": 1677,
+      "signature": "shape: tuple[int, ...], radius: float, center: np.ndarray, normalized_scale: np.ndarray",
+      "decorators": [
+        "staticmethod"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "9e6bf4b92cc02260eae865b8fd98cf0160df8931365f408f973da6b3069b22bf",
+      "normalized_AST_sha256": "05ca5e5f8f471d4467b4d127616bb5d59a134dafda2dfe8c37372e608bec2519",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "len",
+        "range",
+        "slice",
+        "sum",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._compute_mask_bbox:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._compute_mask_bbox",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1680,
+      "end_line": 1708,
+      "signature": "mask: np.ndarray",
+      "decorators": [
+        "staticmethod"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "70883687b7b08e749d74f33943515ac14fa27a6b620e02f75a63579242ee431c",
+      "normalized_AST_sha256": "8a74b6e7793544ed2f2fea24bde01a087be3c67b6fcecb9f1a942bd1bdded677",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "len",
+        "np.any",
+        "np.argmax",
+        "np.empty",
+        "range",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._build_slice_key:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._build_slice_key",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 1711,
+      "end_line": 1740,
+      "signature": "slice_coord: list[int], dims_to_paint: list[int], min_vals: np.ndarray, max_vals: np.ndarray",
+      "decorators": [
+        "staticmethod"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "b1d54b66368cfcdab1615188fddd6396dae75bc41415fbe52063cf0d5e692bf7",
+      "normalized_AST_sha256": "ff87935c80d0a9d141854e56d5962570c9ed684e82241928bff5a8b4a271ad32",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "enumerate",
+        "int",
+        "slice",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._get_shape_and_dims_to_paint:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._get_shape_and_dims_to_paint",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 2064,
+      "end_line": 2071,
+      "signature": "self",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "ecd3defc77539edd7846323493c0ad6a2e36c1b6abea543d0b43ea3088a5f0a9",
+      "normalized_AST_sha256": "02d99377f25a974d73b8dfba53847bae59ba866b1c9a8802f36c337f6518f935",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "list",
+        "self._get_dims_to_paint",
+        "sorted"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._get_dims_to_paint:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._get_dims_to_paint",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 2073,
+      "end_line": 2074,
+      "signature": "self",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "f65c20c0ce160cc258936c764171932f491ac8013f29fba3d0af7704aa5a026f",
+      "normalized_AST_sha256": "8278b4d4d1f186b6c7c73addb34e9e76150432bf629f192d0695850535839afd",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "list"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:WrongSelectedLabelError.__init__:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "WrongSelectedLabelError.__init__",
+      "occurrence": 1,
+      "group": "frontend_geometry_validation",
+      "first_line": 2272,
+      "end_line": 2288,
+      "signature": "self, dtype: np.dtype, value: int, lower_bound: float, upper_bound: float, message: str=''",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "abb2e2917fba368c5b2a9a62f53cb79d4af6881f45319123371feebea4edbae5",
+      "normalized_AST_sha256": "cb62016d83531372ced9821d958db78f5dc8c07c4288f2bf3f1dae8ee5c2011e",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "int",
+        "super",
+        "super().__init__"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.contiguous:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.contiguous",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 550,
+      "end_line": 552,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "a6232162a29f2369d21b9be9c55bb1d66b5892337b6fbc4f915695d7026a6b9e",
+      "normalized_AST_sha256": "ac01ce913e8ed8c5d88430968a9db38eb2effcd90d25d936f63e0254a8586e2b",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.n_edit_dimensions:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.n_edit_dimensions",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 560,
+      "end_line": 561,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "ea6197c54542ecd978067e079fb94827a6dba6a85bc104ee1726db9309797d5b",
+      "normalized_AST_sha256": "80e45ddfc78c621125b737e1d0383b0b0e7f72dd6871b7498dbf059b3c5348c2",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.brush_size:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.brush_size",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 582,
+      "end_line": 584,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "ae12e46c5b692937fda3109805a6d3e6d965803a644a557e41a6e47b6d76898a",
+      "normalized_AST_sha256": "6f21cb8595abc08c7d2469647262dd47630d87619222acc1f73df7aae4e19217",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.brush_size:2",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.brush_size",
+      "occurrence": 2,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 587,
+      "end_line": 590,
+      "signature": "self, brush_size",
+      "decorators": [
+        "brush_size.setter"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "977af91d4594025b7b28701448e943149c5c6af58fe5a79f93886c7dc75b6860",
+      "normalized_AST_sha256": "739bcacf55ef308cea3224aca4e3795aa4db6489060225ed3c883a7f12b44a0a",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "int",
+        "self._calculate_cursor_size",
+        "self.events.brush_size"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels._calculate_cursor_size:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels._calculate_cursor_size",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 592,
+      "end_line": 599,
+      "signature": "self",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "9b2db9a5840de68b2f8761a100968444681cc950c9c27a8c37fddf4f0817ba89",
+      "normalized_AST_sha256": "ebbeb1e823c1bf71201147474493ce5e05c23ea5506e9eb2dd67a2517f4ce4bb",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "abs",
+        "np.min"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.selected_label:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.selected_label",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 808,
+      "end_line": 810,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "cc461f690685d37d495d343b5e18ee64088e0206c99bf2e2c3e55b0f66c0f811",
+      "normalized_AST_sha256": "35132f528aa7c255360b5bf798a49964641788eab5f8aff856b32d3878d87603",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.selected_label:2",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.selected_label",
+      "occurrence": 2,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 813,
+      "end_line": 830,
+      "signature": "self, selected_label",
+      "decorators": [
+        "selected_label.setter"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "96dec19caeb9461bb09e93290f30b2bcb62a0cbc9f0d2087653f8db2700a3d22",
+      "normalized_AST_sha256": "4513b8e3616d7f6c3199e80e5107645aa641288f93cd4d8da8d9860e509fc03c",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "self._validate_label_in_range",
+        "self.events.selected_label",
+        "self.get_color",
+        "self.refresh"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.get_color:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.get_color",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 1037,
+      "end_line": 1047,
+      "signature": "self, label",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "11e20ddfdf9eb8d5a70a7d770037f619b57ac34f23338705ff83f4a8f84ce5f3",
+      "normalized_AST_sha256": "dd0caaedc9b6275ff54ef08185b5c29843b2dded28d1f255310f1c5e740e643e",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "self.colormap.map"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.show_selected_label:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.show_selected_label",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 840,
+      "end_line": 842,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "6339ae27452451fb1eba387fa418b46cb91d537ff4ae3944748d84d7aca4006b",
+      "normalized_AST_sha256": "771fd32b637dcbf3ae5e53920f35f166cb93a100dcdbdd4a4637f3824c33b0fb",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.preserve_labels:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.preserve_labels",
+      "occurrence": 1,
+      "group": "required_pick_brush_property_policy",
+      "first_line": 899,
+      "end_line": 905,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "272e32b22a311de2fe476ad04e6732725bc4d5b4523c573b7ad0943caeb65c31",
+      "normalized_AST_sha256": "7f3137c5d7dea9734ba97893dbe4cb75058a02f77191c2e3e6d3b06a7579d218",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_mouse_bindings.py:function:draw:1",
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "draw",
+      "occurrence": 1,
+      "group": "actual_left_mouse_pick_modifier_policy",
+      "first_line": 16,
+      "end_line": 65,
+      "signature": "layer, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+        "bytes": 4723
+      },
+      "raw_function_sha256": "e2f5f9e73a3673740b2e1468e7c771047974e02fd4dedc2fd65d309c740c7125",
+      "normalized_AST_sha256": "259eb5c3e74e665d640ea3bf9d8e45cb843a97b807d127be3e256792eb42ac4d",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "layer._draw",
+        "layer.block_history",
+        "mouse_event_to_labels_coordinate"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_mouse_bindings.py:function:pick:1",
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "pick",
+      "occurrence": 1,
+      "group": "actual_left_mouse_pick_modifier_policy",
+      "first_line": 68,
+      "end_line": 79,
+      "signature": "layer, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+        "bytes": 4723
+      },
+      "raw_function_sha256": "4257702810df71a2b4598034f314c973bddc96e404b337cf03984dcd9be1ea8c",
+      "normalized_AST_sha256": "e3b9f2707a1870fc4126ccadcd02187977ed75fbce9dd0fb3dd455e4a63db769",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "layer.get_value"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_mouse_bindings.py:function:BrushSizeOnMouseMove.__init__:1",
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "BrushSizeOnMouseMove.__init__",
+      "occurrence": 1,
+      "group": "actual_left_mouse_pick_modifier_policy",
+      "first_line": 97,
+      "end_line": 100,
+      "signature": "self, min_brush_size: int=1",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+        "bytes": 4723
+      },
+      "raw_function_sha256": "c2cf47e04046e7f939f571bf0752f1719e24a93be148bf5d1620817425a5f602",
+      "normalized_AST_sha256": "4d67ab42ce20660d085eab1ed2581e003d3a28cb24158f0d42e8fd99114ab996",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_mouse_bindings.py:function:BrushSizeOnMouseMove.__call__:1",
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "BrushSizeOnMouseMove.__call__",
+      "occurrence": 1,
+      "group": "actual_left_mouse_pick_modifier_policy",
+      "first_line": 102,
+      "end_line": 124,
+      "signature": "self, layer, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+        "bytes": 4723
+      },
+      "raw_function_sha256": "87ff230d7e37b8868fc42b18807e70c385e0b06efd086158d1b4a90ea9674182",
+      "normalized_AST_sha256": "1e1a172b6c5cc153aa142ab97829e73da54d213997aa2944144ceae025ceac27",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "all",
+        "max",
+        "round"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_mouse_bindings.py:function:BrushSizeOnMouseMove._on_modifiers_change:1",
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "BrushSizeOnMouseMove._on_modifiers_change",
+      "occurrence": 1,
+      "group": "actual_left_mouse_pick_modifier_policy",
+      "first_line": 126,
+      "end_line": 130,
+      "signature": "self",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+        "bytes": 4723
+      },
+      "raw_function_sha256": "ca7329ad62c1f0f447faea6f3565d66c6510fffb1d74a1aa27e8f25d22f49759",
+      "normalized_AST_sha256": "15b1f5a818bd05e396c1de4e722bc649a6b6d5ef80ca91ac4d6ea8e0b36eee93",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "get_settings",
+        "modifiers_setting.value.split"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_utils.py:function:interpolate_coordinates:1",
+      "module": "src/napari/layers/labels/_labels_utils.py",
+      "qualname": "interpolate_coordinates",
+      "occurrence": 1,
+      "group": "required_coordinate_dtype_default_helper",
+      "first_line": 10,
+      "end_line": 44,
+      "signature": "old_coord, new_coord, brush_size",
+      "decorators": [
+        "_native_dispatch('interpolation_adapter')"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_utils.py",
+        "sha256": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+        "bytes": 7608
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_utils.py",
+        "sha256": "0fa4ebdb8d9d6664b405387730267153fbce79ebad94be548a04752f9ad18130",
+        "bytes": 7644
+      },
+      "raw_function_sha256": "78ce3b572b76e3a54ab2df669b22625e1cc2754cbe8236cee7df02e028106964",
+      "normalized_AST_sha256": "e3aecb4082f06d6040668bab5f9f7e5929b110732d4e62f04491db1c016c63cf",
+      "pinned_complete_AST_equal": false,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native_dispatch",
+        "abs",
+        "int",
+        "len",
+        "max",
+        "np.array",
+        "np.linspace",
+        "np.stack",
+        "range",
+        "round"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_utils.py:function:get_dtype:1",
+      "module": "src/napari/layers/labels/_labels_utils.py",
+      "qualname": "get_dtype",
+      "occurrence": 1,
+      "group": "required_coordinate_dtype_default_helper",
+      "first_line": 121,
+      "end_line": 143,
+      "signature": "layer",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_utils.py",
+        "sha256": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+        "bytes": 7608
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_utils.py",
+        "sha256": "0fa4ebdb8d9d6664b405387730267153fbce79ebad94be548a04752f9ad18130",
+        "bytes": 7644
+      },
+      "raw_function_sha256": "c5dab7b01a62b1a5d3d0af5950f900e16190a79119ef8b40798e9767958954dd",
+      "normalized_AST_sha256": "953c4134afab678a1219f1f8040c4780202e5b7d5018d809d704fc933d21382a",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "hasattr",
+        "isinstance",
+        "type"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_utils.py:function:first_nonzero_coordinate:1",
+      "module": "src/napari/layers/labels/_labels_utils.py",
+      "qualname": "first_nonzero_coordinate",
+      "occurrence": 1,
+      "group": "required_coordinate_dtype_default_helper",
+      "first_line": 147,
+      "end_line": 170,
+      "signature": "data, start_point, end_point",
+      "decorators": [
+        "_native_dispatch('ray_adapter')"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_utils.py",
+        "sha256": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+        "bytes": 7608
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_utils.py",
+        "sha256": "0fa4ebdb8d9d6664b405387730267153fbce79ebad94be548a04752f9ad18130",
+        "bytes": 7644
+      },
+      "raw_function_sha256": "9e3adf1176b0580fa247ddcae77bba0d31e9633e38173a47e66e2ec7e9e63f32",
+      "normalized_AST_sha256": "96e79437bdceca9709542b9e53ff31786f072c62772dd65e41ce19dd28681e3a",
+      "pinned_complete_AST_equal": false,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native_dispatch",
+        "len",
+        "np.asarray",
+        "np.clip",
+        "np.clip(np.round(coords), 0, shape - 1).astype",
+        "np.flatnonzero",
+        "np.linalg.norm",
+        "np.linspace",
+        "np.round",
+        "np.round(length).astype",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/_labels_utils.py:function:mouse_event_to_labels_coordinate:1",
+      "module": "src/napari/layers/labels/_labels_utils.py",
+      "qualname": "mouse_event_to_labels_coordinate",
+      "occurrence": 1,
+      "group": "required_coordinate_dtype_default_helper",
+      "first_line": 173,
+      "end_line": 208,
+      "signature": "layer, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/layers/labels/_labels_utils.py",
+        "sha256": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+        "bytes": 7608
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/_labels_utils.py",
+        "sha256": "0fa4ebdb8d9d6664b405387730267153fbce79ebad94be548a04752f9ad18130",
+        "bytes": 7644
+      },
+      "raw_function_sha256": "d8abed4e931401a401c8ad2d97c021dbe97d15ed350703ab5f869c12b9705cf5",
+      "normalized_AST_sha256": "6bb75cf4d0e8c974899c17e82200b7da5c8ee7f06a3def7d852fa4ccad1b3aab",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "first_nonzero_coordinate",
+        "layer.get_ray_intersections",
+        "layer.world_to_data",
+        "len"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "naparixx/_adapters.py:function:interpolation_adapter:1",
+      "module": "src/naparixx/_adapters.py",
+      "qualname": "interpolation_adapter",
+      "occurrence": 1,
+      "group": "required_original_fallback_adapter_policy",
+      "first_line": 104,
+      "end_line": 127,
+      "signature": "original",
+      "decorators": [],
+      "source": {
+        "path": "src/naparixx/_adapters.py",
+        "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+        "bytes": 6008
+      },
+      "pinned_source": null,
+      "raw_function_sha256": "77cbc74a8b5feff8c9a077952205fdf81d71ae12d38eeefc002b92ef9bc6b223",
+      "normalized_AST_sha256": "1cf77f4799a9023d868da647eb970d4131db9ce872e0ebda8b99832a07bb763c",
+      "pinned_complete_AST_equal": null,
+      "pinned_body_AST_equal": null,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native.interpolate_coordinates",
+        "np.asarray",
+        "np.isfinite",
+        "np.isfinite(new).all",
+        "np.isfinite(old).all",
+        "original",
+        "wraps"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "naparixx/_adapters.py:function:interpolation_adapter.call:1",
+      "module": "src/naparixx/_adapters.py",
+      "qualname": "interpolation_adapter.<locals>.call",
+      "occurrence": 1,
+      "group": "required_original_fallback_adapter_policy",
+      "first_line": 106,
+      "end_line": 125,
+      "signature": "old_coord, new_coord, brush_size",
+      "decorators": [
+        "wraps(original)"
+      ],
+      "source": {
+        "path": "src/naparixx/_adapters.py",
+        "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+        "bytes": 6008
+      },
+      "pinned_source": null,
+      "raw_function_sha256": "ad5448dee1bf7438349841b7c16d4572d13ed6139bdd8873fca3be919c241b60",
+      "normalized_AST_sha256": "d5c16decb1dcc1a0232a1bba43ac215935f392c5faa740262da53f6ef969f6ef",
+      "pinned_complete_AST_equal": null,
+      "pinned_body_AST_equal": null,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native.interpolate_coordinates",
+        "np.asarray",
+        "np.isfinite",
+        "np.isfinite(new).all",
+        "np.isfinite(old).all",
+        "original",
+        "wraps"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "naparixx/_adapters.py:function:ray_adapter:1",
+      "module": "src/naparixx/_adapters.py",
+      "qualname": "ray_adapter",
+      "occurrence": 1,
+      "group": "required_original_fallback_adapter_policy",
+      "first_line": 130,
+      "end_line": 149,
+      "signature": "original",
+      "decorators": [],
+      "source": {
+        "path": "src/naparixx/_adapters.py",
+        "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+        "bytes": 6008
+      },
+      "pinned_source": null,
+      "raw_function_sha256": "8229aa3f6839ecc57dee62210c35041b58e7bd41d3d67f4d69abef951e1c9d84",
+      "normalized_AST_sha256": "2c0165991d5ff1bb1e9356328533532f0a2c1f59759fa8eaf539bd22c198204e",
+      "pinned_complete_AST_equal": null,
+      "pinned_body_AST_equal": null,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native.first_nonzero_coordinate",
+        "_plain_real",
+        "np.asarray",
+        "np.isfinite",
+        "np.isfinite(end).all",
+        "np.isfinite(start).all",
+        "original",
+        "result.astype",
+        "wraps"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "naparixx/_adapters.py:function:ray_adapter.call:1",
+      "module": "src/naparixx/_adapters.py",
+      "qualname": "ray_adapter.<locals>.call",
+      "occurrence": 1,
+      "group": "required_original_fallback_adapter_policy",
+      "first_line": 132,
+      "end_line": 147,
+      "signature": "data, start_point, end_point",
+      "decorators": [
+        "wraps(original)"
+      ],
+      "source": {
+        "path": "src/naparixx/_adapters.py",
+        "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+        "bytes": 6008
+      },
+      "pinned_source": null,
+      "raw_function_sha256": "d6d8a86f9a3f8ef914c1d859cd6c30882818e5e67b1a13b629432623bdf3467e",
+      "normalized_AST_sha256": "9a0eb69d956ffb8e6f6808831641964233e0cb69c178668c46b899e64dee83a3",
+      "pinned_complete_AST_equal": null,
+      "pinned_body_AST_equal": null,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "_native.first_nonzero_coordinate",
+        "_plain_real",
+        "np.asarray",
+        "np.isfinite",
+        "np.isfinite(end).all",
+        "np.isfinite(start).all",
+        "original",
+        "result.astype",
+        "wraps"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "naparixx/_adapters.py:function:_plain_real:1",
+      "module": "src/naparixx/_adapters.py",
+      "qualname": "_plain_real",
+      "occurrence": 1,
+      "group": "required_original_fallback_adapter_policy",
+      "first_line": 32,
+      "end_line": 33,
+      "signature": "value",
+      "decorators": [],
+      "source": {
+        "path": "src/naparixx/_adapters.py",
+        "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+        "bytes": 6008
+      },
+      "pinned_source": null,
+      "raw_function_sha256": "a26ea12bbc51bbb0ec101385dbf8c33fb5271342ae24740b81dd5b3e435cc834",
+      "normalized_AST_sha256": "0aedac4eb6e78e3115e1a32e71966bb42fe0ed9f8b0d0126494731a1a32d276e",
+      "pinned_complete_AST_equal": null,
+      "pinned_body_AST_equal": null,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "type"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.ndim:1",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.ndim",
+      "occurrence": 1,
+      "group": "required_cursor_descriptor_policy",
+      "first_line": 1152,
+      "end_line": 1154,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "40ff0b2ee09ea123fa7e47e12b8b01b56f7efc6fa5edc4cc26becf8eb75691e8",
+      "normalized_AST_sha256": "199786ede15fe63b27348e49dd5dda4bdd4945c37e6d9ba7c1112b30c2d992c2",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.cursor:1",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.cursor",
+      "occurrence": 1,
+      "group": "required_cursor_descriptor_policy",
+      "first_line": 1193,
+      "end_line": 1195,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "ecab6059e0b84c12df7de52a6485edd134ce098e47884115f9314ffeca88d784",
+      "normalized_AST_sha256": "dca06c30035c965da0ba5a43c482a54d7c8dec43eac7b2435e6b0f3c50f3fe90",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.cursor:2",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.cursor",
+      "occurrence": 2,
+      "group": "required_cursor_descriptor_policy",
+      "first_line": 1198,
+      "end_line": 1202,
+      "signature": "self, cursor: str",
+      "decorators": [
+        "cursor.setter"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "653d2c4544e3f2d6fa136d4d106a6268fdb60a0b44b9932e65458b3e51836aa6",
+      "normalized_AST_sha256": "d1c97c1cf364bc5fd4a60dcc3dd47d9096cbeecbbb0273616a44d0829d27a245",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "self.events.cursor"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.cursor_size:1",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.cursor_size",
+      "occurrence": 1,
+      "group": "required_cursor_descriptor_policy",
+      "first_line": 1205,
+      "end_line": 1207,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "4c6151644a4b10bafccad27a19931324d0aa6d36c7b5c457d68b4a06d3501dc5",
+      "normalized_AST_sha256": "d86f10b11ea370e25e72d821098adc06be4a8fa74e856b632a9e4910d433feba",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.cursor_size:2",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.cursor_size",
+      "occurrence": 2,
+      "group": "required_cursor_descriptor_policy",
+      "first_line": 1210,
+      "end_line": 1214,
+      "signature": "self, cursor_size: int",
+      "decorators": [
+        "cursor_size.setter"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "a1750faf579314a1eef5e47caeb0fc14cb15c91130504838f257979d3fc72bf6",
+      "normalized_AST_sha256": "f69de998e92d93ce503b1467ceff63d02d46bcf115a5f586d3cf8d1c5af5aa0e",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "self.events.cursor_size"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/utils/interactions.py:function:mouse_press_callbacks:1",
+      "module": "src/napari/utils/interactions.py",
+      "qualname": "mouse_press_callbacks",
+      "occurrence": 1,
+      "group": "actual_press_move_release_registry_policy",
+      "first_line": 91,
+      "end_line": 132,
+      "signature": "obj, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "raw_function_sha256": "13f70ae9b83aacd1a17b359967c99cc91525f98286af242119401fbf4044d3f0",
+      "normalized_AST_sha256": "37a5472268ebaedee003fe9e6ce4780b2d6c1ecf12e429ac3a2fde5ddf1df22c",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "inspect.isgenerator",
+        "mouse_drag_func",
+        "next"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/utils/interactions.py:function:mouse_move_callbacks:1",
+      "module": "src/napari/utils/interactions.py",
+      "qualname": "mouse_move_callbacks",
+      "occurrence": 1,
+      "group": "actual_press_move_release_registry_policy",
+      "first_line": 135,
+      "end_line": 178,
+      "signature": "obj, event: 'NapariMouseEvent'",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "raw_function_sha256": "b9204a5af5b3e444fbbd255fab5fff06b9f1f82502b4aff46ea0e7160ce4e808",
+      "normalized_AST_sha256": "605498a8081c4159b2045677406752cdaeb1f6e2d1fa1c0c290f9104d926389f",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "mouse_move_func",
+        "next",
+        "obj._mouse_drag_gen.items",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/utils/interactions.py:function:mouse_release_callbacks:1",
+      "module": "src/napari/utils/interactions.py",
+      "qualname": "mouse_release_callbacks",
+      "occurrence": 1,
+      "group": "actual_press_move_release_registry_policy",
+      "first_line": 181,
+      "end_line": 216,
+      "signature": "obj, event",
+      "decorators": [],
+      "source": {
+        "path": "src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/utils/interactions.py",
+        "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+        "bytes": 10915
+      },
+      "raw_function_sha256": "b98cff3820b0216d4337a0ff09d8e8bb4591d0050bc68bbd6b4ab3fd58f743c5",
+      "normalized_AST_sha256": "62a232596e886e26eb26789eaf8907b1329f56b690bb617253cc9495076b1f9e",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [
+        "contextlib.suppress",
+        "next",
+        "obj._mouse_drag_gen.items",
+        "tuple"
+      ],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/labels/labels.py:function:Labels.colormap:1",
+      "module": "src/napari/layers/labels/labels.py",
+      "qualname": "Labels.colormap",
+      "occurrence": 1,
+      "group": "required_live_model_selector_getters",
+      "first_line": 617,
+      "end_line": 618,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/labels/labels.py",
+        "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+        "bytes": 87344
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/labels/labels.py",
+        "sha256": "8d5ac1e119018af7b49df29838a91273910df09c2d4e4e6ec7e58a3744e7a176",
+        "bytes": 89597
+      },
+      "raw_function_sha256": "a3bf75a36f162966bec99763f1277b51159a46a47a0eeb85b2f199c091395184",
+      "normalized_AST_sha256": "a213554ea3a234de8a900bccd4b029a1bfbf478c920eddfc20f656d54be854bf",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    },
+    {
+      "id": "napari/layers/base/base.py:function:Layer.scale:1",
+      "module": "src/napari/layers/base/base.py",
+      "qualname": "Layer.scale",
+      "occurrence": 1,
+      "group": "required_live_model_selector_getters",
+      "first_line": 904,
+      "end_line": 906,
+      "signature": "self",
+      "decorators": [
+        "property"
+      ],
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "pinned_source": {
+        "path": ".upstream/napari/src/napari/layers/base/base.py",
+        "sha256": "2c9e08f2cf0508fdf2399abf49eea42ecb545adb81ac4c8422b57103b57eefa4",
+        "bytes": 89848
+      },
+      "raw_function_sha256": "832d76cd9a343aa35d3abdc534ea77fa1f974008dbdc7779466f98be4d07257f",
+      "normalized_AST_sha256": "d34c5cbce12d56e86e5887bfdb6e8a948e81f4e919968d255f6c0d5d61c77b1c",
+      "pinned_complete_AST_equal": true,
+      "pinned_body_AST_equal": true,
+      "current_ledger_classification": "unreviewed",
+      "source_calls": [],
+      "direct_yield_sites": []
+    }
+  ],
+  "expression_policies": [
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._validate_non_painted_coord",
+      "kind": "JoinedStr",
+      "first_line": 802,
+      "end_line": 803,
+      "column": 20,
+      "normalized_AST_sha256": "f51d3eee075f589a3968cf08cbaab5e2e1b387cd638ed139c576c01b8dbcf543",
+      "source_fragment": "f'Coordinate {coord} for non-painted dimension {i} is out '\n                    f'of bounds for axis with size {self.data.shape[i]}.'",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels.fill",
+      "kind": "ListComp",
+      "first_line": 1231,
+      "end_line": 1231,
+      "column": 22,
+      "normalized_AST_sha256": "b19b7a2bddc531f9c992e3cbf8d99fec1fe85ffb6a370d1da340028bbee0c348",
+      "source_fragment": "[int(np.round(c)) for c in coord]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_flood_mask_and_bbox",
+      "kind": "GeneratorExp",
+      "first_line": 1314,
+      "end_line": 1314,
+      "column": 27,
+      "normalized_AST_sha256": "987f43401d1b5ca0614f7f44821d06b043b53dea29b1aa3dd0737991e1ffc88e",
+      "source_fragment": "(int_coord[d] for d in dims_to_paint)",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_flood_mask_and_bbox",
+      "kind": "GeneratorExp",
+      "first_line": 1326,
+      "end_line": 1326,
+      "column": 31,
+      "normalized_AST_sha256": "5d1c99f32f8ae989a776bf6e8c4117f87b02a534f8bf3856842f05dc1ee2a238",
+      "source_fragment": "(slice(None) for _ in dims_to_paint)",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_flood_mask_and_bbox",
+      "kind": "GeneratorExp",
+      "first_line": 1333,
+      "end_line": 1336,
+      "column": 31,
+      "normalized_AST_sha256": "6e391061fe5ac18c8fcf44989a4cd8297cda9465518eb0d9daab251a4502c6c0",
+      "source_fragment": "(\n                slice(min_v, max_v)\n                for min_v, max_v in zip(min_vals, max_vals, strict=True)\n            )",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels.paint",
+      "kind": "ListComp",
+      "first_line": 1420,
+      "end_line": 1420,
+      "column": 22,
+      "normalized_AST_sha256": "b19b7a2bddc531f9c992e3cbf8d99fec1fe85ffb6a370d1da340028bbee0c348",
+      "source_fragment": "[int(np.round(c)) for c in coord]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_brush_mask_and_bbox",
+      "kind": "ListComp",
+      "first_line": 1469,
+      "end_line": 1469,
+      "column": 12,
+      "normalized_AST_sha256": "c98c091f1b7c9f887626160558d3fb610124c8fdf9fec2bb51891ff459c4ef6a",
+      "source_fragment": "[self.scale[i] for i in dims_to_paint]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_brush_mask_and_bbox",
+      "kind": "ListComp",
+      "first_line": 1473,
+      "end_line": 1473,
+      "column": 35,
+      "normalized_AST_sha256": "8e8a759066a11deaec893991afc767d46fd122a44b99a23f23bf60b4ef76e482",
+      "source_fragment": "[coord[i] for i in dims_to_paint]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._create_polygon_mask",
+      "kind": "ListComp",
+      "first_line": 1629,
+      "end_line": 1629,
+      "column": 21,
+      "normalized_AST_sha256": "a9460b3dfa4c8e4d9eaf63153998bee8eb8edc8ff93ac5517a47347646f0c2b2",
+      "source_fragment": "[tuple(p[::-1]) for p in points2d]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._create_brush_mask",
+      "kind": "GeneratorExp",
+      "first_line": 1672,
+      "end_line": 1675,
+      "column": 21,
+      "normalized_AST_sha256": "745f71d44b4308ea1ca35eae6db0231f10188d047adbd5a70d564f9712755a76",
+      "source_fragment": "(\n            ((grids[i] - center[i]) * normalized_scale[i]) ** 2\n            for i in range(ndim)\n        )",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._create_brush_mask",
+      "kind": "GeneratorExp",
+      "first_line": 1669,
+      "end_line": 1669,
+      "column": 30,
+      "normalized_AST_sha256": "218c8643908b76e64e0a80cd382dd83b6c2340806bb4b27b9d11b9d975c39a24",
+      "source_fragment": "(slice(0, s) for s in shape)",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._compute_mask_bbox",
+      "kind": "GeneratorExp",
+      "first_line": 1702,
+      "end_line": 1702,
+      "column": 24,
+      "normalized_AST_sha256": "6c60d96501f6c8e958ee28029d6598fa119a251ce2bd9f649c82c79242206571",
+      "source_fragment": "(j for j in range(mask.ndim) if j != i)",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._build_slice_key",
+      "kind": "ListComp",
+      "first_line": 1735,
+      "end_line": 1737,
+      "column": 25,
+      "normalized_AST_sha256": "036f66b561323d4f28736f3ce634b8083fb17f5c9bb9989a27641f88c9fee0b4",
+      "source_fragment": "[\n            slice(int(coord), int(coord) + 1) for coord in slice_coord\n        ]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._get_shape_and_dims_to_paint",
+      "kind": "ListComp",
+      "first_line": 2069,
+      "end_line": 2069,
+      "column": 20,
+      "normalized_AST_sha256": "ecd568f27995266878cd1fc9c065c47b17b4cf4f8825f5d9ca06b84ecbddb837",
+      "source_fragment": "[shape[i] for i in dims_to_paint]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "WrongSelectedLabelError.__init__",
+      "kind": "JoinedStr",
+      "first_line": 2284,
+      "end_line": 2284,
+      "column": 15,
+      "normalized_AST_sha256": "aa94a89ad3907d447105f7710e364d94d17574b4db9935db44f96449eb22ebbb",
+      "source_fragment": "f'The value {value} is out of bounds for dtype {dtype} that allow for range [{int(lower_bound)}, {int(upper_bound)}].'",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "WrongSelectedLabelError.__init__",
+      "kind": "JoinedStr",
+      "first_line": 2286,
+      "end_line": 2286,
+      "column": 19,
+      "normalized_AST_sha256": "857fe386b03573cb2286fb47140ff46b9ae58ee53c6474b046c93acf920915e3",
+      "source_fragment": "f'{message} {text}'",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/labels.py",
+      "owner_qualname": "Labels._calculate_cursor_size",
+      "kind": "ListComp",
+      "first_line": 597,
+      "end_line": 597,
+      "column": 12,
+      "normalized_AST_sha256": "18e0a49546fca53c3d6ab7cc6afb48d237615bf70a4f7ce784c8d8c1d0e079ea",
+      "source_fragment": "[abs(scale[d]) for d in self._slice_input.displayed]",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "owner_qualname": "draw",
+      "kind": "Yield",
+      "first_line": 56,
+      "end_line": 56,
+      "column": 8,
+      "normalized_AST_sha256": "2f5cbc5542dfba1332aa4db3b30475074906fb2520efc1b7d133e6e17716406c",
+      "source_fragment": "yield",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "owner_qualname": "draw",
+      "kind": "Yield",
+      "first_line": 65,
+      "end_line": 65,
+      "column": 12,
+      "normalized_AST_sha256": "2f5cbc5542dfba1332aa4db3b30475074906fb2520efc1b7d133e6e17716406c",
+      "source_fragment": "yield",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "owner_qualname": "BrushSizeOnMouseMove.__call__",
+      "kind": "GeneratorExp",
+      "first_line": 103,
+      "end_line": 106,
+      "column": 14,
+      "normalized_AST_sha256": "77402dc375c280585ad9df0215624208206adaf14a5fe78ecb1d5d7ab8543983",
+      "source_fragment": "(\n            modifier in event.modifiers\n            for modifier in BRUSH_SIZE_ON_MOUSE_MOVE_MODIFIERS_PARTS\n        )",
+      "handwritten_native_policy_required": true
+    },
+    {
+      "module": "src/napari/layers/labels/_labels_utils.py",
+      "owner_qualname": "interpolate_coordinates",
+      "kind": "ListComp",
+      "first_line": 36,
+      "end_line": 39,
+      "column": 13,
+      "normalized_AST_sha256": "1d7428330a490687bcf57b8e29ab8e56e8b7c9e68dfe597909fed3ff80f6b677",
+      "source_fragment": "[\r\n        np.linspace(old_coord[i], new_coord[i], num=int(num_step + 1))\r\n        for i in range(len(new_coord))\r\n    ]",
+      "handwritten_native_policy_required": true
+    }
+  ],
+  "source_only_counts": {
+    "named_bodies": 50,
+    "expression_sites_including_format_and_yield": 21,
+    "source_modules": 6,
+    "generator_expression_sites": 7,
+    "yield_sites": 2
+  },
+  "accepted_checkpoint": {
+    "path": ".artifacts/labels-native-edit-publication-owner-production-checkpoint.json",
+    "sha256": "b6ae23d96d8cd974c1676b5c50651f5bd80a4b2a6234cfac7650103ef7f761b1",
+    "bytes": 9521
+  },
+  "accepted_installed_evidence": {
+    "path": ".artifacts/labels-native-edit-publication-owner-installed-review/installed-evidence-review.json",
+    "sha256": "7468fd6a7252deadff32ddb3d8b670dca2d25e944f22361e354df9d859171e2f",
+    "bytes": 199505
+  },
+  "observed_ledger": {
+    "path": "docs/conversion-reviews.json",
+    "sha256": "f5fadc1759b645bf2857179c173a39e4b21d5c54af24fc97fa1234931be94b9e",
+    "bytes": 13071518
+  },
+  "observed_dependency_register": {
+    "path": "docs/conversion-dependencies.json",
+    "sha256": "e30e748d40441f2bcc178d2554b7bc1b937311e5dd026b5347f04e04f9626c86",
+    "bytes": 1141071
+  },
+  "ledger_operations": 63,
+  "ledger_records": 692,
+  "reused_native_controls": {
+    "accepted_history": {
+      "checkpoint": {
+        "path": ".artifacts/labels-edit-history-owner-production-checkpoint.json",
+        "sha256": "86d5db8f097749833c0cca36f9d1fb2c407665bb5a062bd240fed271d7228169",
+        "bytes": 25641
+      },
+      "methods_and_constructor": "Existing native history13, genuine atom constructor and block-history transport; preserve actual queues/staged list/block flag and all aliases."
+    },
+    "accepted_write_cache_index": {
+      "checkpoint": {
+        "path": ".artifacts/labels-native-edit-publication-owner-production-checkpoint.json",
+        "sha256": "b6ae23d96d8cd974c1676b5c50651f5bd80a4b2a6234cfac7650103ef7f761b1",
+        "bytes": 9521
+      },
+      "evidence": {
+        "path": ".artifacts/labels-native-edit-publication-owner-installed-review/installed-evidence-review.json",
+        "sha256": "7468fd6a7252deadff32ddb3d8b670dca2d25e944f22361e354df9d859171e2f",
+        "bytes": 199505
+      },
+      "named_definitions": [
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._paint_region_with_mask"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._apply_mask_to_data"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._get_preserve_labels_source_label"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._refresh_caches_from_region"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._get_update_slices"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._align_data_to_view"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._get_pt_not_disp"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._expand_updated_slice_for_contour"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._accumulate_updated_slice"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels._partial_labels_refresh"
+        },
+        {
+          "module": "src/napari/layers/labels/labels.py",
+          "qualname": "Labels.data_setitem"
+        },
+        {
+          "module": "src/napari/utils/_indexing.py",
+          "qualname": "elements_in_slice"
+        },
+        {
+          "module": "src/napari/utils/_indexing.py",
+          "qualname": "index_in_slice"
+        }
+      ],
+      "expression_count": 11,
+      "includes_preserve_source_label": true
+    },
+    "accepted_brush_modifier_assignment": {
+      "module": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "qualname": "change_brush_size_on_mouse_move_modifiers",
+      "native_symbol": "settings_grid_labels_brush_modifiers",
+      "source": {
+        "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+        "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "bytes": 4773
+      },
+      "implementation": {
+        "path": "cpp/settings_grid_publication.cpp",
+        "sha256": "0bbd8c6d51c7a3e7134001d361037ec7bb516755f950a1fc86c8a7f7c8617de8",
+        "bytes": 16090
+      },
+      "ledger_record": {
+        "classification": "partial",
+        "source_sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+        "body_sha256": "4d301b00258fe3f08ae6470fc7044d6f7d847635cc27e43918dc304d1951f1e0",
+        "reason": "Handwritten C++ owns Publish actual arbitrary value identity in executing labels module global; no mirror/type narrowing. Exact source/ABI peer and integrated bytes are indexed; cold/wider owned closure and root installed acceptance remain pending/open.",
+        "reviewed_by": "Codex C coherent source/ABI peer; CP313 static ledger proposal; root installed acceptance PENDING",
+        "reviewed_at": "2026-10-13T01:03:07.014849+00:00",
+        "coverage": {
+          "implementation": "Publish actual arbitrary value identity in executing labels module global; no mirror/type narrowing. Actual model instances/executing module dictionaries are sole state; no original production fallback or mutable mirror.",
+          "decorators": "Public signatures/defaults/annotations/docs preserved; genuine lexical class cell and stable immutable kwargs/import metadata; private code/frame fidelity remains M0 open.",
+          "calls": "All current facade calls declared; retained original application/protocol/import scope remains owned rather than externalized."
+        },
+        "implementation": [
+          {
+            "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+            "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+            "bytes": 4773
+          },
+          {
+            "path": "cpp/settings_grid_publication.cpp",
+            "sha256": "0bbd8c6d51c7a3e7134001d361037ec7bb516755f950a1fc86c8a7f7c8617de8",
+            "bytes": 16090,
+            "symbol": "nx::(anonymous namespace)::settings_grid_labels_brush_modifiers"
+          },
+          {
+            "path": "src/naparixx/_native.pyi",
+            "sha256": "856f9e2cfe8630b118a174c87cbb71e858e26effd97f24062b0d6672b7d07500",
+            "bytes": 273910
+          }
+        ],
+        "evidence": [
+          {
+            "path": ".artifacts/settings-grid-publication-focused-installed.xml",
+            "sha256": "3649445b49a5cbfc476211c9b0c7b05a9fcb24331b6bf6368601fcb7ecdd8728",
+            "bytes": 3192,
+            "format": "junit",
+            "cases": [
+              "tests.test_settings_grid_publication_native::test_original_real_settings_canvas_precision_and_brush_workflow",
+              "tests.test_settings_grid_publication_native::test_original_canvas_ctor_lexical_super_kwargs_and_connection_prefix[success_reentry]",
+              "tests.test_settings_grid_publication_native::test_original_canvas_ctor_lexical_super_kwargs_and_connection_prefix[super_error]",
+              "tests.test_settings_grid_publication_native::test_original_canvas_ctor_lexical_super_kwargs_and_connection_prefix[third_connect_error]",
+              "tests.test_settings_grid_publication_native::test_original_grid_rhs_tuple_capture_and_partial_publication[success_reentry]",
+              "tests.test_settings_grid_publication_native::test_original_grid_rhs_tuple_capture_and_partial_publication[width_error]",
+              "tests.test_settings_grid_publication_native::test_original_grid_rhs_tuple_capture_and_partial_publication[shape_error]",
+              "tests.test_settings_grid_publication_native::test_original_settings_application_before_fresh_experimental[live_experimental]",
+              "tests.test_settings_grid_publication_native::test_original_settings_application_before_fresh_experimental[application_error]",
+              "tests.test_settings_grid_publication_native::test_original_application_connect_emit_live_callback_and_value[success_reentry]",
+              "tests.test_settings_grid_publication_native::test_original_application_connect_emit_live_callback_and_value[brush_emit_error]",
+              "tests.test_settings_grid_publication_native::test_original_application_connect_emit_live_callback_and_value[precision_connect_error]",
+              "tests.test_settings_grid_publication_native::test_original_brush_import_split_and_exact_helper_alias[success]",
+              "tests.test_settings_grid_publication_native::test_original_brush_import_split_and_exact_helper_alias[split_error]",
+              "tests.test_settings_grid_publication_native::test_original_brush_import_split_and_exact_helper_alias[import_error]",
+              "tests.test_settings_grid_publication_native::test_original_precision_import_before_value_and_publication[success]",
+              "tests.test_settings_grid_publication_native::test_original_precision_import_before_value_and_publication[import_error]",
+              "tests.test_settings_grid_publication_native::test_original_brush_helper_publishes_arbitrary_value_identity"
+            ]
+          },
+          {
+            "path": ".artifacts/settings-grid-publication-upstream-installed.xml",
+            "sha256": "7fe28b3a5634ebfc462c95c6e414a8c1c083a65dbc11de9fd7b3bc7a988f8f0a",
+            "bytes": 1358,
+            "format": "junit",
+            "cases": [
+              ".upstream.napari.src.napari.utils._tests.test_status::test_status_format_precision_setting",
+              ".upstream.napari.src.napari.utils._tests.test_status::test_status_format[input_data0-[1, 10, 100, 1000, 1e+06, -6.28, 124, 1.12e+03, 6.28, 2.72]]",
+              ".upstream.napari.src.napari.utils._tests.test_status::test_status_format[hello world-hello world]",
+              ".upstream.napari.src.napari.utils._tests.test_status::test_status_format[None-]",
+              ".upstream.napari.src.napari.utils._tests.test_status::test_status_format[input_data3-[1e+06, , hello world]]",
+              ".upstream.napari.src.napari.settings._tests.test_settings::test_settings_events",
+              ".upstream.napari.src.napari._vispy._tests.test_canvas::test_grid_mode",
+              ".upstream.napari.src.napari._qt.widgets._tests.test_qt_viewer_buttons::test_grid_view_button_popup"
+            ]
+          }
+        ],
+        "calls": [
+          {
+            "target": "naparixx._native.settings_grid_labels_brush_modifiers",
+            "kind": "native",
+            "purpose": "Actual native/source-local/namespace or lexical super binding; original application callees remain owned below."
+          },
+          {
+            "target": "globals",
+            "kind": "builtin",
+            "purpose": "Actual native/source-local/namespace or lexical super binding; original application callees remain owned below."
+          }
+        ],
+        "source_review": {
+          "coherent_source_ABI": {
+            "path": ".artifacts/settings-grid-publication-source-review.json",
+            "sha256": "c78b6386f223a5dc751371fec1195cca35d1b73f13efb5568bbac62e1e9ced41",
+            "bytes": 7894
+          },
+          "actual_root_integration": {
+            "path": ".artifacts/settings-grid-publication-root-integration.json",
+            "sha256": "5ce78d0b1f0759bec0d6cbb1b5888c86581a9d3945fdeca4fc398f4afd834ef4",
+            "bytes": 10581
+          },
+          "status": "Exact reviewed seven-body source integrated; installed26 finite checks accepted, classification remains partial."
+        },
+        "original_owned_definition": {
+          "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+          "qualified_name": "change_brush_size_on_mouse_move_modifiers",
+          "occurrence": 1,
+          "snapshot": {
+            "path": ".artifacts/settings-grid-publication-root-integration-before/src/napari/layers/labels/_labels_mouse_bindings.py",
+            "sha256": "24380a7b024476962595dc23940ea85b35f4fb4cd7464e63f04598b57fadc40e",
+            "bytes": 4723
+          },
+          "definition_ast_sha256": "bacd34abd587094193bfc1c7833544b769dccd1d487c31cc3e08cbc5a34c80d3"
+        },
+        "retained_source_call_scope": {
+          "source_cpp": {
+            "path": "cpp/settings_grid_publication.cpp",
+            "sha256": "0bbd8c6d51c7a3e7134001d361037ec7bb516755f950a1fc86c8a7f7c8617de8",
+            "bytes": 16090,
+            "symbol": "settings_grid_labels_brush_modifiers"
+          },
+          "original_static_call_evidence": [],
+          "original_import_declarations": [],
+          "application_ownership": "Actual Canvas/EventedModel/Pydantic/settings/GridCanvas/EventEmitter/labels/status/ExperimentalSettings calls, module publication and configured callbacks remain napari-owned. Selected _update_viewer_grid/ApplicationSettings/callback/helper closure is included; accepted get_settings/GridCanvas/ExperimentalSettings/native event primitives are partial reuse; cold config/construction/migration/UI remains owned OPEN. External builtin/import/tuple/dict/string primitives do not approve application policy dependencies.",
+          "closed": false
+        },
+        "current_pinned_boundary": {
+          "original_current_equals_pinned": true,
+          "qualification": "All seven original selected full FunctionDefs are AST-equal. Bookkeeping uses CP313.8; native import primitives currently support reviewed CP312 only, with other required profiles owned open."
+        },
+        "remaining_review_gaps": [
+          "Cold NapariSettings/EventedSettings/Pydantic constructor/config/env sources/save/validation/migration and canonical class fields/state remain owned OPEN.",
+          "Downstream theme/system-theme/active-layer/Qt/Vispy/UI/application/plugin policy remains owned OPEN.",
+          "Other required interpreter import profiles and full private-frame/code/context/refcount/lifetime/error/shutdown/API/platform M0-M9/final gates remain OPEN.",
+          "Finite26 installed checks accepted; wider cold settings/config/migration/UI/interpreter/ownership and all final gates remain OPEN."
+        ],
+        "algorithm_complete_claim_added": false,
+        "finite_installed_checkpoint": {
+          "path": ".artifacts/settings-grid-publication-checkpoint.json",
+          "sha256": "ef547c35f30784b3470f9a4a075a07b43b282a7b7a9380afcc3833b565bf3028",
+          "bytes": 14836
+        }
+      }
+    },
+    "existing_native_world_to_data_ray_value_controls": {
+      "source": {
+        "path": "src/napari/layers/base/base.py",
+        "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+        "bytes": 75319
+      },
+      "symbols": [
+        "Layer.world_to_data",
+        "Layer.get_ray_intersections",
+        "Layer.get_value"
+      ],
+      "qualification": "Reuse their existing reviewed finite native controls; canonical models/transforms/providers/whole lifetime remain required parents."
+    },
+    "existing_dtype_transports": {
+      "source": {
+        "path": "src/napari/utils/_dtype.py",
+        "sha256": "0508437d633fc48172d131968f8839459d18f0a5a7ebb7972df0eb554384f89a",
+        "bytes": 2154
+      },
+      "symbols": [
+        "get_dtype_limits",
+        "normalize_dtype"
+      ],
+      "native_symbols": [
+        "dtype_limits",
+        "dtype_normalize"
+      ],
+      "qualification": "Native transports already present; no whole dtype/NumPy/provider exemption."
+    }
+  },
+  "source_inputs": [
+    {
+      "path": "src/napari/layers/labels/labels.py",
+      "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+      "bytes": 87344
+    },
+    {
+      "path": "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "sha256": "007c030a6ba921a8c01b48ba07a2d06f342c2300ae5b66a0010923f49ebf7d87",
+      "bytes": 4773
+    },
+    {
+      "path": "src/napari/layers/labels/_labels_utils.py",
+      "sha256": "3255eff7238186125db965768c8b2acbfd2c70639395ea1eeafd26a5c87058ef",
+      "bytes": 7608
+    },
+    {
+      "path": "src/naparixx/_adapters.py",
+      "sha256": "ef54764e9975a67dadec268407d9c449fc5dc78401d34470c278e98120a7d8c5",
+      "bytes": 6008
+    },
+    {
+      "path": "src/napari/layers/base/base.py",
+      "sha256": "be36d0bcfcdbd748319da53387885fba0fe469b5a5a84bdebee24e17439d403d",
+      "bytes": 75319
+    },
+    {
+      "path": "src/napari/utils/interactions.py",
+      "sha256": "07e6d6ca245086cebf17b530213e1494ad28de566e08f259767746b7976478ad",
+      "bytes": 10915
+    }
+  ],
+  "genuine_source_aliases_and_contexts": {
+    "module_dictionaries": [
+      "src/napari/layers/labels/labels.py",
+      "src/napari/layers/labels/_labels_mouse_bindings.py",
+      "src/napari/layers/labels/_labels_utils.py",
+      "src/naparixx/_adapters.py",
+      "src/napari/layers/base/base.py",
+      "src/napari/utils/interactions.py"
+    ],
+    "labels_imported_mouse_aliases": "Labels._drag_modes holds the actual draw/pick function objects; _move_modes holds the class-level shared BrushSizeOnMouseMove instance. In-place admission must retain those same functions/instance and original defining globals.",
+    "decorated_utils": "Actual exported dispatch wrapper plus genuine original function, __wrapped__, real cells and already-created adapter call aliases must be qualified. Complete source profile equality alone never authenticates a copied foreign namespace.",
+    "descriptors": "Mutate genuine getter/setter function transports in place; retain property/staticmethod objects, lexical WrongSelectedLabelError.__class__ cell, defaults, annotations and saved aliases. No replacement public classes or state mirrors.",
+    "actual_runtime_identity_qualified": false,
+    "FEC1_getter_aliases": {
+      "Labels.colormap.fget": "Retain actual Labels.__dict__['colormap'].fget and property descriptor; return the actual current self._colormap object without copying/caching.",
+      "Layer.scale.fget": "Retain actual Layer.__dict__['scale'].fget and property descriptor; read actual self._transforms, ['data2physical'] and its scale at source point. Preserve __getitem__/descriptor callbacks/errors and returned identity; do not copy a scale vector or cache the transform."
+    }
+  },
+  "owned_application_nodes_resolved": true,
+  "owned_provider_frontiers_closed": false,
+  "native_ABI_frozen": false,
+  "before_runtime_qualified": false,
+  "implementation_written": false,
+  "complete_application_port": false,
+  "all_M0_M9": "OPEN",
+  "supersedes_selection": {
+    "path": ".artifacts/labels-native-frontend-edit-owner-stage/selection.json",
+    "sha256": "903fc7b96998b8c4c2430d19e600ce8e25217274d4d153533473d2329e83ca29",
+    "bytes": 89870
+  },
+  "original_coherent_source_HOLD": {
+    "path": ".artifacts/labels-native-frontend-edit-owner-source-review/source-review.json",
+    "sha256": "badcde20bc17e49ddd9e24ddc8c533d12474ed91b2b6f99cc2789a8fe1e0b18c",
+    "bytes": 10799
+  },
+  "required_named_provider_frontiers": [
+    {
+      "name": "numpy.lib._index_tricks_impl.nd_grid.__getitem__",
+      "status": "REQUIRED_OWNED_DEFAULT_CPP_POLICY_BEFORE_NATIVE_ABI_FREEZE",
+      "closed": false,
+      "source": {
+        "path": ".venv/Lib/site-packages/numpy/lib/_index_tricks_impl.py",
+        "sha256": "3f2a02c7c241ace7b73e7d9c1044dbcdf2d1f954f9060fa895ae306bce57a185",
+        "bytes": 32571
+      },
+      "qualname": "nd_grid.__getitem__",
+      "first_line": 146,
+      "raw_function_sha256": "2a873132a915c7feb41090203b16793619236451d880a6bd1d28cf49fa608370",
+      "normalized_AST_sha256": "5d820d3788b1331e9e7d45b69e8baee9527dfdd058d80fbd15c42b6435b1feda",
+      "compiler_only_profiles": [
+        {
+          "path": ".artifacts/labels-native-frontend-edit-owner-corrected-stage/cp312-ogrid-compiler-profile.json",
+          "sha256": "98d640ea8f274c772151a16e7f867c37ac4634c15ab861861faf2df8e3c23ce1",
+          "bytes": 9633
+        },
+        {
+          "path": ".artifacts/labels-native-frontend-edit-owner-corrected-stage/cp313-ogrid-compiler-profile.json",
+          "sha256": "326eb7fa9d8a494bd19bda33d026a8b1878c31c3517c37a950fad1b92ebf7965",
+          "bytes": 9697
+        }
+      ],
+      "actual_runtime_source_code_identity_qualified": false,
+      "call_site": {
+        "module": "src/napari/layers/labels/labels.py",
+        "qualname": "Labels._create_brush_mask",
+        "line": 1668,
+        "kind": "Subscript",
+        "source_fragment": "np.ogrid[tuple(slice(0, s) for s in shape)]"
+      },
+      "default_source_route": "np.ogrid = OGridClass() inherits nd_grid.__getitem__. The named Python subscription policy is a real owned callee even though it is absent from ast.Call-only call inventories.",
+      "required_handwritten_CPP_policy": [
+        "Actual key slice attribute reads/default start0/step1, len/range/size and numeric type selection order",
+        "result_type inputs, sparse arange versus dense indices branches and exact array/tuple identity",
+        "Per-axis affine step/start arithmetic, complex-step rules, sparse newaxis slicing and result publication",
+        "IndexError/TypeError catch region and single-slice fallback; original exceptions/partial intermediates and callback/reentry behavior"
+      ],
+      "narrow_possible_compiled_leaves_not_yet_approved": [
+        "Exact arange numeric engine",
+        "Exact indices allocation/numeric engine",
+        "Exact numeric result_type engine and array arithmetic/index kernels"
+      ],
+      "prohibited_shortcuts": "No blanket NumPy/nd_grid class approval, no default Python __getitem__ body fallback, no copied grid mirror or eager shape/type narrowing. Genuine foreign np.ogrid objects, explicit foreign __getitem__ replacements and protocol callbacks retain their actual semantics. Default canonical provider policy requires C++ ownership or an independently reviewed exact policy resolution before ABI freeze."
+    }
+  ]
+}
