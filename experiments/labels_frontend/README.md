@@ -327,11 +327,31 @@ cursor. The retained initial failure demonstrates this lifecycle defect.
 
 Run `grid_provider_position_child.py` without flags for the strict thirty-two
 case comparison, including untraced first-call and repeated-call histories.
-It currently exits 1 on 3.11/3.12 because adaptive attribute/subscript inlining
-changes positions; the measured 3.13 cohort exits 0. Policy results agree in
+It currently exits 1 on 3.11 for warm-up inlining; the measured 3.12/3.13
+cohorts exit 0. Policy results agree in
 all measured cases. Preserve those untraced failures as required ABI work.
 Adaptive specialization, general out-of-event/dead-frame positions and complete
 provider/frame qualification are not accepted by these controls.
+
+On 3.12, `grid_adaptive_position.inc` owns per-code counters and guarded
+Python getter/subscript position state through the code-extra API. It follows
+first-use delay, cooldown, failed-specialization retry/backoff, type/function
+version invalidation and the lookup-hook transition after replacing a getter.
+No original executable code body or owning application references are retained.
+The three `grid_adaptive_mutation_child.py` controls compare forty invocations
+each after same-code assignment and getter replacement. Three
+`grid_adaptive_lifetime_child.py` controls check original-code release, prepared
+code lifetime through an alias, and collection after the final alias.
+The CPython rules derive from pinned
+[specialize.c](https://github.com/python/cpython/blob/v3.12.8/Python/specialize.c),
+[function versions](https://github.com/python/cpython/blob/v3.12.8/Objects/funcobject.c)
+and [counter macros](https://github.com/python/cpython/blob/v3.12.8/Python/ceval_macros.h);
+[Python license notices](../../licenses/Python-PSF.txt) are retained.
+
+This remains an experimental 3.12 observer component. The 3.11 quickening path,
+other specialization/descriptor kinds, already-specialized input handoff,
+instrumentation transitions, PEP 523, cross-thread behavior and complete
+error/GC/lifetime qualification still require implementation and review.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape

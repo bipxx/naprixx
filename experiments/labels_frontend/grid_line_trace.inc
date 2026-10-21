@@ -2,6 +2,7 @@
 struct LFGridLineDriver;
 thread_local LFGridLineDriver* lfgt_driver = nullptr;
 int lfgt_proxy(PyObject*, PyFrameObject*, int, PyObject*);
+Py_ssize_t lfga_index();
 struct LFGridOpcodeState {
     Py_ssize_t cursor = 1;
     std::vector<std::pair<std::string,std::string>> pending;
@@ -88,6 +89,7 @@ struct LFGridLineDriver {
     nb::object previous_object = nb::borrow<nb::object>(thread->c_traceobj);
     LFGridLineDriver* parent = lfgt_driver;
     Py_tracefunc callback = parent && previous == lfgt_proxy ? parent->callback : previous;
+    Py_ssize_t adaptive_extra_index=lfga_index();
     std::map<PyFrameObject*,LFGridOpcodeState> states;
     LFGridLineDriver() {
         lfgt_driver = this;
@@ -313,7 +315,9 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
     keywords["co_consts"] = lh_check(PySequence_Tuple(constants.ptr()));
     nb::object replace = lh_check(PyObject_GetAttrString(replacement.ptr(), "replace"));
     nb::object arguments = nb::tuple();
-    return lh_check(PyObject_Call(replace.ptr(), arguments.ptr(), keywords.ptr()));
+    nb::object result=lh_check(PyObject_Call(replace.ptr(), arguments.ptr(), keywords.ptr()));
+    if(!instructions.is_none())lfga_prepare(source,reinterpret_cast<PyCodeObject*>(result.ptr()),instructions);
+    return result;
 }
 
 void lfgt_exports(nb::module_& module) {

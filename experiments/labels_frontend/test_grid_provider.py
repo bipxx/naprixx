@@ -149,3 +149,25 @@ def test_grid_positions_recycled_frames_without_tracer():
         env=env,capture_output=True,text=True,timeout=30)
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     assert json.loads(result.stdout.splitlines()[0])['native_calls']==100
+
+
+# This owner implements 3.12's cache/version rules. The strict cross-minor
+# diagnostics separately retain 3.11's unimplemented quickening behavior.
+if sys.version_info[:2]==(3,12):
+    def test_grid_python312_adaptive_invalidation():
+        directory=Path(__file__).resolve().parent
+        env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+        env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+        result=subprocess.run([sys.executable,'-B',str(directory/'grid_adaptive_mutation_child.py')],
+            env=env,capture_output=True,text=True,timeout=30)
+        assert result.returncode==0,result.stdout+'\n'+result.stderr
+        assert json.loads(result.stdout)['controls']==3
+
+    def test_grid_python312_adaptive_code_lifetime():
+        directory=Path(__file__).resolve().parent
+        env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+        env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+        result=subprocess.run([sys.executable,'-B',str(directory/'grid_adaptive_lifetime_child.py')],
+            env=env,capture_output=True,text=True,timeout=30)
+        assert result.returncode==0,result.stdout+'\n'+result.stderr
+        assert json.loads(result.stdout)['controls']==3

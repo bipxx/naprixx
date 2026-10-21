@@ -178,6 +178,8 @@ void lfgo_align(const LFGridFastLocals& locals,long offset) {
     throw nb::type_error("source observer branch controls contain a cycle");
 }
 
+#include "grid_adaptive_position.inc"
+
 struct LFGridObservedOps {
     const LFGridFastLocals& locals;
     nb::object list(std::initializer_list<LHExpr> items={}) {
@@ -191,7 +193,7 @@ struct LFGridObservedOps {
         lfgo_op(locals,"tuple","2");return nb::make_tuple(first,second);
     }
     nb::object item(nb::object value,nb::object key) {
-        lfgo_op(locals,"item");return lh_item(std::move(value),std::move(key));
+        lfgo_op(locals,"item");lfga_position(locals,value,true);return lh_item(std::move(value),std::move(key));
     }
     nb::object index(const LHExpr& value,const LHExpr& key) {
         nb::object receiver=value(),index=key();return item(std::move(receiver),std::move(index));
@@ -255,7 +257,14 @@ struct LFGridObservedOps {
         lfgo_op(locals,"unpack","2"); return lf_unpack(std::move(value),2);
     }
     nb::object attr(LabelsHistoryLocals& source,nb::object value,const char* name) {
-        lfgo_op(locals,"attr",name); return lh_attr(source,std::move(value),name);
+        lfgo_op(locals,"attr",name);lfga_position(locals,value,false);
+        PyTypeObject* type=Py_TYPE(value.ptr());uint32_t version=lfga_attr_version(locals,value);
+        nb::object key=lh_name(source,name);
+        nb::object result=nb::steal<nb::object>(PyObject_GetAttr(value.ptr(),key.ptr()));
+        if(result.is_valid())lfga_after_attr(locals,value,type,version);
+        value.reset();key.reset();
+        if(!result.is_valid())throw nb::python_error();
+        return result;
     }
     nb::object slice(nb::object value,nb::object start,nb::object stop) {
 #if PY_VERSION_HEX < 0x030C0000
