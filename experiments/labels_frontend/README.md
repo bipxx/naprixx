@@ -493,6 +493,30 @@ composition, thread/subinterpreter behavior, audit/profiling, specialization or
 complete lifetime/observer compatibility, and is not enabled by application
 startup. Same-hook comparisons do not establish unmodified-source parity.
 
+`grid_function_scope.inc` adds a separate opt-in per-function candidate for
+CPython 3.12/3.13. It changes the genuine function's vectorcall pointer through
+`PyFunction_SetVectorcall`, which also invalidates its specialization version.
+The native call scope invokes the captured previous C call pointer with the original
+argument vector, preserving the function object, globals, code and dictionary.
+It neither installs an evaluator hook nor stores owning function/code
+references. A weak registration carries the prior C pointer; its native callback
+removes that registration when the function dies. Duplicate installation,
+removal after another hook replaces it and removal during an active call are
+rejected. A changed code generation without completion metadata is rejected;
+full dynamic-generation compatibility remains open.
+
+`grid_function_scope_child.py` compares twenty-four direct cases to the original
+unhooked source. Values, trace events, retained positions and owned traceback
+chains agree on 3.12/3.13. Unrelated source-call positions remain unchanged across
+installation, and an enabled function with a self-cycle and its prepared code
+must be collected. This does not establish warmed direct/bound/descriptor caller
+positions, all call shapes, monitoring, hook composition or complete lifetime
+and mutation ABI. Python 3.11 can inline calls without consulting a function's
+vectorcall field; the API explicitly rejects that version rather than silently
+using the interpreter-wide hook. Default application startup remains unchanged.
+The implementation follows the pinned [function setter and version guard](https://github.com/python/cpython/blob/v3.12.8/Objects/funcobject.c)
+and [generic CALL guard](https://github.com/python/cpython/blob/v3.12.8/Python/bytecodes.c).
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

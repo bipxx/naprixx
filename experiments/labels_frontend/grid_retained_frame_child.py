@@ -9,7 +9,7 @@ import grid_indices_locals_child as indices
 DIRECTORY=Path(__file__).resolve().parent;ROOT=DIRECTORY.parents[1]
 MODES=tuple(('getitem',mode) for mode in ('sparse','dense','single','complex-grid','callback-error'))+tuple(('indices',mode) for mode in ('dense','sparse','callback-error'))
 
-def run(probe,code,shells,mode,native,tracing,policy,completion=False,direct=False,ambient=False):
+def run(probe,code,shells,mode,native,tracing,policy,completion=False,direct=False,ambient=False,function_scope=False):
     wrapper=LineProbe(probe,opcodes=True,completion=completion);frames=[];events=[];errors=[];traced_errors=set()
     owners={(c.co_filename,c.co_qualname) for c in walk(code)}
     def observe(name,frame):
@@ -21,6 +21,7 @@ def run(probe,code,shells,mode,native,tracing,policy,completion=False,direct=Fal
         events.append((event,frame.f_code.co_qualname,frame.f_lineno,frame.f_lasti))
         return trace
     def invoke(function,args):
+        if native and function_scope:probe.set_grid_function_scope_probe(function,True)
         try:return wrapper.invoke(function,args) if native and not direct else function(*args)
         except BaseException as error:
             if tracing:assert id(error) in traced_errors
@@ -34,6 +35,8 @@ def run(probe,code,shells,mode,native,tracing,policy,completion=False,direct=Fal
                 chain.append((type(item).__name__,str(item),positions));item=item.__context__
             errors.append(chain)
             raise
+        finally:
+            if native and function_scope:probe.set_grid_function_scope_probe(function,False)
     controller=sys._getframe();previous=controller.f_trace_opcodes
     controller.f_trace_opcodes=tracing=='opcode'
     if tracing:sys.settrace(trace)

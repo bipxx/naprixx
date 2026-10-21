@@ -289,3 +289,19 @@ def test_grid_explicit_evaluator_scope(source_without_hook):
     assert sum(not row['events_equal'] for row in data['cases'])==(4 if expected_gap else 0)
     assert sum(not row['retained_equal'] for row in data['cases'])==(3 if expected_gap else 0)
     assert sum(not row['errors_equal'] for row in data['cases'])==(3 if expected_gap else 0)
+
+
+def test_grid_per_function_scope():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_function_scope_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):
+        assert data['status']=='OPEN_CP311_FUNCTION_CALL_BYPASS' and data['controls']==0
+    else:
+        assert data['controls']==24 and data['unhooked_original_source_oracle']
+        assert data['unselected_source_positions_unchanged'] and data['enabled_cyclic_function_and_code_collected']
+        assert all(all(row[k] for k in ('values_equal','events_equal','retained_equal','errors_equal')) for row in data['cases'])
