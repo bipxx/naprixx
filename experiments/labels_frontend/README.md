@@ -370,6 +370,18 @@ and 3.13; 3.11 positions remain open. These synthetic numeric leaves do not
 qualify other descriptors, receiver lifetimes, instrumentation transitions or
 full property/observer ABI compatibility.
 
+The property comparison also accepts `--lines`, `--opcodes`, `--toggle`,
+`--warm-opcodes` and `--skip-attributes`. These compare line/opcode/exception
+and return events, locals names, ambient exception state, provider positions,
+and every result/context chain across forty calls per scenario. Toggle alternates
+opcode, line-only and absent tracing; the last option changes tracing on calls
+that fail before any attribute operation. Warm-opcodes hands off a function
+already instrumented by eight original calls. On 3.12, the native observer
+uses the code-wide active-instruction monitor table and resets counters when
+instruction instrumentation is removed, including at entry on early-failing
+paths. These finite transitions do not qualify arbitrary monitoring tools,
+in-call changes, other threads or full observer ABI.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

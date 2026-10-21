@@ -9,6 +9,7 @@
 #include <internal/pycore_frame.h>
 #if PY_VERSION_HEX >= 0x030C0000
 #include <internal/pycore_interp.h>
+#include <internal/pycore_instruments.h>
 #endif
 #if PY_VERSION_HEX >= 0x030D0000
 #include <internal/pycore_pyatomic_ft_wrappers.h>

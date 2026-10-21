@@ -33,6 +33,8 @@ Py_ssize_t lfga_index() {
 }
 void lfga_prepare(PyCodeObject* source,PyCodeObject* target,nb::handle rows) {
     auto* state=new LFGridAdaptiveCode;
+    state->instrumented=source->_co_monitoring &&
+        source->_co_monitoring->active_monitors.tools[PY_MONITORING_EVENT_INSTRUCTION];
     try {
         for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(rows.ptr());++i) {
             PyObject* row=PyTuple_GET_ITEM(rows.ptr(),i),*name=PyTuple_GET_ITEM(row,1);
@@ -75,17 +77,32 @@ PyObject* lfga_lookup(PyTypeObject* type,const char* name) {
     nb::object key=lh_check(PyUnicode_InternFromString(name));
     return _PyType_Lookup(type,key.ptr());
 }
-void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item,const char* attribute=nullptr) {
-    auto context=lfgo_context(locals);if(!context.state)return;
+LFGridAdaptiveCode* lfga_sync(const LFGridFastLocals& locals) {
+    if(!lfgo_context(locals).state)return nullptr;
     void* raw=nullptr;
     if(PyUnstable_Code_GetExtra(reinterpret_cast<PyObject*>(locals.code),lfgt_driver->adaptive_extra_index,&raw)<0)throw nb::python_error();
-    if(!raw)return;
+    if(!raw)return nullptr;
     auto& state=*static_cast<LFGridAdaptiveCode*>(raw);
-    if(locals.frame->f_trace_opcodes) {
+    // Instruction instrumentation is code-wide. Once legacy opcode tracing
+    // has been requested, a line-only tracer can keep it active even when
+    // this frame requests no opcode callbacks. Removing that instrumentation
+    // resets the source adaptive counters to their first-use delay.
+    bool instrumented=locals.code->_co_monitoring &&
+        locals.code->_co_monitoring->active_monitors.tools[PY_MONITORING_EVENT_INSTRUCTION];
+    if(instrumented) {
         if(!state.instrumented)for(auto& pair:state.sites)pair.second.kind=0;
-        state.instrumented=true;return;
+        state.instrumented=true;return &state;
+    }
+    if(state.instrumented)for(auto& pair:state.sites) {
+        pair.second.kind=0;pair.second.counter=17;
     }
     state.instrumented=false;
+    return &state;
+}
+void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item,const char* attribute=nullptr) {
+    auto context=lfgo_context(locals);if(!context.state)return;
+    auto* observed=lfga_sync(locals);if(!observed || observed->instrumented)return;
+    auto& state=*observed;
     PyObject* row=PyTuple_GET_ITEM(context.rows.ptr(),context.state->cursor-1);
     long offset=PyLong_AsLong(PyTuple_GET_ITEM(row,0));
     auto found=state.sites.find(offset);if(found==state.sites.end())return;
@@ -168,6 +185,7 @@ void lfga_after_attr(const LFGridFastLocals& locals,nb::handle owner,PyTypeObjec
 #else
 Py_ssize_t lfga_index() {return -1;}
 void lfga_prepare(PyCodeObject*,PyCodeObject*,nb::handle) {}
+void lfga_sync(const LFGridFastLocals&) {}
 void lfga_position(const LFGridFastLocals&,nb::handle,bool,const char* =nullptr) {}
 uint32_t lfga_attr_version(const LFGridFastLocals&,nb::handle) {return 0;}
 void lfga_after_attr(const LFGridFastLocals&,nb::handle,PyTypeObject*,uint32_t) {}
