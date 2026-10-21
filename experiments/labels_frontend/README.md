@@ -29,7 +29,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 ```
 
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
-checks and 24 capture/preparation/source-buffer checks. Fourteen scenarios use fresh child
+checks, 31 capture/preparation/publication checks and ten batch-protocol checks.
+Twenty-one scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
 `.artifacts` files. Its compiler
 profiles are derived for this checkout and interpreter from the manifest-pinned
@@ -58,12 +59,43 @@ descriptors, defaults and aliases. The plan owns its capture references through
 Python GC; prepared CodeTypes remain usable after the plan and scopes are released.
 Capture instrumentation and original controls use the same verified source buffer.
 
-No code publication operation is exposed. Default startup integration, atomic
-handoff under audit/reentrant hooks,
+Producer-qualified plans expose `publish_experiment()`. In controlled child
+processes it publishes all 50 prepared CodeTypes into the existing functions;
+aliases, descriptors, closures and defaults keep their identities. A real Labels
+paint result matches the original, including generic numerical dispatch with
+the optimized backend disabled. This is experimental publication, not enabled
+application startup or complete frontend acceptance.
+
+The batch protocol sends all audit notifications, then function-watcher
+notifications, before any writes. Observers see the old cohort. It revalidates
+after callbacks and once more with automatic GC paused; the subsequent GIL-held
+write phase cannot allocate or drop last references. Version invalidation follows
+the matching CPython setter, including the 3.13 function-version cache and rare
+event counter. A rejected preflight makes no publisher-owned code changes;
+foreign callback changes are retained. Watchers can receive notifications before
+an abort caused by a later callback. This proposed observer contract differs from
+serial Python setters and still needs effective compatibility review.
+
+The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
+core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
+137-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
+their Python equality hooks. General foreign-key namespace compatibility remains
+required work; this preflight restriction is not a final dependency exemption.
+
+Default startup integration, full observer/namespace compatibility,
 complete target/parent locals and tracing/release
 ABI, provider/default-grid conversion, effective independent review, and installed
 Viewer/plugin/shutdown qualification remain required. Legacy callable transports
 remain explicit probe interfaces and are not approved default application paths.
+Production startup must prepare native declarations before application bodies
+can execute; enabling this Python-source oracle loader is not that implementation.
+
+The implementation was checked against the pinned
+[3.11 setter](https://github.com/python/cpython/blob/v3.11.11/Objects/funcobject.c),
+[3.12 setter/watchers](https://github.com/python/cpython/blob/v3.12.8/Objects/funcobject.c),
+and [3.13 setter/version cache](https://github.com/python/cpython/blob/v3.13.8/Objects/funcobject.c).
+Private interpreter headers and exported internals are not a stable ABI promise.
 
 Keep reusable build dependencies and evidence. Remove only settled per-target
 compiler/linker intermediates after checking their exact paths.

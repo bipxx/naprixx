@@ -28,7 +28,7 @@ def main():
     functions=validate()
     assert len(functions)==50 and len({id(function) for function in functions})==50
     scenario=sys.argv[1]
-    if scenario.startswith('prepare-'):
+    if scenario.startswith(('prepare-','publish-')):
         from compiler_controls import controls
         from freeze_transport import shells
         from inspect_inputs import STAGE
@@ -72,7 +72,97 @@ def main():
             assert all(left is right for left,right in zip(plan.functions,functions,strict=True))
             codes=plan.prepared_codes
             assert len(codes)==50 and all(code is not old for code,old in zip(codes,before,strict=True))
-            if scenario=='prepare-runtime':
+            if scenario.startswith('publish-'):
+                from napari.layers import Labels
+                metadata=tuple((fn.__globals__,fn.__builtins__,fn.__closure__,fn.__defaults__,fn.__kwdefaults__)
+                               for fn in functions)
+                observed=[]
+                scope_refs=tuple(weakref.ref(scope) for scope in scopes)
+                def all_old():
+                    return all(fn.__code__ is code for fn,code in zip(functions,before,strict=True))
+                foreign_key=None
+                key_calls=[]
+                if scenario=='publish-foreign-key':
+                    import sys as _sys
+                    dictionary=_sys.modules['napari.layers.labels.labels'].__dict__
+                    class Key(str):
+                        __hash__=str.__hash__
+                        def __eq__(self,other):
+                            key_calls.append(other)
+                            return str.__eq__(self,other)
+                    foreign_key=Key('Labels')
+                    del dictionary['Labels']
+                    dictionary[foreign_key]=Labels
+                    key_calls.clear()
+                if scenario in ('publish-audit-reject','publish-reentry','publish-audit-mutate'):
+                    def audit(event,args):
+                        if event!='object.__setattr__' or args[1]!='__code__' or args[0] not in functions:
+                            return
+                        observed.append(args[0]);assert all_old()
+                        if scenario=='publish-audit-reject' and len(observed)==50:
+                            raise ValueError('reject final publication notification')
+                        if scenario=='publish-audit-mutate' and len(observed)==1:
+                            old=Labels.paint
+                            Labels.paint=FunctionType(old.__code__,old.__globals__,old.__name__,old.__defaults__,old.__closure__)
+                        if scenario=='publish-reentry':
+                            try: plan.publish_experiment()
+                            except RuntimeError as error: assert 'already active' in str(error)
+                            else: raise AssertionError('reentrant plan publication accepted')
+                    sys.addaudithook(audit)
+                if scenario=='publish-watcher':
+                    def watcher(fn,code):
+                        if fn in functions:
+                            observed.append(fn);assert all_old()
+                    probe.start_watcher_probe(watcher)
+                if scenario in ('publish-audit-reject','publish-audit-mutate','publish-foreign-key'):
+                    try: plan.publish_experiment()
+                    except (ValueError,TypeError): pass
+                    else: raise AssertionError('publication accepted a rejected/drifted cohort')
+                    assert not plan.published and all_old()
+                    if foreign_key is not None:
+                        assert key_calls==[]
+                        del dictionary[foreign_key]
+                        dictionary['Labels']=Labels
+                else:
+                    import numpy as np
+                    if scenario=='publish-all50':
+                        oracle=Labels(np.zeros((6,6),dtype=np.int16))
+                        oracle.brush_size=2
+                        oracle.paint((2,3),9)
+                        expected=oracle.data.copy()
+                    plan.publish_experiment()
+                    assert plan.published
+                    plan.validate()
+                    assert all(fn.__code__ is code for fn,code in zip(functions,codes,strict=True))
+                    after=tuple((fn.__globals__,fn.__builtins__,fn.__closure__,fn.__defaults__,fn.__kwdefaults__)
+                                for fn in functions)
+                    assert all(left is right for old,new in zip(metadata,after,strict=True)
+                               for left,right in zip(old,new,strict=True))
+                    if scenario=='publish-watcher':
+                        probe.stop_watcher_probe();assert len(observed)==50
+                    if scenario=='publish-reentry': assert len(observed)==50
+                    try: plan.publish_experiment()
+                    except RuntimeError: pass
+                    else: raise AssertionError('plan published twice')
+                    if scenario=='publish-all50':
+                        actual=Labels(np.zeros((6,6),dtype=np.int16))
+                        actual.brush_size=2
+                        actual.paint((2,3),9)
+                        np.testing.assert_array_equal(actual.data,expected)
+                        from naparixx import disable,enable
+                        from napari.layers.labels import _labels_utils as utils
+                        try:
+                            disable()
+                            assert utils.interpolate_coordinates(None,(0.,0.),1).shape==(1,2)
+                        finally:
+                            enable()
+                    if scenario=='publish-release':
+                        plan_ref=weakref.ref(plan)
+                        del prepare,validate,scopes,plan
+                        gc.collect();gc.collect()
+                        assert plan_ref() is None and all(reference() is None for reference in scope_refs)
+                        assert functions[16](type('L',(),{'_contiguous':True})()) is True
+            elif scenario=='prepare-runtime':
                 from types import SimpleNamespace
                 def native(entry):
                     original=functions[entry]
@@ -101,7 +191,8 @@ def main():
                 assert FunctionType(codes[16],functions[16].__globals__)(type('L',(),{'_contiguous':True})()) is True
             elif scenario!='prepare-all50':
                 raise AssertionError(scenario)
-        assert all(function.__code__ is code for function,code in zip(functions,before,strict=True))
+        if not scenario.startswith('publish-'):
+            assert all(function.__code__ is code for function,code in zip(functions,before,strict=True))
     elif scenario=='all50':
         assert all(inspect.isfunction(function) for function in functions)
         # These instrumented first-import controls are Python oracles, not the

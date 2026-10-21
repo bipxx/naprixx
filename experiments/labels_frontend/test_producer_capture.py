@@ -15,7 +15,9 @@ from capture_imports import instrument, MARKER
 
 @pytest.mark.parametrize('scenario',['all50','identical-before-validation','identical-adapter','identical-class',
     'missing-scope','duplicate-scope','closed-replay','factory-after-close','factory-after-scope-release',
-    'prepare-all50','prepare-runtime','prepare-profile-rejection','prepare-audit-mutation','prepare-plan-release'])
+    'prepare-all50','prepare-runtime','prepare-profile-rejection','prepare-audit-mutation','prepare-plan-release',
+    'publish-all50','publish-audit-reject','publish-reentry','publish-audit-mutate','publish-watcher','publish-release',
+    'publish-foreign-key'])
 def test_actual_defining_execution_capture(scenario):
     directory=Path(__file__).resolve().parent
     env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')

@@ -79,6 +79,23 @@ records this finite scope and another 9,086,580 bytes of settled cleanup. Atomic
 publication, default startup integration and the broader review/compatibility
 requirements remain open.
 
+The experimental producer-qualified plan now publishes all 50 replacements in
+place. Its notification-before-commit protocol rejects audit/reentry/binding
+drift before publisher-owned writes, preserves aliases and metadata, and handles
+function watchers/version caches. The final focused suite passed 137 distinct
+cases with no failures/errors/skips, including isolated real Labels paint and
+backend-disabled checks. The shared batch core separately passed seven cases
+on CPython 3.11 and ten on 3.13; these repeats do not add to 137. See the
+[publication evidence](../.artifacts/labels-native-frontend-edit-owner-batch-publication-stage/progress.json).
+
+This protocol still needs independent compatibility review. It rejects nonexact
+canonical dictionary keys; general foreign-key behavior remains required work.
+Production startup must prepare native declarations before application bodies
+can execute, rather than enable the Python-source oracle loader. Default startup,
+full frame/provider contracts and installed Viewer/plugin/lifecycle acceptance
+remain open. This packet removed 50,882,395 bytes of settled intermediates while
+preserving accepted inputs and production binaries.
+
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).
 The machine-readable snapshot is [conversion-status.json](conversion-status.json).

@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T05:15:53.141259+00:00",
+  "recorded_utc": "2026-10-21T05:44:30.199466+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -93,16 +93,16 @@
     },
     "raw_archive_published": false,
     "frontend_candidate": {
-      "path": ".artifacts/labels-native-frontend-edit-owner-captured-preparation-stage/progress.json",
-      "sha256": "ba508d1539700401ed45e0b04dfe60abeb925898442f8ee23982e3bb339a9069",
-      "bytes": 12293
+      "path": ".artifacts/labels-native-frontend-edit-owner-batch-publication-stage/progress.json",
+      "sha256": "64fe8977f06d18c0462216ab305564ecc2c6452ae774058203dbd0447d153329",
+      "bytes": 13348
     }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Implement atomic full50 publication from the producer-qualified prepared plan under audit/reentrant hooks, including failure/rollback, compiler-version and function-watcher requirements. Review default startup before enabling it. Complete target/parent fast locals, tracing/local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before application integration; then reuse43 before cases and606 accepted regressions with real Viewer/plugin/save/reload/cancellation/shutdown checks.",
+  "next_work": "Review/close experimental batch observer and foreign namespace-key compatibility. Design native declaration enrollment before application-body execution at default startup; do not enable the Python-source oracle as production. Complete target/parent fast locals, tracing/release/error/GC/frame ABI and default grid/providers. Obtain independent effective approval before application integration; then reuse43 before/606 accepted cases with real Viewer/plugin/save/reload/cancel/shutdown checks.",
   "frontend_candidate": {
     "status": "tracked standalone experimental draft; no production installation/admission",
     "source_bodies": 50,
@@ -122,13 +122,13 @@
     "accepted_inputs_held": 2845,
     "package": "experiments/labels_frontend",
     "new_snapshot_cases": 72,
-    "packaged_distinct_cases": 120,
+    "packaged_distinct_cases": 137,
     "packaged_archive_access_denied": true,
     "defining_execution_authenticated": false,
-    "atomic_publication_implemented": false,
-    "latest_cleanup_removed_bytes": 9086580,
+    "atomic_publication_implemented": true,
+    "latest_cleanup_removed_bytes": 50882395,
     "new_producer_cases": 18,
-    "packaged_case_semantics": "120 distinct outer pytest cases, no failures/errors/skips, with14 fresh-import child scenarios. Earlier5/119 passes are superseded repeats; accepted606/31 is separate.",
+    "packaged_case_semantics": "137 distinct outer cases, zero failures/errors/skips;21 real-import children and10 batch children. Separate311 seven/313 ten cases repeat the shared batch core, not extra application cases or accepted606/31.",
     "controlled_import_functions_captured": 50,
     "controlled_import_classes_captured": 4,
     "controlled_import_defining_execution_authenticated": true,
@@ -138,6 +138,12 @@
     "new_source_buffer_cases": 1,
     "captured_native_preparation_implemented": true,
     "prepared_native_bodies": 50,
-    "prepared_expression_transports": 7
+    "prepared_expression_transports": 7,
+    "new_frontend_publication_cases": 7,
+    "new_batch_cases": 10,
+    "atomic_publication_scope": "Experimental normalGIL notification-before-commit batch; independent observer/namespace compatibility approval and default startup remain open",
+    "published_bodies_in_controlled_process": 50,
+    "default_application_enabled": false,
+    "namespace_key_compatibility_complete": false
   }
 }

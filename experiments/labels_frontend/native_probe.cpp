@@ -1,9 +1,18 @@
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Python.h>
 #ifndef Py_BUILD_CORE
 #define Py_BUILD_CORE
 #define LF_RESTORE_CORE
 #endif
 #include <internal/pycore_frame.h>
+#if PY_VERSION_HEX >= 0x030C0000
+#include <internal/pycore_interp.h>
+#endif
+#if PY_VERSION_HEX >= 0x030D0000
+#include <internal/pycore_pyatomic_ft_wrappers.h>
+#endif
 #ifdef LF_RESTORE_CORE
 #undef LF_RESTORE_CORE
 #undef Py_BUILD_CORE
@@ -4500,16 +4509,23 @@ namespace nx {
 struct LFCanonicalBindings {
     std::vector<nb::object> anchors;
     std::vector<nb::object> functions;
+    std::vector<size_t> code_anchors;
     void keep(nb::handle value) { anchors.push_back(nb::borrow<nb::object>(value)); }
 };
 nb::object lfc_dict_value(PyObject* dictionary, const char* name) {
-    if (!PyDict_CheckExact(dictionary)) throw nb::type_error("exact defining dictionary is required");
-    PyObject* value=PyDict_GetItemString(dictionary,name);
-    if (!value) {
-        if (PyErr_Occurred()) throw nb::python_error();
-        throw nb::type_error("required canonical binding is missing");
+    if (!dictionary || !PyDict_CheckExact(dictionary)) throw nb::type_error("exact defining dictionary is required");
+    // Admission must not call equality/hash overrides on foreign dictionary
+    // keys during the final callback-free transaction validation.
+    PyObject *key,*value,*found=nullptr;
+    Py_ssize_t position=0;
+    while (PyDict_Next(dictionary,&position,&key,&value)) {
+        if (!PyUnicode_Check(key) || PyUnicode_CompareWithASCIIString(key,name)!=0) continue;
+        if (!PyUnicode_CheckExact(key) || found)
+            throw nb::type_error("canonical dictionary key is not a unique exact string");
+        found=value;
     }
-    return nb::borrow<nb::object>(value);
+    if (!found) throw nb::type_error("required canonical binding is missing");
+    return nb::borrow<nb::object>(found);
 }
 nb::object lfc_module(LFCanonicalBindings& state,const char* name) {
     nb::object module=lfc_dict_value(PyImport_GetModuleDict(),name);
@@ -4569,13 +4585,15 @@ void lfc_function(LFCanonicalBindings& state,nb::object function,nb::handle glob
     if (!PyFunction_Check(function.ptr()) || PyFunction_GetGlobals(function.ptr())!=globals.ptr())
         throw nb::type_error("function must use its actual defining module dictionary");
     state.functions.push_back(function); state.keep(function);
+    state.code_anchors.push_back(state.anchors.size());
     state.keep(nb::handle(PyFunction_GetCode(function.ptr())));
     // Keep identities only. Mutable public metadata remains actual Python data.
-    for (const char* name:{"__defaults__","__kwdefaults__","__closure__","__builtins__"})
-        state.keep(lh_check(PyObject_GetAttrString(function.ptr(),name)));
+    auto* actual=reinterpret_cast<PyFunctionObject*>(function.ptr());
+    for (PyObject* value:{actual->func_defaults,actual->func_kwdefaults,actual->func_closure,actual->func_builtins})
+        state.keep(nb::handle(value?value:Py_None));
 }
 void lfc_wrapped(LFCanonicalBindings& state,nb::handle function,nb::handle expected) {
-    nb::object dictionary=lh_check(PyObject_GetAttrString(function.ptr(),"__dict__"));
+    nb::object dictionary=nb::borrow<nb::object>(reinterpret_cast<PyFunctionObject*>(function.ptr())->func_dict);
     nb::object wrapped=lfc_dict_value(dictionary.ptr(),"__wrapped__");
     if (wrapped.ptr()!=expected.ptr()) throw nb::type_error("decorator wrapped alias and original cell disagree");
     state.keep(wrapped);
@@ -4642,11 +4660,14 @@ LFCanonicalBindings lfc_collect(nb::handle wrapper_profile) {
     return state;
 }
 void lfp_validate_snapshot(nb::handle owners,nb::handle wrapper_profile);
+struct LFCanonicalSnapshot;
+nb::object lfb_publish_frontend(LFCanonicalSnapshot& value);
 struct LFCanonicalSnapshot {
     LFCanonicalBindings bindings;
     nb::object wrapper_profile;
     nb::object producer_scopes;
     std::vector<nb::object> prepared;
+    bool published=false;
     void validate() const {
         if (producer_scopes.is_valid()) lfp_validate_snapshot(producer_scopes,wrapper_profile);
         LFCanonicalBindings current=lfc_collect(wrapper_profile);
@@ -4699,6 +4720,8 @@ nb::object lfc_prepare(nb::tuple shells,nb::tuple source_profiles,nb::tuple shel
 void lfc_exports(nb::module_& m) {
     nb::class_<LFCanonicalSnapshot>(m,"CanonicalSnapshot",nb::is_weak_referenceable(),nb::type_slots(lfc_slots))
         .def("validate",&LFCanonicalSnapshot::validate)
+        .def("publish_experiment",&lfb_publish_frontend)
+        .def_prop_ro("published",[](const LFCanonicalSnapshot& value){return value.published;})
         .def_prop_ro("functions",[](const LFCanonicalSnapshot& value){value.validate();return lfc_tuple(value.bindings.functions);})
         .def_prop_ro("prepared_codes",[](const LFCanonicalSnapshot& value){value.validate();return lfc_tuple(value.prepared);});
     m.def("prepare_canonical_snapshot_probe",&lfc_prepare);
@@ -4706,10 +4729,12 @@ void lfc_exports(nb::module_& m) {
 
 }
 #include "producer_capture.inc"
+#include "batch_publication.inc"
 NB_MODULE(_frontend_policy_probe, m) {
     namespace nb = nanobind;
     nx::lfc_exports(m);
     nx::lfp_exports(m);
+    nx::lfb_exports(m);
     m.def("prepare_expression_codes_probe", &nx::lfe_prepare_codes);
     m.def("prepare_unified_expression_probe", [](nb::object function, int entry, nb::tuple shells,
         nb::tuple source_profiles, nb::tuple shell_profiles, nb::tuple expression_codes) {
