@@ -34,6 +34,12 @@ struct LFGridFastLocals {
         target = value.release().ptr();
         Py_XDECREF(previous);
     }
+    nb::object take(const char* name) const {
+        PyObject*& target = slot(name);
+        PyObject* previous = target;
+        target = nullptr;
+        return nb::steal<nb::object>(previous);
+    }
 };
 
 nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
@@ -86,8 +92,8 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& 
     return L("res");
 }
 
-nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
-    nb::object iterator = locals.load(".0");
+nb::object lf_grid_comprehension_body(LabelsHistoryLocals& source, const LFGridFastLocals& locals,
+                                      nb::handle iterator) {
     nb::object result = lh_check(PyList_New(0));
     while (nb::object pair = lh_next(iterator)) {
         auto values = lf_unpack(std::move(pair), 2);
@@ -101,152 +107,12 @@ nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLoca
     return result;
 }
 
-nb::object lf_grid_getitem(LabelsHistoryLocals& source, nb::object self, nb::object key,
-                            nb::object comprehension) {
-    auto G = [&](const char* name) { return lh_global(source, name); };
-    auto A = [&](nb::object value, const char* name) {
-        return lh_attr(source, std::move(value), name);
-    };
-    auto nx = [&]() { return G("_nx"); };
-    auto attr = [&](nb::object item, const char* name) { return A(std::move(item), name); };
-    auto complex_step = [&](nb::object step) {
-        nb::object classes = nb::make_tuple(attr(nx(), "complexfloating"), G("complex"));
-        return lh_truth(lh_call(G("isinstance"), {LFG(step), LFG(classes)}));
-    };
-    auto arithmetic = [](binaryfunc function, nb::object a, nb::object b) {
-        return lh_check(function(a.ptr(), b.ptr()));
-    };
-    auto append = [&](nb::object list, nb::object item) {
-        lh_call(attr(std::move(list), "append"), {LFG(item)});
-    };
-    try {
-        nb::object size = lh_check(PyList_New(0));
-        nb::object num_list = lh_check(PyList_New(1));
-        PyList_SET_ITEM(num_list.ptr(), 0, PyLong_FromLong(0));
-        nb::object count = lh_call(G("len"), {LFG(key)});
-        nb::object iterator = lh_iter(lh_call(G("range"), {LFG(count)}));
-        while (nb::object k = lh_next(iterator)) {
-            nb::object step = attr(lh_item(key, k), "step");
-            nb::object start = attr(lh_item(key, k), "start");
-            nb::object stop = attr(lh_item(key, k), "stop");
-            if (start.is_none()) start = nb::int_(0);
-            if (step.is_none()) step = nb::int_(1);
-            if (complex_step(step)) {
-                step = lh_call(G("abs"), {LFG(step)});
-                append(size, lh_call(G("int"), {LFG(step)}));
-            } else {
-                nb::object diff = arithmetic(PyNumber_Subtract, stop, start);
-                nb::object ratio = arithmetic(PyNumber_TrueDivide, diff, step);
-                append(size, lh_call(attr(G("math"), "ceil"), {LFG(ratio)}));
-            }
-            nb::object tail = nb::make_tuple(start, stop, step);
-            // In-place list extension uses the actual list's source protocol.
-            nb::object as_list = lh_check(PySequence_List(tail.ptr()));
-            num_list = lh_check(PyNumber_InPlaceAdd(num_list.ptr(), as_list.ptr()));
-        }
-        nb::object result_type = attr(nx(), "result_type");
-        nb::object args = lh_check(PySequence_Tuple(num_list.ptr()));
-        nb::object typ = lh_check(PyObject_CallObject(result_type.ptr(), args.ptr()));
-        nb::object nn;
-        if (lh_truth(attr(self, "sparse"))) {
-            // CPython 3.11 creates the comprehension function before evaluating
-            // zip/GET_ITER. Its builtins snapshot belongs to that creation.
-            nb::object comp_function;
-            if (!comprehension.is_none())
-                comp_function = lh_check(PyFunction_New(comprehension.ptr(), source.source_globals.ptr()));
-            nb::object zip_callable = G("zip");
-            nb::object size_len = lh_call(G("len"), {LFG(size)});
-            nb::object repeated = arithmetic(PyNumber_Multiply, nb::make_tuple(typ), size_len);
-            nb::object zipped = lh_iter(lh_call(zip_callable, {LFG(size), LFG(repeated)}));
-            if (comp_function.is_valid()) {
-                nn = lh_call(comp_function, {LFG(zipped)});
-            } else {
-            nn = lh_check(PyList_New(0));
-            while (nb::object pair = lh_next(zipped)) {
-                nb::object pair_iter = lh_iter(pair);
-                nb::object x = lh_next(pair_iter), t = lh_next(pair_iter);
-                if (!x.is_valid() || !t.is_valid()) {
-                    PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 2, got %d)", x.is_valid() ? 1 : 0);
-                    throw nb::python_error();
-                }
-                if (lh_next(pair_iter).is_valid()) throw nb::value_error("too many values to unpack (expected 2)");
-                append(nn, lh_call(attr(nx(), "arange"), {LFG(x)}, {LFG(t)}, lh_kw(source, "dtype")));
-            }
-            }
-        } else {
-            // Admission must route the genuine default indices body to
-            // lf_grid_indices; a deliberate foreign callable stays a callback.
-            nn = lh_call(attr(nx(), "indices"), {LFG(size), LFG(typ)});
-        }
-        iterator = lh_iter(lh_call(G("enumerate"), {LFG(key)}));
-        while (nb::object pair = lh_next(iterator)) {
-            nb::object pair_iter = lh_iter(pair);
-            nb::object k = lh_next(pair_iter), kk = lh_next(pair_iter);
-            if (!k.is_valid() || !kk.is_valid()) {
-                PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 2, got %d)", k.is_valid() ? 1 : 0);
-                throw nb::python_error();
-            }
-            if (lh_next(pair_iter).is_valid()) throw nb::value_error("too many values to unpack (expected 2)");
-            nb::object step = attr(kk, "step"), start = attr(kk, "start");
-            if (start.is_none()) start = nb::int_(0);
-            if (step.is_none()) step = nb::int_(1);
-            if (complex_step(step)) {
-                step = lh_call(G("int"), {LFG(lh_call(G("abs"), {LFG(step)}))});
-                int unequal = PyObject_RichCompareBool(step.ptr(), nb::int_(1).ptr(), Py_NE);
-                if (unequal < 0) throw nb::python_error();
-                if (unequal) {
-                    nb::object numerator = arithmetic(PyNumber_Subtract, attr(kk, "stop"), start);
-                    nb::object denom = lh_call(G("float"), {LFG(arithmetic(PyNumber_Subtract, step, nb::int_(1)))});
-                    step = arithmetic(PyNumber_TrueDivide, numerator, denom);
-                }
-            }
-            nb::object scaled = arithmetic(PyNumber_Multiply, lh_item(nn, k), step);
-            nb::object value = arithmetic(PyNumber_Add, scaled, start);
-            if (PyObject_SetItem(nn.ptr(), k.ptr(), value.ptr()) < 0) throw nb::python_error();
-        }
-        if (lh_truth(attr(self, "sparse"))) {
-            nb::object length = lh_call(G("len"), {LFG(size)});
-            nb::object initial = lh_check(PyList_New(1));
-            PyList_SET_ITEM(initial.ptr(), 0, attr(nx(), "newaxis").release().ptr());
-            nb::object slobj = arithmetic(PyNumber_Multiply, initial, length);
-            iterator = lh_iter(lh_call(G("range"), {LFG(lh_call(G("len"), {LFG(size)}))}));
-            while (nb::object k = lh_next(iterator)) {
-                nb::object full = lh_call(G("slice"), {LFG(nb::none()), LFG(nb::none())});
-                if (PyObject_SetItem(slobj.ptr(), k.ptr(), full.ptr()) < 0) throw nb::python_error();
-                nb::object current = lh_item(nn, k);
-                nb::object axis_key = lh_call(G("tuple"), {LFG(slobj)});
-                nb::object value = lh_item(current, axis_key);
-                if (PyObject_SetItem(nn.ptr(), k.ptr(), value.ptr()) < 0) throw nb::python_error();
-                nb::object newaxis = attr(nx(), "newaxis");
-                if (PyObject_SetItem(slobj.ptr(), k.ptr(), newaxis.ptr()) < 0) throw nb::python_error();
-            }
-            return lh_call(G("tuple"), {LFG(nn)});
-        }
-        return nn;
-    } catch (nb::python_error& error) {
-        LHHandledException handled(error.value());
-        nb::object first=G("IndexError"),second=G("TypeError");
-        if (!lf_matches_handler(error.value(),nb::make_tuple(first,second))) throw;
-        nb::object step = attr(key, "step"), stop = attr(key, "stop"), start = attr(key, "start");
-        if (start.is_none()) start = nb::int_(0);
-        if (complex_step(step)) {
-            nb::object step_float = lh_call(G("abs"), {LFG(step)});
-            nb::object length = lh_call(G("int"), {LFG(step_float)});
-            step = length;
-            int unequal = PyObject_RichCompareBool(step.ptr(), nb::int_(1).ptr(), Py_NE);
-            if (unequal < 0) throw nb::python_error();
-            if (unequal) {
-                nb::object numerator = arithmetic(PyNumber_Subtract, attr(key, "stop"), start);
-                nb::object denominator = lh_call(G("float"), {LFG(arithmetic(PyNumber_Subtract, step, nb::int_(1)))});
-                step = arithmetic(PyNumber_TrueDivide, numerator, denominator);
-            }
-            nb::object typ = lh_call(attr(nx(), "result_type"), {LFG(start), LFG(stop), LFG(step_float)});
-            nb::object values = lh_call(attr(nx(), "arange"), {LFG(nb::int_(0)), LFG(length), LFG(nb::int_(1))}, {LFG(typ)}, lh_kw(source, "dtype"));
-            return arithmetic(PyNumber_Add, arithmetic(PyNumber_Multiply, values, step), start);
-        }
-        return lh_call(attr(nx(), "arange"), {LFG(start), LFG(stop), LFG(step)});
-    }
+nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
+    nb::object iterator = locals.load(".0");
+    return lf_grid_comprehension_body(source, locals, iterator);
 }
+
+#include "grid_getitem.inc"
 
 #undef LFG
 
@@ -257,7 +123,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             throw nb::type_error("Grid policy entry is required");
         long entry = PyLong_AsLong(PyTuple_GET_ITEM(arguments, 0));
         if (entry == -1 && PyErr_Occurred()) throw nb::python_error();
-        if ((entry != 0 || count != 3) && (entry != 1 || count != 1) && (entry != -2 || count != 1))
+        if (count != 1 || (entry != 0 && entry != 1 && entry != -2))
             throw nb::type_error("Grid policy parameter declaration changed");
         PyFrameObject* frame = PyEval_GetFrame();
         if (!frame) throw nb::type_error("Grid policy genuine function frame is required");
@@ -276,12 +142,9 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         source.source_metadata = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 1));
         lh_metadata_values(source.source_metadata, 0);
         lh_metadata_values(source.source_metadata, 1);
-        auto arg = [&](int position) {
-            return nb::borrow<nb::object>(PyTuple_GET_ITEM(arguments, position));
-        };
         nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
         if (entry == -2) return lf_grid_sparse_comp(source, {frame, actual}).release().ptr();
-        return (entry == 0 ? lf_grid_getitem(source, arg(1), arg(2), comprehension) :
+        return (entry == 0 ? lf_grid_getitem(source, {frame, actual}, comprehension) :
                 lf_grid_indices(source, {frame, actual})).release().ptr();
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
@@ -375,6 +238,19 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     keywords["co_qualname"] = nb::borrow<nb::object>(original->co_qualname);
     keywords["co_firstlineno"] = nb::int_(original->co_firstlineno);
     keywords["co_flags"] = nb::int_(original->co_flags);
+    if (entry == 0) {
+#if PY_VERSION_HEX < 0x030C0000
+        const char* names[] = {"self", "key", "size", "num_list", "k", "step", "start", "stop", "typ", "nn", "kk", "slobj", "step_float", "length"};
+#else
+        const char* names[] = {"self", "key", "size", "num_list", "k", "step", "start", "stop", "typ", "_x", "_t", "nn", "kk", "slobj", "step_float", "length"};
+#endif
+        constexpr int size = sizeof(names) / sizeof(names[0]);
+        if (original->co_nlocals != size || PyTuple_GET_SIZE(original->co_localsplusnames) != size)
+            throw nb::type_error("Grid getitem local layout changed");
+        for (int i = 0; i < size; ++i)
+            if (PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, i), names[i]) != 0)
+                throw nb::type_error("Grid getitem local name changed");
+    }
     if (entry == 1) {
         const char* names[] = {"dimensions", "dtype", "sparse", "N", "shape", "res", "i", "dim", "idx"};
         if (original->co_nlocals != 9 || PyTuple_GET_SIZE(original->co_localsplusnames) != 9)
@@ -389,7 +265,7 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, 2), "_t") != 0)
             throw nb::type_error("Grid comprehension local layout changed");
     }
-    if (entry == 1 || entry == -2) {
+    {
         keywords["co_varnames"] = lh_check(PyObject_GetAttrString(reinterpret_cast<PyObject*>(original), "co_varnames"));
         keywords["co_nlocals"] = nb::int_(original->co_nlocals);
     }

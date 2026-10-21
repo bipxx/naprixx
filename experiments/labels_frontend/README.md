@@ -32,7 +32,8 @@ $env:PYTHONDONTWRITEBYTECODE="1"
 The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
-isolated grid comprehension frame check and one indices-local check (158 cases
+isolated grid comprehension frame check, one indices-local check and one grid
+parent/inlined-local check (159 cases
 in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
@@ -82,7 +83,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-158-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+159-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -135,8 +136,8 @@ frame. The native body reads and writes those slots directly instead of keeping
 independent C++ local values. Three additional controls compare callback local
 inspection, writes/deletion through `PyFrame_LocalsToFast`, and retained frame
 contents with the source. They demonstrate the previous missing-local defect
-and pass on 3.11.11 after the fix. This does not qualify the grid parent locals,
-the inlined 3.12/3.13 locals, source tracing or complete release behavior.
+and pass on 3.11.11 after the fix. This finite check does not qualify source
+tracing or complete release behavior.
 
 `indices` now stores its nine source locals in the genuine parent frame and
 reads them again at the corresponding source operand evaluations. The inert
@@ -156,7 +157,19 @@ build. The failing observation is retained locally; that low-level deletion
 behavior requires an explicit ABI decision and remains unqualified. It is not
 covered by the nine passing 3.12 controls.
 
-Grid target/frame locals, tracing, exact temporary release/exception fidelity
+`nd_grid.__getitem__` now uses genuine frame slots for its fourteen source
+locals on 3.11 and sixteen on 3.12/3.13. `grid_getitem.inc` holds that handwritten
+policy. The inlined comprehension saves and clears `_x`/`_t` after `GET_ITER`,
+then restores them in the source compiler's normal/error orders. The shell
+passes only its dispatch entry. Ten isolated source comparisons pass on 3.11
+and twelve on 3.12/3.13, covering callback-visible locals and handled exceptions,
+sparse/dense/complex/single-slice results, mutation during key/result/comprehension
+callbacks, and old-slot restoration on normal completion and errors. The prior
+native binary fails the new parent-local oracle. The runner
+`grid_getitem_locals_child.py` uses synthetic numeric leaves; full provider and
+frame ABI acceptance remain separate.
+
+Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions
 and installed configurations are unqualified. The adapted policies retain the
