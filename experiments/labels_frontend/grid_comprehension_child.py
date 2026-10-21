@@ -1,5 +1,6 @@
 """Stdlib-only grid frame controls, also runnable with the 3.11/3.13 SDKs."""
 import builtins
+import ctypes
 import hashlib
 import json
 import math
@@ -41,6 +42,8 @@ class Array:
 
 def run(code, native, shells, probe, mode):
     events = []
+    local_events = []
+    retained_frames = []
     namespace = {'math': math, '__name__': 'numpy.lib._index_tricks_impl'}
     snapshots = [dict(vars(builtins), grid_marker=f'B{i}') for i in range(4)]
     iterator_anchor = []
@@ -80,8 +83,35 @@ def run(code, native, shells, probe, mode):
             raise RuntimeError('arange callback failure')
         return Array(range(value))
 
-    namespace['_nx'] = types.SimpleNamespace(complexfloating=type('Complex', (), {}),
-        result_type=lambda *values: int, arange=arange, newaxis=None)
+    def local_snapshot(frame):
+        values = frame.f_locals
+        return (tuple(sorted(values)), values.get('_x'),
+                getattr(values.get('_t'), '__name__', None))
+
+    class Numeric:
+        def __getattribute__(self, name):
+            if name == 'arange' and mode in ('inspect-locals', 'mutate-locals', 'delete-local'):
+                frame = sys._getframe(1)
+                retained_frames.append(frame)
+                local_events.append(('lookup', local_snapshot(frame)))
+                values = frame.f_locals
+                if mode == 'mutate-locals':
+                    values['_x'], values['_t'] = 3, float
+                elif mode == 'delete-local':
+                    del values['_x']
+                if mode != 'inspect-locals':
+                    sync = ctypes.pythonapi.PyFrame_LocalsToFast
+                    sync.argtypes = [ctypes.py_object, ctypes.c_int]
+                    sync.restype = None
+                    sync(frame, 1)
+            return object.__getattribute__(self, name)
+
+    numeric = Numeric()
+    numeric.complexfloating = type('Complex', (), {})
+    numeric.result_type = lambda *values: int
+    numeric.arange = arange
+    numeric.newaxis = None
+    namespace['_nx'] = numeric
     snapshots[0]['zip'] = zip_callback
     snapshots[0]['len'] = length_callback
     namespace['__builtins__'] = snapshots[0]
@@ -102,15 +132,23 @@ def run(code, native, shells, probe, mode):
         try:
             result = function(types.SimpleNamespace(sparse=True), (slice(1, 5, 2), slice(0, 3)))
             outcome = ['return', [item.values for item in result]]
-        except RuntimeError as error:
+        except Exception as error:
             outcome = ['raise', type(error).__name__, str(error)]
     finally:
         sys.setprofile(None)
     expected_name = '<listcomp>' if sys.version_info < (3, 12) else '__getitem__'
     expected_marker = 'B1' if sys.version_info < (3, 12) else 'B0'
-    assert events and all(row[0] == expected_name and row[2] == expected_marker and row[3] for row in events), events
+    assert (events or mode == 'delete-local') and all(
+        row[0] == expected_name and row[2] == expected_marker and row[3] for row in events), events
     assert all(row[4] == (sys.version_info < (3, 12)) for row in events), events
-    return outcome, events
+    if retained_frames:
+        local_events.append(('retained', local_snapshot(retained_frames[-1])))
+    if mode == 'mutate-locals':
+        assert outcome == ['return', [[1, 3, 5], [0, 1, 2]]], outcome
+    if mode == 'delete-local':
+        assert outcome == ['raise', 'UnboundLocalError',
+            "cannot access local variable '_x' where it is not associated with a value"], outcome
+    return outcome, events, local_events
 
 
 def main():
@@ -126,11 +164,14 @@ def main():
     shells = {}
     path = DIRECTORY / 'grid_shells.py'
     exec(compile(path.read_bytes(), str(path), 'exec', dont_inherit=True), shells)
-    for mode in ('return', 'raise'):
+    modes = ['return', 'raise']
+    if sys.version_info < (3, 12):
+        modes += ['inspect-locals', 'mutate-locals', 'delete-local']
+    for mode in modes:
         original = run(code, False, shells, probe, mode)
         native = run(code, True, shells, probe, mode)
         assert original == native, (mode, original, native)
-    print(json.dumps({'status': 'PASS', 'python': sys.version, 'controls': 2,
+    print(json.dumps({'status': 'PASS', 'python': sys.version, 'controls': len(modes),
                       'original_body_execution_in_native_run': False}))
 
 

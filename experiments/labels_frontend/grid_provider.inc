@@ -59,20 +59,45 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, nb::object dimensions,
     return result;
 }
 
-nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, nb::object iterator) {
-    nb::object result = lh_check(PyList_New(0));
-    nb::object x, t;
-    while (nb::object pair = lh_next(iterator)) {
-        nb::object unpack = lh_iter(pair);
-        nb::object next_x = lh_next(unpack), next_t = lh_next(unpack);
-        if (!next_x.is_valid() || !next_t.is_valid()) {
-            PyErr_Format(PyExc_ValueError, "not enough values to unpack (expected 2, got %d)", next_x.is_valid() ? 1 : 0);
+// The genuine frame owns these locals. No C++ carrier mirrors their mutable
+// values; callback writes through the supported interpreter frame interface
+// are therefore observed by the next source LOAD_FAST equivalent.
+struct LFGridFastLocals {
+    PyFrameObject* frame;
+    PyCodeObject* code;
+    PyObject*& slot(const char* name) const {
+        for (int i = 0; i < code->co_nlocals; ++i)
+            if (PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(code->co_localsplusnames, i), name) == 0)
+                return frame->f_frame->localsplus[i];
+        throw nb::type_error("Grid source local declaration is missing");
+    }
+    nb::object load(const char* name) const {
+        PyObject* value = slot(name);
+        if (!value) {
+            PyErr_Format(PyExc_UnboundLocalError,
+                "cannot access local variable '%s' where it is not associated with a value", name);
             throw nb::python_error();
         }
-        if (lh_next(unpack).is_valid()) throw nb::value_error("too many values to unpack (expected 2)");
-        x = std::move(next_x); t = std::move(next_t);
+        return nb::borrow<nb::object>(value);
+    }
+    void store(const char* name, nb::object value) const {
+        PyObject*& target = slot(name);
+        PyObject* previous = target;
+        target = value.release().ptr();
+        Py_XDECREF(previous);
+    }
+};
+
+nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
+    nb::object iterator = locals.load(".0");
+    nb::object result = lh_check(PyList_New(0));
+    while (nb::object pair = lh_next(iterator)) {
+        auto values = lf_unpack(std::move(pair), 2);
+        locals.store("_x", std::move(values[0]));
+        locals.store("_t", std::move(values[1]));
         nb::object arange = lh_attr(source, lh_global(source, "_nx"), "arange");
-        nb::object value = lh_call(arange, {LFG(x)}, {LFG(t)}, lh_kw(source, "dtype"));
+        nb::object value = lh_call(arange, {LFG(locals.load("_x"))},
+                                   {LFG(locals.load("_t"))}, lh_kw(source, "dtype"));
         if (PyList_Append(result.ptr(), value.ptr()) < 0) throw nb::python_error();
     }
     return result;
@@ -234,7 +259,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             throw nb::type_error("Grid policy entry is required");
         long entry = PyLong_AsLong(PyTuple_GET_ITEM(arguments, 0));
         if (entry == -1 && PyErr_Occurred()) throw nb::python_error();
-        if ((entry != 0 || count != 3) && (entry != 1 || count != 4) && (entry != -2 || count != 2))
+        if ((entry != 0 || count != 3) && (entry != 1 || count != 4) && (entry != -2 || count != 1))
             throw nb::type_error("Grid policy parameter declaration changed");
         PyFrameObject* frame = PyEval_GetFrame();
         if (!frame) throw nb::type_error("Grid policy genuine function frame is required");
@@ -257,7 +282,7 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
             return nb::borrow<nb::object>(PyTuple_GET_ITEM(arguments, position));
         };
         nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
-        if (entry == -2) return lf_grid_sparse_comp(source, arg(1)).release().ptr();
+        if (entry == -2) return lf_grid_sparse_comp(source, {frame, actual}).release().ptr();
         return (entry == 0 ? lf_grid_getitem(source, arg(1), arg(2), comprehension) :
                 lf_grid_indices(source, arg(1), arg(2), arg(3))).release().ptr();
     } catch (...) { lf_adapter_error(); return nullptr; }
@@ -353,10 +378,12 @@ nb::object lf_grid_prepare(nb::object function, nb::object defining_globals,
     keywords["co_firstlineno"] = nb::int_(original->co_firstlineno);
     keywords["co_flags"] = nb::int_(original->co_flags);
     if (entry == -2) {
-        nb::object names = lh_check(PyObject_GetAttrString(shell_code.ptr(), "co_varnames"));
-        nb::object copy = lh_check(PySequence_List(names.ptr()));
-        if (PyList_SetItem(copy.ptr(), 0, PyUnicode_FromString(".0")) < 0) throw nb::python_error();
-        keywords["co_varnames"] = lh_check(PySequence_Tuple(copy.ptr()));
+        if (original->co_nlocals != 3 || PyTuple_GET_SIZE(original->co_localsplusnames) != 3 ||
+            PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, 1), "_x") != 0 ||
+            PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(original->co_localsplusnames, 2), "_t") != 0)
+            throw nb::type_error("Grid comprehension local layout changed");
+        keywords["co_varnames"] = lh_check(PyObject_GetAttrString(reinterpret_cast<PyObject*>(original), "co_varnames"));
+        keywords["co_nlocals"] = nb::int_(original->co_nlocals);
     }
     nb::object replace = lh_check(PyObject_GetAttrString(shell_code.ptr(), "replace"));
     nb::object args = nb::tuple();

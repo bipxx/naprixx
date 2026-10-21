@@ -10,4 +10,4 @@ def _grid_indices(dimensions, dtype=int, sparse=False):
 
 
 def _grid_sparse_comp(_iterator):
-    return (...).__call__(-2, _iterator)
+    return (...).__call__(-2)

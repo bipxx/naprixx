@@ -129,6 +129,14 @@ controls use synthetic numeric leaves, not a full NumPy runtime qualification.
 Run `grid_comprehension_child.py` with the corresponding probe directory on
 `PYTHONPATH` to reproduce those controls.
 
+The 3.11 comprehension's `.0`, `_x` and `_t` slots now belong to the genuine
+frame. The native body reads and writes those slots directly instead of keeping
+independent C++ local values. Three additional controls compare callback local
+inspection, writes/deletion through `PyFrame_LocalsToFast`, and retained frame
+contents with the source. They demonstrate the previous missing-local defect
+and pass on 3.11.11 after the fix. This does not qualify the grid parent locals,
+the inlined 3.12/3.13 locals, source tracing or complete release behavior.
+
 Grid target/frame locals, tracing, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions
