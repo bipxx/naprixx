@@ -7,7 +7,10 @@ struct LFGridOpcodeState {
     std::vector<std::pair<std::string,std::string>> pending;
     bool trailing_opcode = false;
     int return_point = -1;
+    int error_point = -1;
+    PyObject* reported_error = nullptr;
 };
+void lfgt_error_point(const LFGridFastLocals& locals,int point);
 
 nb::object lfgt_points(PyCodeObject* code) {
     PyObject* constants = code->co_consts;
@@ -113,6 +116,11 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         if (what == PyTrace_CALL) lfgt_driver->states[frame] = LFGridOpcodeState{};
         // Suppress interop-shell events; native operations supply source events.
         if (what == PyTrace_LINE || what == PyTrace_OPCODE) return 0;
+        if(what==PyTrace_EXCEPTION) {
+            auto found=lfgt_driver->states.find(frame);
+            if(found!=lfgt_driver->states.end() && found->second.reported_error && PyTuple_Check(arg) &&
+               PyTuple_GET_SIZE(arg)==3 && PyTuple_GET_ITEM(arg,1)==found->second.reported_error) return 0;
+        }
         if (what == PyTrace_RETURN) {
             auto found=lfgt_driver->states.find(frame);
             int point=found==lfgt_driver->states.end()?-1:found->second.return_point;
@@ -157,11 +165,22 @@ void lfgt_return(const LFGridFastLocals& locals,int index) {
     auto found=lfgt_driver->states.find(locals.frame);
     if(found!=lfgt_driver->states.end()) found->second.return_point=index;
 }
+void lfgt_error_point(const LFGridFastLocals& locals,int point) {
+    if(!lfgt_driver) return;
+    auto found=lfgt_driver->states.find(locals.frame);
+    if(found!=lfgt_driver->states.end()) found->second.error_point=point;
+}
+#include "grid_trace_exception.inc"
 #include "grid_trace_next.inc"
 struct LFGridGetterLines {
     const LFGridFastLocals& locals;
     void line(int source_line) const {lfgt_line(locals,source_line-146);}
     void point(int index) const {lfgt_line(locals,index);}
+    nb::object call(int point,nb::object function,std::initializer_list<LHExpr> args={},
+                    std::initializer_list<LHExpr> kw={},nb::object names={}) const {
+        return LFGridObservedOps{locals}.call(std::move(function),args,kw,std::move(names),point);
+    }
+    void exception(nb::python_error& error) const {lfgt_exception(locals,error);}
     nb::object returned(nb::object result,int point) const {lfgt_return(locals,point);return result;}
 };
 
@@ -177,7 +196,7 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
         (shell->co_nlocals==14 || shell->co_nlocals==16);
     bool child=PyUnicode_CompareWithASCIIString(source->co_name,"<listcomp>")==0 && shell->co_nlocals==3;
     if(!indices && !getter && !child) throw nb::type_error("unsupported native grid trace declaration");
-    if(points.size()!=(indices?16:getter?77:5)) throw nb::type_error("native source point declaration changed");
+    if(points.size()!=(indices?16:getter?85:5)) throw nb::type_error("native source point declaration changed");
     nb::object bytecode = lh_check(PyObject_GetAttrString(original.ptr(), "co_code"));
     nb::object transport = lh_check(PyObject_GetAttrString(replacement.ptr(), "co_code"));
     Py_ssize_t length = PyBytes_GET_SIZE(bytecode.ptr()), size = PyBytes_GET_SIZE(transport.ptr());

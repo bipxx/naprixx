@@ -1,5 +1,6 @@
 """Compile-only source positions for the opt-in native indices line pilot."""
 import dis
+import sys
 
 from freeze_transport import profile
 from native_declarations import tuples
@@ -11,7 +12,7 @@ def getter_positions(code):
     for offset,line in starts: byline.setdefault(line,[]).append(offset)
     placeholder=(byline[147][0],147)
     points=[(byline[line][0],line) if line in byline else placeholder for line in range(146,209)]
-    points.extend([placeholder]*(77-len(points)))
+    points.extend([placeholder]*(85-len(points)))
     loops=[item for item in decoded if item.opname=='FOR_ITER']
     inline=len(loops)==4
     for index,item,line in ((64,loops[0],152),(65,loops[-2],173),(66,loops[-1],187)):
@@ -33,6 +34,18 @@ def getter_positions(code):
         candidates=[item.offset for item in decoded if item.opname=='RETURN_VALUE' and item.positions.lineno==line]
         assert len(candidates)==1,(line,candidates)
         points[index]=(candidates[0],line)
+    calls=[item for item in decoded if item.opname in ('CALL','CALL_KW')]
+    for index,line,which in ((77,152,0),(78,152,1),(79,208,-1),(80,206,-1)):
+        candidates=[item for item in calls if item.positions.lineno==line]
+        points[index]=(candidates[which].offset,line)
+        # In 3.11/3.12, an inlined Python call advances over its caches before
+        # entering the callee. An exception propagated from it retains that IP.
+        cached=list(dis.get_instructions(code,show_caches=True))
+        offset=candidates[which].offset
+        position=next(i for i,item in enumerate(cached) if item.offset==offset)+1
+        while position<len(cached) and cached[position].opname=='CACHE':
+            offset=cached[position].offset;position+=1
+        points[index+4]=(offset if sys.version_info<(3,13) else candidates[which].offset,line)
     return tuple(points)
 
 

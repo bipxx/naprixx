@@ -154,14 +154,23 @@ struct LFGridObservedOps {
         lfgo_op(locals,"binary",name); return lh_check(operation(left.ptr(),right.ptr()));
     }
     nb::object call(nb::object function,std::initializer_list<LHExpr> args={},
-                    std::initializer_list<LHExpr> kw={},nb::object names={}) {
+                    std::initializer_list<LHExpr> kw={},nb::object names={},int point=-1) {
         std::vector<nb::object> values;
         for (const auto& value:args) values.push_back(value());
         for (const auto& value:kw) values.push_back(value());
         lfgo_op(locals,"call");
         std::vector<PyObject*> raw; for (const auto& value:values) raw.push_back(value.ptr());
+        if(point>=0) {
+            int error_point=point;
+#if PY_VERSION_HEX < 0x030D0000
+            PyObject* callable=PyMethod_Check(function.ptr())?PyMethod_GET_FUNCTION(function.ptr()):function.ptr();
+            if(PyFunction_Check(callable)) error_point+=4;
+#endif
+            lfgt_error_point(locals,error_point);
+        }
         PyObject* result=PyObject_Vectorcall(function.ptr(),raw.data(),args.size(),kw.size()?names.ptr():nullptr);
         function.reset(); for (auto& value:values) value.reset(); names.reset();
+        if(result && point>=0) lfgt_error_point(locals,-1);
         return lh_check(result);
     }
     bool truth(nb::object value) {

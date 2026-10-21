@@ -20,7 +20,7 @@ if sys.version_info >= (3, 12):
     MODES += ['restore', 'restore-error']
 
 
-def run(probe, code, shells, mode, native, invoke=None):
+def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None):
     events, retained, parents, called = [], [], [], set()
 
     def normalize(value):
@@ -144,6 +144,7 @@ def run(probe, code, shells, mode, native, invoke=None):
     namespace = {'__name__':'numpy.lib._index_tricks_impl', '__builtins__':vars(builtins),
                  'math':math, '_nx':numeric}
     namespace.update({name:wrapped(name) for name in ('len','range','zip','enumerate','slice','tuple')})
+    if namespace_setup is not None: namespace_setup(namespace)
     function = types.FunctionType(code, namespace)
     originals = set(walk(code))
     if native:
@@ -155,8 +156,10 @@ def run(probe, code, shells, mode, native, invoke=None):
         def guard(frame,event,arg):
             if event=='call' and frame.f_code in originals: raise AssertionError('original grid body executed')
         sys.setprofile(guard)
-    key = () if mode.startswith('empty-') else Slice(1,5,2) if mode=='single' else Slice(1,5,3j) if mode=='complex-single' else (
+    key = () if mode.startswith('empty-') else Slice(None,5,2) if mode=='single-none-start' else (
+        Slice(1,5,1j) if mode=='complex-single-one' else Slice(1,5,2) if mode=='single' else Slice(1,5,3j) if mode=='complex-single' else (
         Slice(1,5,3j if mode=='complex-grid' else 2), Slice(0,3,1))
+    )
     try:
         try:
             arguments=(types.SimpleNamespace(sparse=mode not in ('dense','empty-dense')),key)

@@ -50,8 +50,8 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         PyList_SET_ITEM(initial.ptr(), 0, PyLong_FromLong(0));
         locals.store("num_list", std::move(initial));
         T.line(152);
-        nb::object iterator = lh_iter(lh_call(G("range"),
-            {LFG(lh_call(G("len"), {LFG(L("key"))}))}));
+        nb::object iterator = lh_iter(T.call(78,G("range"),
+            {LFG(T.call(77,G("len"),{LFG(L("key"))}))}));
         while (nb::object value = lh_next(iterator)) {
             locals.store("k", std::move(value));
             T.line(153);
@@ -199,24 +199,34 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         T.line(192);
         return T.returned(L("nn"),74);
     } catch (nb::python_error& error) {
+        T.exception(error);
         LHHandledException handled(error.value());
+        T.line(193);
         nb::object first = G("IndexError"), second = G("TypeError");
         if (!lf_matches_handler(error.value(), nb::make_tuple(first, second))) throw;
-        locals.store("step", A(L("key"), "step"));
+        T.line(194);locals.store("step", A(L("key"), "step"));
+        T.line(195);
         locals.store("stop", A(L("key"), "stop"));
+        T.line(196);
         locals.store("start", A(L("key"), "start"));
         normalized_start(197);
+        T.line(199);
         if (complex_step()) {
+            T.line(201);
             locals.store("step_float", lh_call(G("abs"), {LFG(L("step"))}));
+            T.line(202);
             nb::object value = lh_call(G("int"), {LFG(L("step_float"))});
             locals.store("step", value); locals.store("length", std::move(value));
-            if (step_unequal_one()) complex_stride("key",204);
+            T.line(203);if (step_unequal_one()) complex_stride("key",204);
+            T.line(205);
             locals.store("typ", lh_call(N("result_type"), {LFG(L("start")), LFG(L("stop")), LFG(L("step_float"))}));
-            nb::object array = lh_call(N("arange"), {LFG(nb::int_(0)), LFG(L("length")), LFG(nb::int_(1))},
+            T.line(206);
+            nb::object array = T.call(80,N("arange"), {LFG(nb::int_(0)), LFG(L("length")), LFG(nb::int_(1))},
                                       {LFG(L("typ"))}, lh_kw(source, "dtype"));
             nb::object scaled = binary(PyNumber_Multiply, std::move(array), L("step"));
             return T.returned(binary(PyNumber_Add,std::move(scaled),L("start")),75);
         }
-        return T.returned(lh_call(N("arange"),{LFG(L("start")),LFG(L("stop")),LFG(L("step"))}),76);
+        T.line(208);
+        return T.returned(T.call(79,N("arange"),{LFG(L("start")),LFG(L("stop")),LFG(L("step"))}),76);
     }
 }
