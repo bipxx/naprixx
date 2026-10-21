@@ -9,6 +9,10 @@ struct LFGridOpcodeState {
     bool trailing_opcode = false;
     int return_point = -1;
     int error_point = -1;
+    int attribute_error_offset = -1;
+    int attribute_error_line = -1;
+    int return_offset = -1;
+    int return_line = -1;
     PyObject* reported_error = nullptr;
     PyObject* reported_traceback = nullptr;
     bool escaping_error = false;
@@ -135,12 +139,8 @@ void lfgt_callback_error(PyFrameObject* frame,int offset,int line,int event) {
     error.restore();
 }
 
-int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
-                  PyCodeObject* code, nb::handle points, int index) {
-    if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source point index changed");
-    PyObject* point = PyTuple_GET_ITEM(points.ptr(), index);
-    int offset = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point, 0)));
-    int line = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point, 1)));
+int lfgt_dispatch_at(PyFrameObject* frame, int what, PyObject* arg,
+                     PyCodeObject* code, int offset, int line) {
     LFGridLinePosition position(frame, code, offset, line);
     int result = lfgt_driver->callback(lfgt_driver->previous_object.ptr(), frame, what, arg);
     if(result<0)lfgt_callback_error(frame,offset,line,what);
@@ -149,6 +149,15 @@ int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
         return -1;
     }
     return result;
+}
+
+int lfgt_dispatch(PyFrameObject* frame, int what, PyObject* arg,
+                  PyCodeObject* code, nb::handle points, int index) {
+    if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source point index changed");
+    PyObject* point = PyTuple_GET_ITEM(points.ptr(), index);
+    return lfgt_dispatch_at(frame,what,arg,code,
+        static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point,0))),
+        static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(point,1))));
 }
 
 int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
@@ -175,8 +184,13 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
         if (what == PyTrace_RETURN) {
             auto found=lfgt_driver->states.find(frame);
             int point=found==lfgt_driver->states.end()?-1:found->second.return_point;
-            if(point<0) point=static_cast<int>(PyTuple_GET_SIZE(points.ptr())-1);
-            int result = lfgt_dispatch(frame, what, arg, actual, points, point);
+            int result;
+            if(point<0 && found!=lfgt_driver->states.end() && found->second.return_offset>=0)
+                result=lfgt_dispatch_at(frame,what,arg,actual,found->second.return_offset,found->second.return_line);
+            else {
+                if(point<0) point=static_cast<int>(PyTuple_GET_SIZE(points.ptr())-1);
+                result=lfgt_dispatch(frame,what,arg,actual,points,point);
+            }
             // 3.11 installs the interpreter traceback after the trace callback.
             // Retain escaping-error identity until the invocation boundary.
             if(found==lfgt_driver->states.end() || !found->second.escaping_error)

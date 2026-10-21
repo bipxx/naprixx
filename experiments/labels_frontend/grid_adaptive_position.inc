@@ -7,7 +7,7 @@
 struct LFGridAdaptiveSite {
     uint16_t counter=17;
     uint32_t type_version=0,function_version=0;
-    int kind=0; // 0 generic, 1 Python __getattribute__, 2 Python __getitem__.
+    int kind=0; // 0 generic, 1 Python __getattribute__, 2 Python __getitem__, 3 property.
     int end=0,line=0;
 };
 struct LFGridAdaptiveCode {
@@ -43,11 +43,12 @@ void lfga_prepare(PyCodeObject* source,PyCodeObject* target,nb::handle rows) {
             LFGridAdaptiveSite site;
             _Py_CODEUNIT* instruction=_PyCode_CODE(source)+offset/2;
             site.counter=instruction[1].cache;
-            if(instruction->op.code==LOAD_ATTR_GETATTRIBUTE_OVERRIDDEN) {
+            if(instruction->op.code==LOAD_ATTR_GETATTRIBUTE_OVERRIDDEN || instruction->op.code==LOAD_ATTR_PROPERTY) {
                 if(offset+2*(1+INLINE_CACHE_ENTRIES_LOAD_ATTR)>_PyCode_NBYTES(source))
                     throw nb::type_error("captured attribute cache is truncated");
                 auto* cache=reinterpret_cast<_PyLoadMethodCache*>(instruction+1);
-                site.kind=1;site.type_version=read_u32(cache->type_version);
+                site.kind=instruction->op.code==LOAD_ATTR_PROPERTY?3:1;
+                site.type_version=read_u32(cache->type_version);
                 site.function_version=read_u32(cache->keys_version);
             } else if(instruction->op.code==BINARY_SUBSCR_GETITEM)site.kind=2;
             site.end=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(rows.ptr(),i+1),0)))-2;
@@ -74,7 +75,7 @@ PyObject* lfga_lookup(PyTypeObject* type,const char* name) {
     nb::object key=lh_check(PyUnicode_InternFromString(name));
     return _PyType_Lookup(type,key.ptr());
 }
-void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
+void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item,const char* attribute=nullptr) {
     auto context=lfgo_context(locals);if(!context.state)return;
     void* raw=nullptr;
     if(PyUnstable_Code_GetExtra(reinterpret_cast<PyObject*>(locals.code),lfgt_driver->adaptive_extra_index,&raw)<0)throw nb::python_error();
@@ -89,6 +90,8 @@ void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
     long offset=PyLong_AsLong(PyTuple_GET_ITEM(row,0));
     auto found=state.sites.find(offset);if(found==state.sites.end())return;
     auto& site=found->second;PyTypeObject* type=Py_TYPE(owner.ptr());
+    nb::object property_function;
+    int candidate_kind=item?2:1;
     auto candidate=[&]()->PyObject* {
         if(item) {
             if(!(type->tp_flags&Py_TPFLAGS_HEAPTYPE))return nullptr;
@@ -96,6 +99,14 @@ void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
             return lfga_simple(function,2)?function:nullptr;
         }
         if(lfga_lookup(type,"__getattr__"))return nullptr;
+        if(attribute && type->tp_getattro==PyObject_GenericGetAttr) {
+            PyObject* descriptor=lfga_lookup(type,attribute);
+            if(descriptor && Py_IS_TYPE(descriptor,&PyProperty_Type)) {
+                property_function=lh_check(PyObject_GetAttrString(descriptor,"fget"));
+                candidate_kind=3;
+                return lfga_simple(property_function.ptr(),1)?property_function.ptr():nullptr;
+            }
+        }
         if(!state.direct_getattribute || type->tp_getattro!=state.direct_getattribute)return nullptr;
         PyObject* function=lfga_lookup(type,"__getattribute__");
         return lfga_simple(function,2)?function:nullptr;
@@ -109,13 +120,13 @@ void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
         } else if(!item && type->tp_version_tag==site.type_version) {
             // A captured inline cache proves the direct slot only while both
             // the receiver type and getter function versions still match.
-            if(!state.direct_getattribute && !lfga_lookup(type,"__getattr__")) {
+            if(site.kind==1 && !state.direct_getattribute && !lfga_lookup(type,"__getattr__")) {
                 PyObject* function=lfga_lookup(type,"__getattribute__");
                 if(lfga_simple(function,2) && reinterpret_cast<PyFunctionObject*>(function)->func_version==site.function_version)
                     state.direct_getattribute=type->tp_getattro;
             }
             PyObject* function=candidate();
-            hit=function && reinterpret_cast<PyFunctionObject*>(function)->func_version==site.function_version;
+            hit=function && candidate_kind==site.kind && reinterpret_cast<PyFunctionObject*>(function)->func_version==site.function_version;
         }
         if(hit && !PyThreadState_Get()->interp->eval_frame) {lfgt_set_position(locals,site.end,site.line);return;}
     }
@@ -123,7 +134,7 @@ void lfga_position(const LFGridFastLocals& locals,nb::handle owner,bool item) {
     PyObject* function=candidate();
     uint32_t version=function?lfga_function_version(function):0;
     if(version && type->tp_version_tag && !PyThreadState_Get()->interp->eval_frame) {
-        site.kind=item?2:1;site.function_version=version;site.type_version=type->tp_version_tag;
+        site.kind=candidate_kind;site.function_version=version;site.type_version=type->tp_version_tag;
         site.counter=52<<4;
         if(item) {
             auto& cached=reinterpret_cast<PyHeapTypeObject*>(type)->_spec_cache;
@@ -157,7 +168,7 @@ void lfga_after_attr(const LFGridFastLocals& locals,nb::handle owner,PyTypeObjec
 #else
 Py_ssize_t lfga_index() {return -1;}
 void lfga_prepare(PyCodeObject*,PyCodeObject*,nb::handle) {}
-void lfga_position(const LFGridFastLocals&,nb::handle,bool) {}
+void lfga_position(const LFGridFastLocals&,nb::handle,bool,const char* =nullptr) {}
 uint32_t lfga_attr_version(const LFGridFastLocals&,nb::handle) {return 0;}
 void lfga_after_attr(const LFGridFastLocals&,nb::handle,PyTypeObject*,uint32_t) {}
 #endif

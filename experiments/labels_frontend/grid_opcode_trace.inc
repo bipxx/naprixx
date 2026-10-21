@@ -257,13 +257,19 @@ struct LFGridObservedOps {
         lfgo_op(locals,"unpack","2"); return lf_unpack(std::move(value),2);
     }
     nb::object attr(LabelsHistoryLocals& source,nb::object value,const char* name) {
-        lfgo_op(locals,"attr",name);lfga_position(locals,value,false);
+        lfgo_op(locals,"attr",name);lfga_position(locals,value,false,name);
         PyTypeObject* type=Py_TYPE(value.ptr());uint32_t version=lfga_attr_version(locals,value);
         nb::object key=lh_name(source,name);
+        auto context=lfgo_context(locals);
+        if(context.state) {
+            context.state->attribute_error_offset=PyFrame_GetLasti(locals.frame);
+            context.state->attribute_error_line=PyFrame_GetLineNumber(locals.frame);
+        }
         nb::object result=nb::steal<nb::object>(PyObject_GetAttr(value.ptr(),key.ptr()));
         if(result.is_valid())lfga_after_attr(locals,value,type,version);
         value.reset();key.reset();
         if(!result.is_valid())throw nb::python_error();
+        if(context.state) context.state->attribute_error_offset=-1;
         return result;
     }
     nb::object slice(nb::object value,nb::object start,nb::object stop) {

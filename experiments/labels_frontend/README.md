@@ -358,6 +358,18 @@ captured getter cache can identify the direct slot without another generic
 call. Neither the original code nor cached application functions gain owning
 references from the native observer state. Other cache families remain open.
 
+`grid_property_position_child.py` compares eight exact-property scenarios,
+with forty calls after cutover per scenario: cold and already-warmed properties,
+same-code invalidation, getter replacement, a generic `__getattr__` hook, and
+cold/warm RuntimeError plus warm TypeError failures. The 3.12 observer captures
+and checks property getter version guards as well as ordinary getter guards.
+Attribute failures retain their projected source position through native unwind;
+the controls compare caller traceback and exception-context chains. Original
+policy bodies are rejected after cutover. All eight comparisons pass on 3.12
+and 3.13; 3.11 positions remain open. These synthetic numeric leaves do not
+qualify other descriptors, receiver lifetimes, instrumentation transitions or
+full property/observer ABI compatibility.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete
