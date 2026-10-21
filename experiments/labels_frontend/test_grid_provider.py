@@ -460,3 +460,17 @@ def test_grid_code_monitor_concurrent_workers(tracing,reverse):
         assert data['controls']==1 and data['counts']==[[3,2,2],[3,1,1]]
         assert data['tracing']==tracing and data['first_exit']==int(reverse)
         assert all(data[k] for k in ('live_worker_removal_rejected','main_tracer_preserved','functions_codes_receivers_released','tool_and_scopes_released'))
+
+
+def test_grid_code_monitor_audit_transitions():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONFAULTHANDLER='1',PYTHONPATH=str(Path(os.environ['NAPARIXX_FRONTEND_PROBE_DIR']).resolve()))
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_code_monitor_audit_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):assert data['controls']==0
+    else:
+        assert data['controls']==22 and data['callbacks_events_reservation_released']
+        assert len({(row['kind'],row['phase'],row['action'],row['at']) for row in data['cases']})==22
+        assert all(row['equal'] and row['released'] for row in data['cases'])

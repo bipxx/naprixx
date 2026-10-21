@@ -9,6 +9,7 @@ struct LFGridCodeMonitor {
     PyObject* capsule=nullptr; // borrowed; module and C callbacks own it
     int tool=-1;
     uint64_t session=0;
+    bool transition=false;
     nb::object monitoring;
     std::array<nb::object,3> callbacks;
     std::map<PyObject*,PyObject*> codes; // code -> owned weak reference
@@ -17,6 +18,16 @@ struct LFGridCodeMonitor {
     nb::object thread_key;
 };
 LFGridCodeMonitor* lfgm_owner=nullptr;
+void lfgm_idle(LFGridCodeMonitor* state) {
+    if(state->transition)throw nb::value_error("code monitor transition is active");
+}
+struct LFGridMonitorTransition {
+    LFGridCodeMonitor* state;
+    explicit LFGridMonitorTransition(LFGridCodeMonitor* value):state(value) {
+        lfgm_idle(state);state->transition=true;
+    }
+    ~LFGridMonitorTransition(){state->transition=false;}
+};
 struct LFGridMonitorThread {
     LFGridCodeMonitor* state;
     std::pair<PyThreadState*,uint64_t> identity;
@@ -169,10 +180,12 @@ void lfgm_initialize(nb::module_&) {}
 void lfgm_begin(int tool) {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;if(!state)throw nb::value_error("code monitor owner missing");
+    lfgm_idle(state);
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     auto session=state->session;
     lfgm_retire_finished();
     if(state->session!=session)throw nb::value_error("code monitor session changed during cleanup");
+    LFGridMonitorTransition transition(state);
     if(state->tool>=0)throw nb::value_error("code monitor already started");
     nb::object sys=lh_check(PyImport_ImportModule("sys"));
     state->monitoring=lh_check(PyObject_GetAttrString(sys.ptr(),"monitoring"));
@@ -185,13 +198,13 @@ void lfgm_begin(int tool) {
     state->tool=tool;++state->session;
     try {
         for(int i=0;i<3;++i) {
-            state->callbacks[i]=lh_check(PyCFunction_NewEx(&lfgm_definitions[i],owner.ptr(),nullptr));
-            nb::object old=lfgm_call(state,"register_callback",nb::make_tuple(tool,lfgm_events[i],state->callbacks[i]));
+            nb::object callback=lh_check(PyCFunction_NewEx(&lfgm_definitions[i],owner.ptr(),nullptr));
+            nb::object old=lfgm_call(state,"register_callback",nb::make_tuple(tool,lfgm_events[i],callback));
             if(!old.is_none()) {
                 lfgm_call(state,"register_callback",nb::make_tuple(tool,lfgm_events[i],old));
-                state->callbacks[i].reset();
                 throw nb::value_error("unused monitoring tool has a retained callback");
             }
+            state->callbacks[i]=std::move(callback);
         }
         lfgm_call(state,"set_events",nb::make_tuple(tool,lfgm_events[2]));
     } catch(...) {
@@ -209,11 +222,13 @@ void lfgm_set(nb::handle code,bool enabled) {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;
     if(!state || state->tool<0)throw nb::value_error("code monitor is not started");
+    lfgm_idle(state);
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     auto session=state->session;
     lfgm_retire_finished();
     if(state->tool<0)throw nb::value_error("code monitor is not started");
     if(state->session!=session)throw nb::value_error("code monitor session changed during cleanup");
+    LFGridMonitorTransition transition(state);
     if(!PyCode_Check(code.ptr()))throw nb::type_error("prepared code required");
     auto found=state->codes.find(code.ptr());
     if(enabled) {
@@ -245,22 +260,29 @@ void lfgm_set(nb::handle code,bool enabled) {
 void lfgm_end() {
 #if PY_VERSION_HEX >= 0x030C0000
     auto* state=lfgm_owner;if(!state || state->tool<0)throw nb::value_error("code monitor is not started");
+    lfgm_idle(state);
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     auto session=state->session;
     lfgm_retire_finished();
     if(state->tool<0)throw nb::value_error("code monitor is not started");
     if(state->session!=session)throw nb::value_error("code monitor session changed during cleanup");
+    LFGridMonitorTransition transition(state);
     if(!state->codes.empty() || !state->frames.empty())throw nb::value_error("code monitor still has registrations or frames");
     lfgm_untrack_thread(state);
     for(int i=0;i<3;++i) {
-        nb::object old=lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],state->callbacks[i]));
-        if(old.ptr()!=state->callbacks[i].ptr()) {
+        nb::object expected=state->callbacks[i].is_valid()?state->callbacks[i]:nb::none();
+        nb::object old=lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],expected));
+        if(old.ptr()!=expected.ptr()) {
             lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],old));
             throw nb::value_error("another callback replaced the code monitor");
         }
     }
     lfgm_call(state,"set_events",nb::make_tuple(state->tool,0));
-    for(int i=0;i<3;++i)lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],nb::none()));
+    for(int i=0;i<3;++i)if(state->callbacks[i].is_valid()) {
+        lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],nb::none()));
+        // Preserve successful progress if a later audit hook vetoes clearing.
+        state->callbacks[i].reset();
+    }
     lfgm_call(state,"free_tool_id",nb::make_tuple(state->tool));state->tool=-1;++state->session;
     for(auto& callback:state->callbacks)callback.reset();state->monitoring.reset();
 #else

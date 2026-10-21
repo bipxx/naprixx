@@ -614,6 +614,20 @@ trace events and prepared-code collection. These are finite controls; arbitrary
 module removal, shutdown, other-tool interference and complete ownership/ABI
 qualification remain open.
 
+The [monitoring API audits callback registration](https://docs.python.org/3.12/library/sys.monitoring.html#registering-callback-functions),
+so ordinary audit hooks can reenter native resource transitions. The audit fixture
+reproduced an access violation from recursive stop, plus failed recovery when a
+veto interrupted teardown or startup rollback. A native transition guard rejects
+recursive start/set/stop during callback changes while leaving pre-transition
+frame-finalizer recovery available. Callback ownership is recorded only after a
+successful registration, and each successful removal clears its ownership slot.
+This preserves partial progress for retry after an audit veto is lifted. Twenty-two
+controls per 3.12/3.13 cover twelve recursive operations, three startup veto sites,
+six teardown veto sites and a veto during startup rollback. They verify errors,
+retry and released callbacks, events and reservation. A persistent audit veto can
+still prevent release; arbitrary tool replacement, method mutation, shutdown and
+the full audit/monitoring ABI remain unapproved.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete
