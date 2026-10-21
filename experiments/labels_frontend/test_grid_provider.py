@@ -389,3 +389,22 @@ def test_grid_code_monitor_foreign_tool_errors(mode,adapter,tracing):
         assert data['controls']==1 and data['outcomes_equal'] and data['events_equal']
         assert data['unraisable_equal'] and data['tool_and_scopes_released']
         assert data['counts_before_teardown']==[[3,1,int(mode=='unwind' and not adapter)]]
+
+
+@pytest.mark.parametrize('tracing',[False,True])
+@pytest.mark.parametrize('live',[False,True])
+def test_grid_code_monitor_exited_thread(tracing,live):
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    command=[sys.executable,'-B',str(directory/'grid_code_monitor_thread_child.py')]
+    if tracing:command.append('--trace')
+    if live:command.append('--live')
+    result=subprocess.run(command,env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):assert data['controls']==0
+    else:
+        assert data['controls']==1 and data['counts_after_join']==[3,1,1]
+        assert all(data[k] for k in ('function_and_code_released','tool_and_scopes_released','main_tracer_preserved'))
+        assert data['worker_tracing']==tracing and data['live_worker_removal_rejected']==live

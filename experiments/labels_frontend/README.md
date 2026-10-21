@@ -583,6 +583,22 @@ prove explicit teardown recovery, not guaranteed immediate cleanup under
 arbitrary tool interference. Cross-thread retirement, thread exit, module and
 shutdown lifetime and independent ABI approval remain required.
 
+`grid_code_monitor_thread_child.py` reproduces an interrupted unwind followed by
+worker exit. A native token in the current thread-state dictionary records its
+lifetime; its capsule retains the monitor owner and drops the scalar thread
+identity when cleared. Normal monitor completion removes the token. Recovery at
+the next native boundary can then release detached frames of an ended thread.
+Driver destruction on another thread neither dereferences the saved thread-state
+pointer nor changes the caller's trace function or native thread-local driver.
+Registry nodes are extracted before releasing frame locals that could reenter.
+Four controls per 3.12/3.13 cover traced/untraced workers, rejection while a worker
+is still alive, eventual function/code collection and preserving the main tracer.
+This uses the thread dictionary's lifetime rather than walking the interpreter's
+thread list, whose mutation requires internal synchronization. Immediate cleanup,
+arbitrary thread-state dictionary interference, subinterpreters, module removal,
+shutdown and the full thread/observer ABI remain unapproved. Python 3.11 remains
+unsupported for this entry protocol.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

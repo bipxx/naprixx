@@ -112,6 +112,10 @@ struct LFGridLineDriver {
         }
     }
     ~LFGridLineDriver() {
+        // A detached frame can outlive its worker's thread state. Retirement
+        // on another thread must not dereference that state or change its TLS.
+        auto* current=PyThreadState_Get();
+        if(current!=thread || PyThreadState_GetID(current)!=thread_id)return;
         // A higher-priority monitor can prevent a child's exit callback.
         // Retire ended descendants before their stack-owned parent disappears.
         if(lfgt_driver!=this && lfgt_retire_finished)lfgt_retire_finished();

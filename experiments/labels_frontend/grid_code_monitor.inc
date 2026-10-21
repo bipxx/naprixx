@@ -12,8 +12,45 @@ struct LFGridCodeMonitor {
     std::array<nb::object,3> callbacks;
     std::map<PyObject*,PyObject*> codes; // code -> owned weak reference
     std::map<PyFrameObject*,LFGridMonitoredFrame> frames;
+    std::map<std::pair<PyThreadState*,uint64_t>,PyObject*> threads; // borrowed tokens
+    nb::object thread_key;
 };
 LFGridCodeMonitor* lfgm_owner=nullptr;
+struct LFGridMonitorThread {
+    LFGridCodeMonitor* state;
+    std::pair<PyThreadState*,uint64_t> identity;
+    nb::object owner;
+};
+void lfgm_track_thread(LFGridCodeMonitor* state) {
+    auto* thread=PyThreadState_Get();auto identity=std::make_pair(thread,PyThreadState_GetID(thread));
+    if(state->threads.find(identity)!=state->threads.end())return;
+    auto* dictionary=PyThreadState_GetDict();
+    if(!dictionary) {PyErr_NoMemory();throw nb::python_error();}
+    if(PyDict_GetItemWithError(dictionary,state->thread_key.ptr()))
+        throw nb::value_error("code monitor thread token was replaced");
+    if(PyErr_Occurred())throw nb::python_error();
+    auto token=std::make_unique<LFGridMonitorThread>(LFGridMonitorThread{
+        state,identity,nb::borrow<nb::object>(state->capsule)});
+    nb::capsule capsule(token.get(),[](void* value) noexcept {
+        auto* token=static_cast<LFGridMonitorThread*>(value);
+        token->state->threads.erase(token->identity);
+        delete token;
+    });
+    token.release();
+    state->threads.emplace(identity,capsule.ptr());
+    if(PyDict_SetItem(dictionary,state->thread_key.ptr(),capsule.ptr())<0)throw nb::python_error();
+}
+void lfgm_untrack_thread(LFGridCodeMonitor* state) {
+    auto* thread=PyThreadState_Get();auto identity=std::make_pair(thread,PyThreadState_GetID(thread));
+    for(const auto& item:state->frames)
+        if(item.second.scope->thread==thread && item.second.scope->thread_id==identity.second)return;
+    auto found=state->threads.find(identity);if(found==state->threads.end())return;
+    auto* dictionary=PyThreadState_GetDict();
+    if(!dictionary) {PyErr_NoMemory();throw nb::python_error();}
+    if(PyDict_GetItemWithError(dictionary,state->thread_key.ptr())!=found->second)
+        throw nb::value_error("code monitor thread token was replaced");
+    if(PyDict_DelItem(dictionary,state->thread_key.ptr())<0)throw nb::python_error();
+}
 void lfgm_retire_finished() noexcept {
     auto* state=lfgm_owner;if(!state)return;
     auto* thread=PyThreadState_Get();auto id=PyThreadState_GetID(thread);
@@ -27,7 +64,20 @@ void lfgm_retire_finished() noexcept {
            found->first->f_frame->owner!=FRAME_OWNED_BY_FRAME_OBJECT)break;
         // Only a detached, completed synchronous frame on its original live
         // thread is safe to retire. Live/suspended/foreign-thread scopes stay.
-        state->frames.erase(found);
+        auto retired=state->frames.extract(found);
+    }
+    // A terminated worker has no live TLS chain to restore. Detached frames
+    // may then be released on this interpreter's next native boundary.
+    // Extract before decref: releasing frame locals can reenter this registry.
+    for(;;) {
+        auto found=state->frames.begin();
+        for(;found!=state->frames.end();++found) {
+            auto* scope=found->second.scope.get();
+            if(found->first->f_frame->owner==FRAME_OWNED_BY_FRAME_OBJECT &&
+               state->threads.find(std::make_pair(scope->thread,scope->thread_id))==state->threads.end())break;
+        }
+        if(found==state->frames.end())break;
+        auto retired=state->frames.extract(found);
     }
 }
 constexpr int lfgm_events[3]={1<<PY_MONITORING_EVENT_PY_START,
@@ -62,6 +112,7 @@ PyObject* lfgm_start(PyObject* capsule,PyObject* args) {
         nb::object actual=lh_check(reinterpret_cast<PyObject*>(PyFrame_GetCode(frame)));
         if(actual.ptr()!=code)throw nb::type_error("monitor frame declaration changed");
         if(state->frames.find(frame)!=state->frames.end())throw nb::value_error("monitor frame already active");
+        lfgm_track_thread(state);
         LFGridMonitoredFrame active{nb::borrow<nb::object>(reinterpret_cast<PyObject*>(frame)),
             std::make_unique<LFGridLineDriver>()};
         active.scope->states.emplace(frame,LFGridOpcodeState{});
@@ -84,7 +135,8 @@ PyObject* lfgm_finish(PyObject* capsule,PyObject* args,bool failing) {
             for(const auto& item:found->second.scope->states)
                 if(traceback.is_valid())lfgt_strip_transport(item.first,item.second,error,traceback.ptr());
         }
-        state->frames.erase(found);
+        {auto retired=state->frames.extract(found);}
+        lfgm_untrack_thread(state);
         Py_RETURN_NONE;
     } catch(...) {lf_adapter_error();return nullptr;}
 }
@@ -98,6 +150,7 @@ PyMethodDef lfgm_definitions[4]={
 void lfgm_initialize(nb::module_& module) {
     if(lfgm_owner)throw nb::value_error("code monitor owner already exists");
     auto owner=std::make_unique<LFGridCodeMonitor>();
+    owner->thread_key=nb::str("_naparixx_grid_monitor_thread_probe");
     nb::capsule capsule(owner.get(),[](void* value) noexcept {
         auto* state=static_cast<LFGridCodeMonitor*>(value);
         if(lfgm_owner==state) {lfgm_owner=nullptr;lfgt_retire_finished=nullptr;}
@@ -186,6 +239,7 @@ void lfgm_end() {
     lfgm_retire_finished();
     nb::object owner=nb::borrow<nb::object>(state->capsule);
     if(!state->codes.empty() || !state->frames.empty())throw nb::value_error("code monitor still has registrations or frames");
+    lfgm_untrack_thread(state);
     for(int i=0;i<3;++i) {
         nb::object old=lfgm_call(state,"register_callback",nb::make_tuple(state->tool,lfgm_events[i],state->callbacks[i]));
         if(old.ptr()!=state->callbacks[i].ptr()) {
