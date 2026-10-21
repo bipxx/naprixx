@@ -69,8 +69,11 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
         iterator.reset();
         nb::object result_type = N("result_type");
         nb::object arguments = lh_check(PySequence_Tuple(L("num_list").ptr()));
-        locals.store("typ", lh_check(PyObject_CallObject(result_type.ptr(), arguments.ptr())));
+        PyObject* raw_type = PyObject_CallObject(result_type.ptr(), arguments.ptr());
+        // CALL_FUNCTION_EX releases its callable/argument temporaries before
+        // STORE_FAST; finalizers may inspect or mutate the source frame here.
         result_type.reset(); arguments.reset();
+        locals.store("typ", lh_check(raw_type));
         if (lh_truth(A(L("self"), "sparse"))) {
             nb::object function;
             if (!comprehension.is_none())
@@ -82,7 +85,7 @@ nb::object lf_grid_getitem(LabelsHistoryLocals& source, const LFGridFastLocals& 
             };
             nb::object zipped = lh_iter(lh_call(G("zip"), {LFG(L("size")), LFG(repeated())}));
             if (function.is_valid()) {
-                locals.store("nn", lh_call(std::move(function), {LFG(zipped)}));
+                locals.store("nn", lh_call(std::move(function), {LFG(std::move(zipped))}));
             } else {
                 // PEP 709 saves/clears both parent slots after GET_ITER. Normal
                 // completion stores nn, then restores x/t; the exception path

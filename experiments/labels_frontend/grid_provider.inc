@@ -89,21 +89,31 @@ nb::object lf_grid_indices(LabelsHistoryLocals& source, const LFGridFastLocals& 
             lh_set_item(LFG(L("idx")), LFG(L("res")), LFG(L("i")));
         }
     }
+    iterator.reset();
     return L("res");
 }
 
 nb::object lf_grid_comprehension_body(LabelsHistoryLocals& source, const LFGridFastLocals& locals,
-                                      nb::handle iterator) {
+                                      nb::object& iterator) {
     nb::object result = lh_check(PyList_New(0));
+    try {
     while (nb::object pair = lh_next(iterator)) {
         auto values = lf_unpack(std::move(pair), 2);
         locals.store("_x", std::move(values[0]));
         locals.store("_t", std::move(values[1]));
         nb::object arange = lh_attr(source, lh_global(source, "_nx"), "arange");
-        nb::object value = lh_call(arange, {LFG(locals.load("_x"))},
+        nb::object value = lh_call(std::move(arange), {LFG(locals.load("_x"))},
                                    {LFG(locals.load("_t"))}, lh_kw(source, "dtype"));
         if (PyList_Append(result.ptr(), value.ptr()) < 0) throw nb::python_error();
     }
+    } catch (...) {
+        // The source unwinds the loop iterator before discarding the partial
+        // list and restoring PEP 709's saved parent locals.
+        iterator.reset();
+        result.reset();
+        throw;
+    }
+    iterator.reset();
     return result;
 }
 

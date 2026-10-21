@@ -33,7 +33,7 @@ The focused suite contains 72 binding/snapshot checks, 24 expression/frame/order
 checks, 31 capture/preparation/publication checks, ten batch-protocol checks and
 five native-first declaration checks, 14 NumPy grid-provider checks and one
 isolated grid comprehension frame check, one indices-local check and one grid
-parent/inlined-local check (159 cases
+parent/inlined-local check and one temporary-lifetime check (160 cases
 in total).
 Twenty-six scenarios use fresh import child
 processes for the six real defining imports. The runner denies access to ignored
@@ -83,7 +83,7 @@ serial Python setters and still needs effective compatibility review.
 
 The primitive is limited to normal GIL builds of CPython 3.11–3.13. Its batch
 core passed seven checks on3.11 and ten on3.13; those repeats are separate from the
-159-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
+160-case Windows/CPython3.12 focused suite. Watchers do not exist on3.11.
 Final canonical lookup rejects nonexact/ambiguous dictionary keys without calling
 their Python equality hooks. General foreign-key namespace compatibility remains
 required work; this preflight restriction is not a final dependency exemption.
@@ -168,6 +168,19 @@ callbacks, and old-slot restoration on normal completion and errors. The prior
 native binary fails the new parent-local oracle. The runner
 `grid_getitem_locals_child.py` uses synthetic numeric leaves; full provider and
 frame ABI acceptance remain separate.
+
+Seven temporary-lifetime comparisons also pass on 3.11/3.12/3.13. They retain
+failures from the prior native binary and fix observable finalizer differences:
+the star-call callable is released before assigning `typ`, exhausted iterators
+before the following source assignment/return, a partial comprehension's
+iterator before its abandoned list, and the temporary `arange` callable before
+appending its result. Finalizers can mutate actual frame locals or discover
+the partial list through GC, so these differences changed dtype, returned
+values and list contents. Error controls retain finalizer order and exception
+context; assertions require the relevant finalizers to have run before comparison.
+`grid_temporary_lifetime_child.py` reproduces these finite comparisons using
+synthetic numeric leaves. It does not certify all temporary/error/GC/shutdown
+behavior or source tracing.
 
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
