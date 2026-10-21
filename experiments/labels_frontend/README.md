@@ -599,6 +599,21 @@ arbitrary thread-state dictionary interference, subinterpreters, module removal,
 shutdown and the full thread/observer ABI remain unapproved. Python 3.11 remains
 unsupported for this entry protocol.
 
+The cleanup-reentry fixture reproduces native heap corruption when releasing a
+retired frame runs a receiver finalizer that unregisters code, stops monitoring
+and removes the module's owner capsule. Both the retirement loop and public
+operations now hold that capsule across finalizers. Operations recheck the
+running session after cleanup; a stop/restart cannot make an older operation
+act on a new session. Eight controls per 3.12/3.13 cover tracing, owner removal
+and restart, including eventual function/code/receiver collection. Four further
+two-worker controls retire either worker first while preserving the remaining
+live scope and main-thread tracer. Sixty-four reentry comparisons use direct
+per-code entry for the outer frame and direct/adapter nested calls made from
+line/opcode callbacks, checking suspended locals, positions, exception state,
+trace events and prepared-code collection. These are finite controls; arbitrary
+module removal, shutdown, other-tool interference and complete ownership/ABI
+qualification remain open.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

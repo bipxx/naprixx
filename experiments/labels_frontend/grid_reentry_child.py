@@ -19,7 +19,7 @@ DIRECTORY=Path(__file__).resolve().parent
 ROOT=DIRECTORY.parents[1]
 
 
-def nested(probe,code,shells,policy,mode,native,adapter,code_refs):
+def nested(probe,code,shells,policy,mode,native,adapter,code_refs,code_monitor=False):
     wrapper=LineProbe(probe,opcodes=True,completion=True)
     frames=[];positions=[];errors=[]
     owners={(item.co_filename,item.co_qualname) for item in walk(code)}
@@ -38,6 +38,7 @@ def nested(probe,code,shells,policy,mode,native,adapter,code_refs):
             assert function.__code__ is not code
             assert function.__code__.co_consts[-2][0]=='naparixx.grid.return.v2'
             code_refs.append(weakref.ref(function.__code__))
+            if code_monitor:probe.set_grid_code_monitor_probe(function.__code__,True)
         try:return wrapper.invoke(function,args) if native and adapter else function(*args)
         except BaseException as error:
             chain=[];seen=set();item=error
@@ -49,6 +50,8 @@ def nested(probe,code,shells,policy,mode,native,adapter,code_refs):
                     tb=tb.tb_next
                 chain.append((type(item).__name__,str(item),sites));item=item.__context__
             errors.append(chain);raise
+        finally:
+            if native and code_monitor:probe.set_grid_code_monitor_probe(function.__code__,False)
     previous=sys.getprofile()
     try:
         # Profiling is suppressed in this callback. Installing the fixture's
@@ -61,7 +64,7 @@ def nested(probe,code,shells,policy,mode,native,adapter,code_refs):
     return result,positions,final,errors
 
 
-def run(probe,outer,inner,shells,policy,mode,native,adapter,trigger,outer_native):
+def run(probe,outer,inner,shells,policy,mode,native,adapter,trigger,outer_native,code_monitor=False):
     wrapper=LineProbe(probe,opcodes=True,completion=True)
     owners={(item.co_filename,item.co_qualname) for item in walk(outer)}
     events=[];result=[];entered=False;code_refs=[];parent_flags=[]
@@ -77,7 +80,7 @@ def run(probe,outer,inner,shells,policy,mode,native,adapter,trigger,outer_native
             original_flags=flags()
             try:raise LookupError('reentrant tracer caller')
             except LookupError as caller:
-                result.append(nested(probe,inner,shells,policy,mode,native,adapter,code_refs))
+                result.append(nested(probe,inner,shells,policy,mode,native,adapter,code_refs,code_monitor))
                 gc.collect()
                 if native:assert len(code_refs)==1 and code_refs[0]() is None
                 assert sys.exception() is caller
@@ -89,11 +92,17 @@ def run(probe,outer,inner,shells,policy,mode,native,adapter,trigger,outer_native
         return trace
     def invoke(function,args):
         controller=sys._getframe();old=controller.f_trace_opcodes
+        if native and outer_native and code_monitor:probe.set_grid_code_monitor_probe(function.__code__,True)
         controller.f_trace_opcodes=trigger=='opcode';sys.settrace(trace)
-        try:return wrapper.invoke(function,args) if native and outer_native else function(*args)
-        finally:sys.settrace(None);controller.f_trace_opcodes=old
+        try:return wrapper.invoke(function,args) if native and outer_native and not code_monitor else function(*args)
+        finally:
+            sys.settrace(None);controller.f_trace_opcodes=old
+            if native and outer_native and code_monitor:probe.set_grid_code_monitor_probe(function.__code__,False)
     selected=native and outer_native
-    outer_result=getter.run(wrapper if selected else probe,outer,shells,'sparse',selected,invoke=invoke)
+    if native and code_monitor:probe.start_grid_code_monitor_probe(3)
+    try:outer_result=getter.run(wrapper if selected else probe,outer,shells,'sparse',selected,invoke=invoke)
+    finally:
+        if native and code_monitor:probe.stop_grid_code_monitor_probe()
     assert entered and len(result)==1
     return outer_result,events,result[0],parent_flags
 
