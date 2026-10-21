@@ -324,3 +324,35 @@ def test_grid_function_caller_positions():
     assert sum(not row['caller_positions_equal'] for row in data['cases'])==(2 if gap else 0)
     assert all(row['style']=='descriptor' and row['policy']=='getitem' and not row['failing']
                for row in data['cases'] if not row['caller_positions_equal'])
+
+
+def test_grid_code_monitor_callers():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_code_monitor_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    if sys.version_info<(3,12):
+        assert data['controls']==0 and data['status']=='OPEN_CP311_CODE_MONITOR'
+    else:
+        assert data['controls']==72 and data['tool_and_registrations_released']
+        assert not data['function_vectorcall_changed'] and not data['interpreter_evaluator_changed']
+        assert all(all(row[k] for k in ('values_equal','events_equal','caller_positions_equal',
+            'caller_tracebacks_equal','caller_resume_lines_equal')) for row in data['cases'])
+
+
+def test_grid_code_monitor_lifetime():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_code_monitor_lifetime_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    assert data['controls']==(0 if sys.version_info<(3,12) else 8)
+    if sys.version_info>=(3,12):
+        assert all(data[k] for k in ('occupied_tool_preserved','retained_callback_restored','invalid_tool_rejected',
+            'duplicate_start_and_code_rejected','active_removal_and_stop_rejected','cyclic_function_and_code_collected',
+            'weak_registration_released','tool_global_events_and_callbacks_cleared'))

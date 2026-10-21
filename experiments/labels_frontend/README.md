@@ -542,6 +542,27 @@ admission; traced cases also check actual frame code. Broader caller
 specialization/handoff, binding failures, debugger jumps and complete observer,
 mutation and lifetime contracts remain unaccepted.
 
+`grid_code_monitor.inc` is another opt-in entry prototype for synchronous
+prepared grid code on 3.12/3.13. It reserves an explicitly chosen unused
+`sys.monitoring` tool ID and uses local PY_START/PY_RETURN plus a filtered global
+PY_UNWIND callback to bracket the native trace driver. CPython retains its
+function call pointer and subscription specialization caches. The same
+seventy-two caller controls pass on this candidate path, including warmed
+subscription positions. The separate per-function pilot retains its two 3.12
+failures; this candidate does not silently replace that protocol.
+
+Registration holds weak code references; an active scope holds the canonical
+frame until completion. Eight lifetime/resource controls check occupied-tool
+preservation, stale-callback rollback, invalid/duplicate setup, active removal
+rejection, cyclic function/code collection and explicit clearing of callbacks,
+global events and the tool reservation. Start, code registration and stop are
+explicit operations. Import does not reserve a tool. Python 3.11 is rejected.
+Other tools' callback failures, tool exhaustion/composition, audit/reentry,
+threads, subinterpreters, module removal, shutdown and complete observer/lifetime
+behavior still need qualification. No default startup or application acceptance
+is enabled. This follows the pinned [monitor dispatch](https://github.com/python/cpython/blob/v3.12.8/Python/instrumentation.c)
+and the [monitoring API](https://docs.python.org/3.12/library/sys.monitoring.html).
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

@@ -363,9 +363,15 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
 
 #include "grid_eval_scope.inc"
 #include "grid_function_scope.inc"
+#include "grid_code_monitor.inc"
 
 void lfgt_exports(nb::module_& module) {
     lfgv_initialize(module);
+    lfgm_initialize(module);
+    module.def("start_grid_code_monitor_probe",&lfgm_begin,nb::arg("tool_id"));
+    module.def("set_grid_code_monitor_probe",&lfgm_set,nb::arg("code"),nb::arg("enabled"));
+    module.def("stop_grid_code_monitor_probe",&lfgm_end);
+    module.def("grid_code_monitor_counts_probe",&lfgm_counts);
     module.def("set_grid_eval_scope_probe",&lfge_set,nb::arg("enabled"));
     module.def("set_grid_function_scope_probe",&lfgv_set,nb::arg("function"),nb::arg("enabled"));
     module.def("grid_function_scope_count_probe",&lfgv_count);

@@ -13,7 +13,7 @@ DIRECTORY=Path(__file__).resolve().parent;ROOT=DIRECTORY.parents[1]
 STYLES=('star','direct','bound','keywords','descriptor','c-forwarded')
 
 
-def run(probe,code,shells,policy,style,tracing,native,failing=False,prime_opcodes=True):
+def run(probe,code,shells,policy,style,tracing,native,failing=False,prime_opcodes=True,code_monitor=False):
     wrapper=LineProbe(probe,opcodes=True,completion=True)
     caller_positions=[];events=[];errors=[];states=[];resumed=[];number=-1
     owners={(c.co_filename,c.co_qualname) for c in walk(code)}
@@ -37,7 +37,10 @@ def run(probe,code,shells,policy,style,tracing,native,failing=False,prime_opcode
             function.__code__=wrapper.prepare_grid_function_probe(function,function.__globals__,shell,
                 tuples(profile(code)),tuples(profile(shell.__code__)),int(policy=='indices'),*extra)
             assert function.__code__ is not code and function.__code__.co_consts[-2][0]=='naparixx.grid.return.v2'
-            probe.set_grid_function_scope_probe(function,True)
+            if code_monitor:
+                probe.start_grid_code_monitor_probe(3)
+                probe.set_grid_code_monitor_probe(function.__code__,True)
+            else:probe.set_grid_function_scope_probe(function,True)
         count=2 if policy=='getitem' else 3
         operands=','.join(f'args[{i}]' for i in range(count))
         if style=='star':body='return fn(*args)'
@@ -74,11 +77,16 @@ def run(probe,code,shells,policy,style,tracing,native,failing=False,prime_opcode
         finally:
             sys.settrace(None)
             controller.f_trace_opcodes=previous
-            if native:probe.set_grid_function_scope_probe(original_function,False)
+            if native:
+                if code_monitor:
+                    probe.set_grid_code_monitor_probe(original_function.__code__,False)
+                    probe.stop_grid_code_monitor_probe()
+                else:probe.set_grid_function_scope_probe(original_function,False)
     if policy=='getitem':result=getter.run(probe,code,shells,'callback-error' if failing else 'single',False,invoke=invoke,observe=observe)
     else:result=indices.run(probe,code,shells['_grid_indices'],'callback-error' if failing else 'dense',False,invoke=invoke,observe=observe)
     assert {row[0] for row in caller_positions}==set(range(1 if failing else 40))
     assert probe.grid_function_scope_count_probe()==0
+    if code_monitor:assert tuple(probe.grid_code_monitor_counts_probe())==(-1,0,0)
     return result,events,caller_positions,errors,states,resumed
 
 
