@@ -1,0 +1,73 @@
+# Test-only oracle from the verified dictionary-stage fork.
+# Prior full-file SHA256: b419ab387e6a717422ff63bcea3ae4b3d3892f0dea8c05201b37769bed59ac26
+# BSD-3-Clause; see licenses/napari-BSD-3-Clause.txt.
+
+class Camera:
+    @model_validator(mode="after")
+    def _sync_native_state(self):
+        self._native_state.update(
+            self.center, self.zoom, self.angles, self.perspective,
+            self.mouse_pan, self.mouse_zoom, tuple(map(str, self.orientation)), self.synced,
+        )
+        return self
+
+    def __copy__(self):
+        result = super().__copy__()
+        result._native_state = copy(self._native_state)
+        return result
+
+    def model_copy(self, *, update=None, deep=False):
+        result = super().model_copy(update=update, deep=deep)
+        result._sync_native_state()
+        return result
+
+    def _pop_cached_state(self, ndisplay_mode: int) -> _CameraState | None:
+        """Retrieve and remove cached state for a given ndisplay mode."""
+        state = self._native_state.pop_cache(ndisplay_mode)
+        return None if state is None else _CameraState(state.center, state.zoom, state.angles)
+
+    def set_view_direction(
+        self,
+        view_direction: tuple[float, float, float],
+        up_direction: tuple[float, float, float] = (0, -1, 0),
+    ):
+        """Set camera angles from direction vectors.
+
+        Both the view direction and the up direction are specified in 3D scene
+        coordinates, the world coordinate system for three currently displayed
+        dimensions.
+
+        The provided up direction must not be parallel to the provided
+        view direction. The provided up direction does not need to be orthogonal
+        to the view direction. The final up direction will be a vector orthogonal
+        to the view direction, aligned with the provided up direction.
+
+        Parameters
+        ----------
+        view_direction : 3-tuple of float
+            The desired view direction vector in 3D scene coordinates, the world
+            coordinate system for three currently displayed dimensions.
+        up_direction : 3-tuple of float
+            A direction vector which will point upwards on the canvas. Defaults
+            to (0, -1, 0) unless the view direction is parallel to the y-axis,
+            in which case will default to (-1, 0, 0).
+        """
+        self.angles = self._native_state.angles_for_directions(view_direction, up_direction)
+
+    @property
+    def orientation2d(
+        self,
+    ) -> AxesOrientation2D:
+        return self.orientation[1:]
+
+    @orientation2d.setter
+    def orientation2d(
+        self,
+        value: AxesOrientation2D,
+    ) -> None:
+        self.orientation = (
+            self.orientation[0],
+            VerticalAxisOrientation(value[0]),
+            HorizontalAxisOrientation(value[1]),
+        )
+

@@ -1,0 +1,29 @@
+# Test-only oracle from the verified dictionary-stage fork.
+# Prior full-file SHA256: dd0112d7fc3ba0df304c3f631b567c2f5cbb78a0f71fc156e7b9f4a90c5d9acd
+# BSD-3-Clause; see licenses/napari-BSD-3-Clause.txt.
+
+def ensure_n_tuple(
+    val: Iterable, n: int, fill: int = 0, before: bool = True
+) -> tuple:
+    """Ensure input is a length n tuple.
+
+    Parameters
+    ----------
+    val : iterable
+        Iterable to be forced into length n-tuple.
+    n : int
+        Length of tuple.
+    before : bool, default True
+        Fill the tuple with `fill` before or after the input iterable.
+
+    Returns
+    -------
+    tuple
+        Coerced tuple.
+    """
+    assert n > 0, 'n must be greater than 0'
+    tuple_value = tuple(val)
+    if before:
+        return (fill,) * (n - len(tuple_value)) + tuple_value[-n:]
+    return tuple_value[:n] + (fill,) * (n - len(tuple_value))
+

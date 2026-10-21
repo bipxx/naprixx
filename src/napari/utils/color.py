@@ -1,0 +1,230 @@
+"""Contains napari color constants and utilities."""
+from naparixx import _native
+
+from typing import Any, Self, overload
+
+import numpy as np
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
+
+from napari.utils.colormaps.standardize_color import transform_color
+
+ColorValueParam = np.ndarray | list | tuple | str | None
+ColorArrayParam = np.ndarray | list | tuple | str | None
+
+
+class ColorValue(np.ndarray):
+    """A custom pydantic field type for storing one color value.
+
+    Using this as a field type in a pydantic model means that validation
+    of that field (e.g. on initialization or setting) will automatically
+    use the ``validate`` method to coerce a value to a single color.
+    """
+
+    def __new__(cls, value: ColorValueParam) -> Self:
+        locals_owner = _native.theme_color_locals(6, cls, value)
+        del cls, value
+        return _native.theme_color_run(
+            6, globals(), locals_owner,
+            (),
+        )
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        validate_schema = core_schema.no_info_plain_validator_function(
+            cls.validate
+        )
+
+        serialize_schema = core_schema.plain_serializer_function_ser_schema(
+            lambda x: x.tolist(),
+            when_used='json',  # Only convert to list for JSON; keep as array for Python
+        )
+
+        return core_schema.json_or_python_schema(
+            # Schema for JSON inputs (always run validation)
+            json_schema=validate_schema,
+            # Schema for Python inputs (allow existing instances to pass through)
+            python_schema=core_schema.union_schema(
+                [
+                    core_schema.is_instance_schema(cls),
+                    validate_schema,
+                ],
+                mode='left_to_right',
+            ),
+            serialization=serialize_schema,
+        )
+
+    @classmethod
+    def validate(cls, value: ColorValueParam) -> Self:
+        """Validates and coerces the given value into an array storing one color.
+
+        Parameters
+        ----------
+        value : Union[np.ndarray, list, tuple, str, None]
+            A supported single color value, which must be one of the following.
+
+            - A supported RGB(A) sequence of floating point values in [0, 1].
+            - A CSS3 color name: https://www.w3.org/TR/css-color-3/#svg-color
+            - A single character matplotlib color name: https://matplotlib.org/stable/tutorials/colors/colors.html#specifying-colors
+            - An RGB(A) hex code string.
+
+        Returns
+        -------
+        np.ndarray
+            An RGBA color vector of floating point values in [0, 1].
+
+        Raises
+        ------
+        ValueError, AttributeError, KeyError
+            If the value is not recognized as a color.
+
+        Examples
+        --------
+        Coerce an RGBA array-like.
+
+        >>> ColorValue.validate([1, 0, 0, 1])
+        array([1., 0., 0., 1.], dtype=float32)
+
+        Coerce a CSS3 color name.
+
+        >>> ColorValue.validate('red')
+        array([1., 0., 0., 1.], dtype=float32)
+
+        Coerce a matplotlib single character color name.
+
+        >>> ColorValue.validate('r')
+        array([1., 0., 0., 1.], dtype=float32)
+
+        Coerce an RGB hex-code.
+
+        >>> ColorValue.validate('#ff0000')
+        array([1., 0., 0., 1.], dtype=float32)
+        """
+        locals_owner = _native.theme_color_locals(7, cls, value)
+        del cls, value
+        return _native.theme_color_run(
+            7, globals(), locals_owner,
+            (0,),
+        )
+
+
+class ColorArray(np.ndarray):
+    """A custom pydantic field type for storing an array of color values.
+
+    Using this as a field type in a pydantic model means that validation
+    of that field (e.g. on initialization or setting) will automatically
+    use the ``validate`` method to coerce a value to an array of colors.
+    """
+
+    def __new__(cls, value: ColorArrayParam) -> Self:
+        return cls.validate(value)
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        validate_schema = core_schema.no_info_plain_validator_function(
+            cls.validate
+        )
+
+        serialize_schema = core_schema.plain_serializer_function_ser_schema(
+            lambda x: x.tolist(),
+            when_used='json',  # Only convert to list for JSON; keep as array for Python
+        )
+
+        return core_schema.json_or_python_schema(
+            # Schema for JSON inputs (always run validation)
+            json_schema=validate_schema,
+            # Schema for Python inputs (allow existing instances to pass through)
+            python_schema=core_schema.union_schema(
+                [
+                    core_schema.is_instance_schema(cls),
+                    validate_schema,
+                ],
+                mode='left_to_right',
+            ),
+            serialization=serialize_schema,
+        )
+
+    def __sizeof__(self) -> int:
+        return super().__sizeof__() + self.nbytes
+
+    @classmethod
+    def validate(cls, value: ColorArrayParam) -> Self:
+        """Validates and coerces the given value into an array storing many colors.
+
+        Parameters
+        ----------
+        value : Union[np.ndarray, list, tuple, None]
+            A supported sequence of single color values.
+            See ``ColorValue.validate`` for valid single color values.
+            In general each value should be of the same type, so avoid
+            passing values like ``['red', [0, 0, 1]]``.
+
+        Returns
+        -------
+        np.ndarray
+            An array of N colors where each row is an RGBA color vector with
+            floating point values in [0, 1].
+
+        Raises
+        ------
+        ValueError, AttributeError, KeyError
+            If the value is not recognized as an array of colors.
+
+        Examples
+        --------
+        Coerce a list of CSS3 color names.
+
+        >>> ColorArray.validate(['red', 'blue'])
+        array([[1., 0., 0., 1.],
+               [0., 0., 1., 1.]], dtype=float32)
+
+        Coerce a tuple of matplotlib single character color names.
+
+        >>> ColorArray.validate(('r', 'b'))
+        array([[1., 0., 0., 1.],
+               [0., 0., 1., 1.]], dtype=float32)
+        """
+        # Special case an empty supported sequence because transform_color
+        # warns and returns an array containing a default color in that case.
+        if isinstance(value, np.ndarray | list | tuple) and len(value) == 0:
+            return np.empty((0, 4), np.float32).view(cls)
+        return transform_color(value).view(cls)
+
+
+@overload
+def rgb_to_luminance(rgb: ColorValue) -> float: ...
+
+
+@overload
+def rgb_to_luminance(
+    rgb: ColorArray,
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]: ...
+
+
+# can also work on more arbitrarily shaped arrays and with values outside of [0, 1]
+@overload
+def rgb_to_luminance(
+    rgb: np.ndarray[tuple[int, ...]],
+) -> np.ndarray[tuple[int, ...], np.dtype[np.floating]]: ...
+
+
+def rgb_to_luminance(
+    rgb: ColorValue | ColorArray | np.ndarray,
+) -> (
+    float
+    | np.ndarray[tuple[int], np.dtype[np.floating]]
+    | np.ndarray[tuple[int, ...], np.dtype[np.floating]]
+):
+    """Convert RGB(A) values to perceived luminance.
+
+    Uses ITU-R BT.709 coefficients, compositing with the alpha channel
+    if present.
+
+    .. versionadded: 0.10.0
+    """
+    owner = _native.viewer_geometry_locals()
+    return _native.viewer_geometry_rgb_luminance(rgb, globals(), (0.2126, 0.7152, 0.0722), "can only convert rgb or rgba", owner)

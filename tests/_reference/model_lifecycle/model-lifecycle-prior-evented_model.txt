@@ -1,0 +1,27 @@
+# Test-only oracle from the verified dictionary-stage fork.
+# Prior full-file SHA256: 13163ff70133aa700473349120fe34c054d642d74daa107a890422615f52d4ba
+# BSD-3-Clause; see licenses/napari-BSD-3-Clause.txt.
+
+class EventedModel:
+    def __copy__(self):
+        result = super().__copy__()
+        result._change_state = copy(self._change_state)
+        return result
+
+    def __deepcopy__(self, memo=None):
+        result = super().__deepcopy__(memo)
+        result._primary_view = None
+        return result
+
+    @property
+    def _delay_check_semaphore(self) -> int:
+        return self._change_state.depth
+
+    @_delay_check_semaphore.setter
+    def _delay_check_semaphore(self, value: int) -> None:
+        self._change_state.depth = value
+
+class ComparisonDelayer:
+    def __init__(self, target: EventedModel):
+        self._target = target
+

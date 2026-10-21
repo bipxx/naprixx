@@ -1,0 +1,39 @@
+name: Build and compatibility
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install ".[qt,dev]"
+      - run: python tools/fetch_upstream.py
+      - run: python tools/audit_conversion.py
+      - run: python -m pytest -q
+      - run: cmake -S . -B build/core-tests -DNAPARIXX_BUILD_CORE_TESTS=ON -DNAPARIXX_BUILD_PYTHON=OFF
+      - run: cmake --build build/core-tests --config Release
+      - run: ctest --test-dir build/core-tests -C Release --output-on-failure
+      - run: ruff check src tests tools
+      - run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/*
+
+  upstream:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ".[qt,test-upstream]"
+      - run: python tools/run_upstream_tests.py

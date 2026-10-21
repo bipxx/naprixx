@@ -1,0 +1,3571 @@
+{
+  "schema_version": 1,
+  "status": "draft",
+  "frozen": false,
+  "created_on": "2026-10-10",
+  "complete_application_port": false,
+  "milestone_status": {
+    "M0": "open",
+    "M1": "open",
+    "M2": "open",
+    "M3": "open",
+    "M4": "open",
+    "M5": "open",
+    "M6": "open",
+    "M7": "open",
+    "M8": "open",
+    "M9": "open"
+  },
+  "purpose": "M0 preparatory contract from fixed napari 0.9.2 source/current fork configuration. Configuration facts are source-hashed; acceptance choices/runtime evidence are not frozen.",
+  "baseline": {
+    "project": "napari",
+    "version": "0.9.2",
+    "tag": "v0.9.2",
+    "commit": "595639295a153c84bcb127a9e07d801355440a35",
+    "repository": "https://github.com/napari/napari.git",
+    "checkout_head_verified": "595639295a153c84bcb127a9e07d801355440a35",
+    "checkout_clean_at_read": true
+  },
+  "evidence_semantics": {
+    "source_digests": "SHA256 of local file bytes, including newlines. Baseline paths also identify the fixed commit. Fork hashes are a creation-time snapshot requiring review before freeze.",
+    "configured_ci_is_not_runtime_evidence": true,
+    "null_acceptance_fields_block_freeze": true,
+    "no_inferred_passes_from_prior_packet_counts": true,
+    "runtime_reports_accepted_by_this_record": [],
+    "failed_required_items_cannot_be_removed_to_obtain_acceptance": true,
+    "external_support_documentation": {
+      "repository": "https://github.com/napari/docs",
+      "pinned_revision": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "support_page_paths": [
+        "docs/getting_started/installation.md",
+        "docs/howtos/layers/image.md",
+        "docs/guides/rendering.md"
+      ],
+      "status": "chosen_release_associated_immutable_source",
+      "reason": "The official0.9.2 release citesdocsPR1150, whose merged commit marks0.9.2preferredstable. Root chooses that immutable source as supplementary support evidence; fixednapari metadata/workflows remain primary. This is not a proven docs deployment/build checkout.",
+      "source_proposal": {
+        "path": ".artifacts/full-conversion-M0-support-docs-source-proposal.json",
+        "sha256": "9ea388048f381264095dda8b2e707bddc4071a14d7a64578822fffa051b6efa4",
+        "bytes": 14086
+      },
+      "exact_deployed_revision_proven": false,
+      "release_era_docs_build_revision_proven": false,
+      "python_range_requires_fixed_distribution_classifiers": true,
+      "runtime_contract_frozen": false
+    }
+  },
+  "source_evidence": [
+    {
+      "path": "upstream.json",
+      "sha256_raw": "cfb0752948d8b2496ef3ea6f0f305dbf65ead01cb33860e4a09e81c5a95af9ca",
+      "purpose": "Fork baseline declaration"
+    },
+    {
+      "path": ".upstream/napari/pyproject.toml",
+      "sha256_raw": "c24edd6ecb6ebda9a1926fbbdeb60f82e2f93141064d8121c0ae2bab5581a9c1",
+      "purpose": "Pinned Python/OS/Qt/runtime/provider/testing metadata",
+      "locator": "project, optional-dependencies, dependency-groups",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/pyproject.toml"
+    },
+    {
+      "path": ".upstream/napari/README.md",
+      "sha256_raw": "2fa719bc206415554cef6e1016b3bad68bf9f0aa26713a5aa5ca650db7df5d13",
+      "purpose": "Pinned overview; mutable badges/stable-doc links do not freeze support",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/README.md"
+    },
+    {
+      "path": ".upstream/napari/tox.ini",
+      "sha256_raw": "9895be209f19b8f528f63dc9986394445563e278085d41249f3068420f5cfdc6",
+      "purpose": "Full-suite, headless, no-numba and example profiles",
+      "locator": "tox and testenv sections",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/tox.ini"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+      "sha256_raw": "c856607e685e4f55fb96c3c1db11a2006570e87471a042d9401e5e5877643fe7",
+      "purpose": "Configured PR matrix and examples",
+      "locator": "jobs.test_initial, jobs.test, jobs.test_examples",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/test_pull_requests.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+      "sha256_raw": "78086b7e0dcba19ef7c4a9326e7e9e51c106a383ffa2000e3ce87af621cd2231",
+      "purpose": "Configured comprehensive matrix and examples",
+      "locator": "jobs.test, jobs.test_examples",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/test_comprehensive.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/reusable_run_tox_test.yml",
+      "sha256_raw": "7229378deda6fb3232edfff9e6f2a82cb0a1ee18ee280a3784a4c7728b14139c",
+      "purpose": "Wheel install, constraints and qapp-only secondary-backend subset",
+      "locator": "jobs.test",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/reusable_run_tox_test.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/reusable_pip_test.yml",
+      "sha256_raw": "2cd7464cad3620c2321facbc906a15406f50f6afa2ea928fbcb40869d334f48e",
+      "purpose": "Sdist-then-wheel build and installed-package tests",
+      "locator": "jobs.test_pip_install",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/reusable_pip_test.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/reusable_build_wheel.yml",
+      "sha256_raw": "05e6eed725e614ad9ae0afffa6c52568ebaa3f18ae2e02da5ec126a354d2818c",
+      "purpose": "Package build without a native architecture matrix",
+      "locator": "jobs.build_wheel",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/reusable_build_wheel.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/make_release.yml",
+      "sha256_raw": "e5337436f33c6f6863875d26068702439cd5f2f1dc998a726840f5f35f629ac6",
+      "purpose": "Release workflow uses external docs without a pinned docs revision",
+      "locator": "jobs.extract_release_notes",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/make_release.yml"
+    },
+    {
+      "path": ".upstream/napari/.github/workflows/benchmarks.yml",
+      "sha256_raw": "c5f836879ba05dbeabc31da21e8166affcc6af7eb1e887873d7122e6f877cc5f",
+      "purpose": "ASV protocol; factor1.5 is not fork acceptance policy",
+      "locator": "env, jobs.benchmark",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/.github/workflows/benchmarks.yml"
+    },
+    {
+      "path": ".upstream/napari/asv.conf.json",
+      "sha256_raw": "0757f764a01980b8242959ff539c080f5ac11311e2e9492e1e8f5fb891fcd380",
+      "purpose": "ASV environment/Python/extras/benchmark directory",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/asv.conf.json"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/README.md",
+      "sha256_raw": "1d1faf6e172170d1c776ce1d6170c775bbb025a64985d5539edfa132ad532ea2",
+      "purpose": "Benchmark runner documentation",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/README.md"
+    },
+    {
+      "path": ".upstream/napari/src/napari/conftest.py",
+      "sha256_raw": "6ec5bc7d36611f2313002341e3bd747451648372867eaba2fa8ed24eac2939c7",
+      "purpose": "Original fixtures and collection/subset policy",
+      "locator": "pytest_collection_modifyitems",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/conftest.py"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256_raw": "fb9771e1143d231ade9ad65d381e22e49419c5aa63ddfd6ee713634f5504f1e7",
+      "purpose": "Fork current Python/Qt/provider/build metadata",
+      "locator": "project and tool.scikit-build"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256_raw": "4aa45e62de0875552dd1b199995f03b1c8e354dff0ecc74a172feb8c73f6a180",
+      "purpose": "Fork configured CI; no execution pass inferred",
+      "locator": "jobs.test, jobs.upstream"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha256_raw": "1ea598f70601d1a4747d89005e35648f1927e83fe751d6043382b02008aee80f",
+      "purpose": "Qt bridge options/minimum SDKs",
+      "locator": "NAPARIXX_BUILD_QT, NAPARIXX_BUILD_QT5, find_package"
+    },
+    {
+      "path": "src/naparixx/qt_host.py",
+      "sha256_raw": "0d67ca656915109797dc4b19210cf5c0e52b3db3d80a7816c8b8f0598c5856ef",
+      "purpose": "Prototype requires exact runtime/native SDK equality",
+      "locator": "NativeWidgetHost.__init__"
+    },
+    {
+      "path": "migration.json",
+      "sha256_raw": "d9e2d1c381954d251f49b7860e15fc12eb03a8f9b1dc6fd463be9fc76b688e54",
+      "purpose": "Partial-status/prototype snapshot; not release evidence",
+      "locator": "interoperability_prototypes"
+    },
+    {
+      "path": "docs/full-conversion-plan.md",
+      "sha256_raw": "f1721744ac8fe986297e9ea276b63a6b4148856dee60ae6b821937857ac2b5d9",
+      "purpose": "M0-M9 contract and final evidence gates",
+      "locator": "Final evidence gates, milestone table"
+    },
+    {
+      "path": "tools/audit_conversion.py",
+      "sha256_raw": "cae432063d69bbc6a4e1949cacc6f3cccd5d4805e28948ad5e22b3c4f4f30848",
+      "purpose": "Source audit completion entry point; not behavioral proof",
+      "locator": "--check-complete"
+    },
+    {
+      "path": "tools/conversion_review.py",
+      "sha256_raw": "597651daf18f504a2487ed7c9368b1bb81c94b75e5062140189ab9cb5ba80abf",
+      "purpose": "Review predicate and separate parity status",
+      "locator": "complete, semantic_and_release_parity_proven"
+    },
+    {
+      "path": "tools/run_upstream_tests.py",
+      "sha256_raw": "7ac72f7de44cc70b16541edaa944b6d1a3490dbd4fc76d4d6ad545b84d4f3d41",
+      "purpose": "Selected runner is narrower than full fixture gate"
+    },
+    {
+      "path": "tools/benchmark.py",
+      "sha256_raw": "68f6eee7e40d3cf4ff317f9cbda2fb0d94e3da08d00e55c4e87493efa53fc42b",
+      "purpose": "Numerical adapter microbenchmarks are not Viewer/GPU workloads"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.11.txt",
+      "sha256_raw": "00b78821fbc6d7c4d6c5592045b92421d0d0f92294200efc727598cdf8371587",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.11.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.12.txt",
+      "sha256_raw": "acf2bc75dd871b4c13c93cb0a650d240e62ea2282afd3383849ba1b051302790",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.12.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.13.txt",
+      "sha256_raw": "a318e44e1a95c2a185688810e5187217ec68d6c3f14d4e501624de9c557fa883",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.13.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.14.txt",
+      "sha256_raw": "f6a2c72c50281619b0adee2f4de3859e1b6efe39e3d139adf576b1c80971d146",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.14.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.11_min_req.txt",
+      "sha256_raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.11_min_req.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/constraints_py3.12_examples.txt",
+      "sha256_raw": "53a18dfa4f4978df41b4c73ab96065f2fbafcdd485c0aca4a999d4e82ff090da",
+      "purpose": "Pinned dependency constraints; not successful installation/test evidence",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/constraints_py3.12_examples.txt"
+    },
+    {
+      "path": ".upstream/napari/resources/constraints/benchmark.txt",
+      "sha256_raw": "f12bbb8e25d720d97da9fadea1409088429d2771815cb052b190d037fb56747c",
+      "purpose": "Pinned ASV tool constraints",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/resources/constraints/benchmark.txt"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_evented_model.py",
+      "sha256_raw": "1ed8d44e50bf71f85aee54234b5890b0e8ce822fcffbe445e1551a77868026a7",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_evented_model.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_image_layer.py",
+      "sha256_raw": "43a8bb07e44c87ac646ef68c3012ee21549f9353c7d0d906179b8f0d85a83b94",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_image_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_import.py",
+      "sha256_raw": "74a23eb3d38f0faf9fcc77de9ddf35ca3e17a832f00937c861b7e4aa3d9da637",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_import.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_labels_layer.py",
+      "sha256_raw": "754b1b964e189237709cde6dfcaec4083c27b2f13d1adb8bbb38dda64817eda6",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_labels_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_points_layer.py",
+      "sha256_raw": "1b99e87e9006d26c7b449dc6ae7c960857ee96393ab1b171fe444309485d5d04",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_points_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_python_layer.py",
+      "sha256_raw": "0246cdf6158c68c8c6461713cede48e9b1e339f56261c285631570172d616b90",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_python_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_qt_slicing.py",
+      "sha256_raw": "f05d0b35b62308cec37b82a2284ed1360b5cea5856cd2492fd45243e486e22c2",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_qt_slicing.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer.py",
+      "sha256_raw": "51f29087dc6742dd74e6699e828603295273015fbc1928f343b9668a326c61cd",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_qt_viewer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_image.py",
+      "sha256_raw": "43b2b0a9235507d746c571ed2081eb3e6cb8d90ced78a4aaadc25807881aff0c",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_qt_viewer_image.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_labels.py",
+      "sha256_raw": "9b16fe66da55ebdb3593b88fb69515df56b971df18160f21aeed49ffa093a544",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_qt_viewer_labels.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_vectors.py",
+      "sha256_raw": "9e3e38d287cd6c96796280f04f259a2ca5143bc962690ed1ff9120d2b2f39e3b",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_qt_viewer_vectors.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_shapes_layer.py",
+      "sha256_raw": "171f5f89b13629c9e3a9073189e1c65d521fe7b4e82e13a3f95903c5e18fbcc5",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_shapes_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_surface_layer.py",
+      "sha256_raw": "8f0037c97a3d5e264c1fdcdf0edfbd942d1a70d88d6cb4ee7a4ded2c37b6099d",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_surface_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_text_manager.py",
+      "sha256_raw": "f225f141bce0b6a07282e19cf3e0f4ecedf8b96ef9afe352c5ee4dd8d6d62177",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_text_manager.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_tracks_layer.py",
+      "sha256_raw": "3d4b9d39d4110b8f2e0e84ef0ce4de2a8e48034afe920bac1331bee2f46613ff",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_tracks_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/benchmarks/benchmark_vectors_layer.py",
+      "sha256_raw": "0f2f8921410843e6a6c1e5c38e489b2c07267ff14c2965e3facd49da01c17f9d",
+      "purpose": "Pinned benchmark input/setup/metric source; no measurement result",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/benchmarks/benchmark_vectors_layer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_qt/_tests/test_plugin_widgets.py",
+      "sha256_raw": "9c75f16bc36b480897332fdff3168da83a0cd52be801c0586bbb9f5f62d8d0b0",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_qt/_tests/test_plugin_widgets.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_qt/_tests/test_prune_qt_connections.py",
+      "sha256_raw": "e21aab754401098aa06a3480f754369d16d473183422ca9a9808a1c3d7e54363",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_qt/_tests/test_prune_qt_connections.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_qt/_tests/test_qt_viewer.py",
+      "sha256_raw": "ebfc6cc48fc9ab06f3c0a006be87d64c08525267d4c42e90beb2ae44da9d4997",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_qt/_tests/test_qt_viewer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_qt/_tests/test_viewer_qt_integration.py",
+      "sha256_raw": "f18c38f5664c86fd162267ee0b8aff671cefe932f40816456e192561b1a60e9f",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_qt/_tests/test_viewer_qt_integration.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_tests/test_mouse_bindings.py",
+      "sha256_raw": "6c811f608877a54db42433d422003df4e513ed02071e726535b91ee67ff7862c",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_tests/test_mouse_bindings.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_tests/test_viewer.py",
+      "sha256_raw": "b39c204149c446c4a566f45f7056991cbd86e2e9454ea27a226c41b3ffba30a0",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_tests/test_viewer.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/_tests/test_with_screenshot.py",
+      "sha256_raw": "b530ea356c5e57098d3b70727d91cb562e28ee0385d0b6b5371d253e5b91d18f",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/_tests/test_with_screenshot.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/components/_tests/test_viewer_labels_io.py",
+      "sha256_raw": "40c4a601e95d721843c97afa9f7a3ee48b6499dfd3b8d4de1e376cdbd72b5c74",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/components/_tests/test_viewer_labels_io.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/plugins/_tests/test_npe2.py",
+      "sha256_raw": "e13e06d8c7ed170433ca8d8b16fa49468aad158e9d7cf6b3be520304d00d59c4",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/plugins/_tests/test_npe2.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari/utils/_tests/test_io.py",
+      "sha256_raw": "85f126154033d507debf9486c7d03448f074c4ff47d29b499349843a64edf8b9",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari/utils/_tests/test_io.py"
+    },
+    {
+      "path": ".upstream/napari/src/napari_builtins/_tests/test_io.py",
+      "sha256_raw": "85364dd7865a9f6cf74ccef65d50376235114865684f54b138d2d4a450d42999",
+      "purpose": "Original workflow/fixture oracle source; no case execution asserted",
+      "commit": "595639295a153c84bcb127a9e07d801355440a35",
+      "url": "https://github.com/napari/napari/blob/595639295a153c84bcb127a9e07d801355440a35/src/napari_builtins/_tests/test_io.py"
+    },
+    {
+      "path": ".artifacts/m0-native-npe2-plugin-corpus.json",
+      "sha256_raw": "990e802b0ee0033d4d213dc74387be0739d344543dfb56645b87a96848b89e34",
+      "purpose": "Independently reviewed native NPE2 artifact source selection; no dependency lock, runtime or release compatibility inferred",
+      "locator": "proposed_json_patch; artifacts"
+    },
+    {
+      "path": ".artifacts/m0-legacy-npe1-plugin-corpus-v2.json",
+      "sha256_raw": "587c04899786d77d825a36774be398c501ae2034b7ec71ac922427ee5a16263d",
+      "purpose": "Independently reviewed real legacy NPE1 reader artifact source selection; locks, CZI fixtures, cells, original/candidate runtime and release evidence remain open",
+      "locator": "artifact; proposed_json_patch; raw_evidence_files"
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/docs/getting_started/installation.md",
+      "sha256_raw": "40f7c132189b4b398ac2726d4da2a13b8c789f6c7265847285d68c838fdbff7b",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/docs/getting_started/installation.md",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/docs/conf.py",
+      "sha256_raw": "fcad94b622496a1539cf5efb76746de5028ec65e97a57e3fa29bc6dc16a657f1",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/docs/conf.py",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/docs/_static/version_switcher.json",
+      "sha256_raw": "30258f680afa4381c8f5a09c71634cc437f69ba7cca62e7ed862c06d7afaeb92",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/docs/_static/version_switcher.json",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/.github/workflows/build_and_deploy.yml",
+      "sha256_raw": "9a9f04cef4c51aeff63b611280353f7182d49e4da4ce6cca637b084480d51ad4",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/.github/workflows/build_and_deploy.yml",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/docs/howtos/layers/image.md",
+      "sha256_raw": "2897310cc50d5ac6c920bc34cad61f001521842246af2444300603af75893963",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/docs/howtos/layers/image.md",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-src-3db3cde9607224f1587e1d942103ff6920b91235/docs/guides/rendering.md",
+      "sha256_raw": "6fddb8660ad20c0965d09cc483ee9e4c13a678908ac55d067a1c24674ed9982f",
+      "commit": "3db3cde9607224f1587e1d942103ff6920b91235",
+      "url": "https://github.com/napari/docs/blob/3db3cde9607224f1587e1d942103ff6920b91235/docs/guides/rendering.md",
+      "purpose": "Chosen immutable release-associated documentation source; deployment revision unproved."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-support-docs-source-proposal.json",
+      "sha256_raw": "9ea388048f381264095dda8b2e707bddc4071a14d7a64578822fffa051b6efa4",
+      "purpose": "Reviewable provenance and limits for chosen release-associated docs source."
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-required-matrix-proposal.json",
+      "sha256_raw": "8070f1fb5f0676665786afa010e26050d20748448e737a53878b9767e012f7e6",
+      "purpose": "Source-informed required-matrix proposal; exact locks/runtime unfrozen"
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-required-matrix-review.json",
+      "sha256_raw": "23f2af06a3b1cd7b9be16379a202630cb1d8246a41819176a804ad00cfe55970",
+      "purpose": "Independent source/applicability/mode-preservation review; no runtime parity"
+    },
+    {
+      "path": ".artifacts/full-conversion-M0-required-matrix-selection.json",
+      "sha256_raw": "13ddda92e9e6a5466dfc004fa89f3a640ed3c56b06a6037ede93452db5bb2e2c",
+      "purpose": "Coordinator-selected provisional required floor and headless sdist addition; not frozen release evidence"
+    },
+    {
+      "path": ".artifacts/viewer-close-checkpoint.json",
+      "sha256_raw": "d47b105a5dfa711bb4115c7fcb9e26b5ca181173936c84d240a33cbd89f03760",
+      "purpose": "Finite close38/42 scope, full lifecycle/state/release open"
+    },
+    {
+      "path": ".artifacts/viewer-close-integrated-source-review.json",
+      "sha256_raw": "07a1c1b2879c7307aa600acfca1096790a35a38e89341ca9ba8944686265f45c",
+      "purpose": "Actual mechanical integration scope"
+    },
+    {
+      "path": ".artifacts/viewer-close-build-string-order-source-review.json",
+      "sha256_raw": "e533df54bf28757bda669eda96466b69991a5f07eebe2ea450153736d6124461",
+      "purpose": "Source cleanup and exact ordered oracle correction"
+    },
+    {
+      "path": ".artifacts/viewer-workers-checkpoint.json",
+      "sha256_raw": "83fc9744d3e098649738492b9ad73b8fcb07c6bc8891bd2e8f71f4e9a28f591d",
+      "purpose": "Finite worker35+ASV installed53/before43; canonical state/callee/full lifecycle/release remain open"
+    },
+    {
+      "path": ".artifacts/viewer-workers-integration-review.json",
+      "sha256_raw": "038af3cdb73667e557630450edc112178da393ccbdb3b0aa987268b624994351",
+      "purpose": "Actual worker mechanical integration and preserved facade/ABI boundary"
+    },
+    {
+      "path": ".artifacts/viewer-workers-oracle-queued-frame-delta-review.json",
+      "sha256_raw": "0c93d96f7784ae3a2a7c7992fa2cd2af1dd242e7f6430a30120fa081357ba291",
+      "purpose": "Affected same-row source handler/wait synchronization; source race remains open"
+    },
+    {
+      "path": ".artifacts/viewer-workers-gated-before-attempt1/terminal.json",
+      "sha256_raw": "5c926b2266cd8b0622eb325002fc56aa6da2d5d14dc4096f343ed87650fe9f34",
+      "purpose": "Actual final real-row before with exact current runtime restoration"
+    },
+    {
+      "path": ".artifacts/viewer-workers-accounting-update.json",
+      "sha256_raw": "4c67e10db9f87df6a91917f45d328a921daa477d50cba04b914f5dd4091bfe21",
+      "purpose": "Current244-record ledger, preserved historical classifications/evidence, exact accepted worker boundary; complete application remains false"
+    },
+    {
+      "path": ".artifacts/viewer-workers-installed-asv-ledger-terminal.json",
+      "sha256_raw": "d5e2a52a2b6b0efaad3d6556c65ab91a238d23ec6126224e2db1dab0877a4301",
+      "purpose": "Only clean2-case ASV metadata factory JUnit evidence; original mixed18P1F raw report preserved"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-before/index.json",
+      "sha256_raw": "0de81c33a33e249c904d98c591a35318cfadf83b6630bca7909a2c54cc07fe0f",
+      "purpose": "Exact current/pinned notification before snapshots and installed pair; source capture not native acceptance"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-baseline-original-terminal.json",
+      "sha256_raw": "829b44473a027b343dd770b0455912922efbd5b48d6d04c55d58033fa633f092",
+      "purpose": "Actual unchanged upstream notification manager/Qt baseline12P0F/E/S; no native notification or full clean-shutdown acceptance"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-before-checkpoint.json",
+      "sha256_raw": "0caa4c35d6d89bdc099f50dc5747b90c72952fced84938de8ee1b82369ad75ee",
+      "purpose": "Actual notification/Event2 logical61 BEFORE, exact retained failures/source/fixture proof; new native acceptance pending"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-oracle-review-attempt1.json",
+      "sha256_raw": "48579e3521137814bb8da0fc08954340bba12dac543b922ec6ad4962b2060efa",
+      "purpose": "Finite independent fixture source review and source-aware literal identity setup; runtime/native source review separate"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-oracle-metadata-delta-review.json",
+      "sha256_raw": "6ff0cab0b83d48d6bfefe58d6a890bac49bbe343e85697713b5ba86688446af7",
+      "purpose": "Affected metadata AST list setup correction; all157 assertions/raw reversal preserved"
+    },
+    {
+      "path": ".artifacts/viewer-status-providers-before/index.json",
+      "sha256_raw": "d244ee943da6d11ec030523c7de07bb116501dc68303c3630953c3255d280b72",
+      "purpose": "Exact74-body provider/geometry/format/adaptor current/pinned/common/pair snapshots; no native acceptance"
+    },
+    {
+      "path": ".artifacts/viewer-status-providers-baseline-original-attempt2-terminal.json",
+      "sha256_raw": "c5024eb1b00222f77948aa33e893b2686e03086d24b34fce321e71e1233aedc6",
+      "purpose": "Unchanged original42 actualbefore with only missing testhelper mount corrected; rejected collection report preserved"
+    },
+    {
+      "path": ".artifacts/viewer-notification-event-helpers-next.json",
+      "sha256_raw": "023aaae8b8349a87313dd86522d3142db0a2bd5ec0c314e42521337629333bd0",
+      "purpose": "Handwritten required two Event helpers staged with unchanged Event layout; not integrated/compiled/installed"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-stub-addition-next.pyi",
+      "sha256_raw": "acf73e7f7954e4d3f6577d77251624bfeb8be24f71011fb5f36c29d0e804cc73",
+      "purpose": "Actual written49export/4type/27readonly notification/Event2 private schema stub staging; native review/build pending"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-checkpoint.json",
+      "sha256_raw": "26dc0130f981f963014895ed1e4c786e9e4433f35f768b6b9a280743b211f208",
+      "purpose": "Finite notification47 plain native state/installed76/before65; wider owner/release remain open"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-source-delta-review.json",
+      "sha256_raw": "40ed89d116c003d9a05107881445cc87def6c5e9427faa6bcc5af26803ccf541",
+      "purpose": "Affected source contract corrections; whole original review retained"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-integration-review.json",
+      "sha256_raw": "9590a2b5cf63bb21b78868b9190f0275904f18e54efd0c368068d3327178cf97",
+      "purpose": "Actual additive native interface/facade integration"
+    },
+    {
+      "path": ".artifacts/viewer-notifications-shutdown-diagnostics-review.json",
+      "sha256_raw": "2f90c5c604fa6bffc0744576c80490d873740d697d8b1796ce79ca9d73c2827f",
+      "purpose": "Exact preserved raw-log parser correction; no clean-shutdown/causality claim"
+    },
+    {
+      "path": ".artifacts/viewer-status-providers-checkpoint.json",
+      "sha256_raw": "04b6d6cdd14d43e5f8476f13ede8fa6b2806e455ed91576c19e76d3880f4505a",
+      "purpose": "Finite status74 installed99/before88; full canonical model/cache/task/callee/release remain open"
+    },
+    {
+      "path": ".artifacts/viewer-status-providers-source-delta-review.json",
+      "sha256_raw": "7efc81aeefa46ac7ae9a76d202e8d723a5b65e9a99ab3a88ee64d35362355e1a",
+      "purpose": "Affected source contract corrections; original whole74 review retained"
+    },
+    {
+      "path": ".artifacts/viewer-status-providers-integration-review.json",
+      "sha256_raw": "9e75a16b73c38728546ad932fb9aefa0fde36de694477c9fc260d89b5a5ba52c",
+      "purpose": "Actual additive status74 native interface/facade/common/stub integration"
+    },
+    {
+      "path": ".artifacts/viewer-status-provider-factory-rename-review.json",
+      "sha256_raw": "f6b0627091047e233eb0ef391ae9230b0a15d946190e556d0177b1cecdf89901",
+      "purpose": "Unique provider factory ABI fix; old worker export and stub prefix preserved"
+    },
+    {
+      "path": ".artifacts/viewer-shape-state-checkpoint.json",
+      "sha256_raw": "d2cc8bc236a10d24b4fe3250c47a42fb373f4fe22f3188adcaffd5218b6c1394",
+      "purpose": "Finite Shape41 installed100/before99; full class/module/callee/lifecycle/release remains open"
+    },
+    {
+      "path": ".artifacts/viewer-shape-state-source-delta-review.json",
+      "sha256_raw": "917089ed7a4b4534593c7654d8d18a55f3c4e37fa3e244795e4f756a534918d1",
+      "purpose": "Six source lifetime/interface corrections; coherent whole41 review retained"
+    },
+    {
+      "path": ".artifacts/viewer-shape-state-integration-review.json",
+      "sha256_raw": "40a18e83e70eb4b939ce92140cb1dfb93ecebae4af8813925a361222fcd91ff9",
+      "purpose": "Actual Shape41 facade/native/common/stub/test integration"
+    },
+    {
+      "path": ".artifacts/viewer-shape-model-checkpoint.json",
+      "sha256_raw": "ee0ab68428e93eeaf27b3380aec86257248d312c5ac9011f54880a2d464a1774",
+      "purpose": "Finite Shape model184installed/138logicalbefore; full helper/frame/interpreter/application/release open"
+    },
+    {
+      "path": ".artifacts/viewer-shape-model-import-locals-delta-review.json",
+      "sha256_raw": "67010372b52092b602d3673943a713b1bc11c69cddb7f5d2b4457c2b56280265",
+      "purpose": "Actual CPython3.12 unforced executing import-frame handoff review; other profilesopen"
+    },
+    {
+      "path": ".artifacts/viewer-shape-model-integration-review.json",
+      "sha256_raw": "a7bef8d473aa75fe2c977388c098c17ff5f44d623cbcce92942dd410b70c86ea",
+      "purpose": "Actual14target model/facade/native/common/stub/test integration"
+    }
+  ],
+  "supported_contract_facts": {
+    "pinned_requires_python": ">=3.11",
+    "pinned_python_classifiers": [
+      "3.11",
+      "3.12",
+      "3.13",
+      "3.14"
+    ],
+    "pinned_os_classifiers": [
+      "Operating System :: Microsoft :: Windows",
+      "Operating System :: POSIX",
+      "Operating System :: Unix",
+      "Operating System :: MacOS"
+    ],
+    "pinned_tox_python_minors": [
+      "3.11",
+      "3.12",
+      "3.13",
+      "3.14",
+      "3.15"
+    ],
+    "fork_requires_python": ">=3.11",
+    "required_goal_axes": {
+      "python_minors": [
+        "3.11",
+        "3.12",
+        "3.13",
+        "3.14"
+      ],
+      "os_families": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "qt_bindings": [
+        "PyQt5",
+        "PyQt6",
+        "PySide6"
+      ],
+      "architectures": null,
+      "cross_product_applicability": "unresolved; CI sparsity proves neither full Cartesian coverage nor unsupported combinations"
+    },
+    "pinned_qt_extras_as_written": {
+      "pyqt5": [
+        "PyQt5>=5.15.8",
+        "pyqt5-qt5<=5.15.2; sys_platform == 'Windows'"
+      ],
+      "pyqt6": [
+        "PyQt6 > 6.5",
+        "PyQt6 != 6.6.1 ; platform_system == 'Darwin'",
+        "pyqt6-qt6 !=6.11.0, !=6.11.1"
+      ],
+      "pyside6": [
+        "PySide6 > 6.7, !=6.11.0, !=6.11.1"
+      ],
+      "pyqt": [
+        "napari[pyqt6]"
+      ],
+      "pyside": [
+        "napari[pyside6]"
+      ],
+      "qt": [
+        "napari[pyqt]"
+      ]
+    },
+    "fork_qt_extras_as_written": {
+      "pyqt5": [
+        "PyQt5>=5.15.8",
+        "pyqt5-qt5<=5.15.2; sys_platform == 'Windows'"
+      ],
+      "pyqt6": [
+        "PyQt6 > 6.5",
+        "PyQt6 != 6.6.1 ; platform_system == 'Darwin'",
+        "pyqt6-qt6 !=6.11.0, !=6.11.1"
+      ],
+      "pyside6": [
+        "PySide6 > 6.7, !=6.11.0, !=6.11.1"
+      ],
+      "pyqt": [
+        "napari[pyqt6]"
+      ],
+      "pyside": [
+        "napari[pyside6]"
+      ],
+      "qt": [
+        "napari[pyqt6]"
+      ]
+    },
+    "native_qt_build_contract": {
+      "Qt5": {
+        "option": "NAPARIXX_BUILD_QT5=ON",
+        "minimum_sdk": "5.15",
+        "exact_sdk": null
+      },
+      "Qt6": {
+        "option": "NAPARIXX_BUILD_QT=ON",
+        "minimum_sdk": "6.5",
+        "exact_sdk": null
+      },
+      "active_runtime_equals_sdk_exactly": true,
+      "prototype_satisfies_actual_viewer_gate": false
+    }
+  },
+  "dependency_constraint_profiles": [
+    {
+      "id": "constraints-py3.11",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.11.txt",
+      "sha256_raw": "00b78821fbc6d7c4d6c5592045b92421d0d0f92294200efc727598cdf8371587",
+      "python_minor": "3.11",
+      "file_size_bytes": 12049,
+      "selected_exact_pins": {
+        "app-model": "0.5.1",
+        "dask": "2026.8.0",
+        "fsspec": "2026.7.0",
+        "magicgui": "0.10.2",
+        "napari-plugin-engine": "0.2.1",
+        "npe2": "0.9.0",
+        "numba": "0.67.0",
+        "numpy": "2.4.6",
+        "pandas": "3.0.5",
+        "pint": "0.25.3",
+        "psygnal": "0.16.1",
+        "pydantic": "2.13.5",
+        "pydantic-core": "2.46.5",
+        "pydantic-settings": "2.15.0",
+        "pyopengl": "3.1.10",
+        "pyqt6": "6.11.0",
+        "pyqt6-qt6": "6.11.2",
+        "pyqt6-sip": "13.12.0",
+        "pyside6": "6.11.2",
+        "pyside6-addons": "6.11.2",
+        "pyside6-essentials": "6.11.2",
+        "pytest": "9.1.1",
+        "pytest-qt": "4.5.0",
+        "qtpy": "2.4.3",
+        "scipy": "1.17.1",
+        "shiboken6": "6.11.2",
+        "tensorstore": "0.1.85",
+        "torch": "2.14.0",
+        "virtualenv": "21.7.9",
+        "vispy": "0.17.0",
+        "xarray": "2026.7.0",
+        "zarr": "3.1.6"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Not a platform-specific wheel lock; PyQt5/Qt5/SIP versions are absent."
+    },
+    {
+      "id": "constraints-py3.12",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.12.txt",
+      "sha256_raw": "acf2bc75dd871b4c13c93cb0a650d240e62ea2282afd3383849ba1b051302790",
+      "python_minor": "3.12",
+      "file_size_bytes": 11889,
+      "selected_exact_pins": {
+        "app-model": "0.5.1",
+        "dask": "2026.8.0",
+        "fsspec": "2026.7.0",
+        "magicgui": "0.10.2",
+        "napari-plugin-engine": "0.2.1",
+        "npe2": "0.9.0",
+        "numba": "0.67.0",
+        "numpy": "2.5.3",
+        "pandas": "3.0.5",
+        "pint": "0.26.1",
+        "psygnal": "0.16.1",
+        "pydantic": "2.13.5",
+        "pydantic-core": "2.46.5",
+        "pydantic-settings": "2.15.0",
+        "pyopengl": "3.1.10",
+        "pyqt6": "6.11.0",
+        "pyqt6-qt6": "6.11.2",
+        "pyqt6-sip": "13.12.0",
+        "pyside6": "6.11.2",
+        "pyside6-addons": "6.11.2",
+        "pyside6-essentials": "6.11.2",
+        "pytest": "9.1.1",
+        "pytest-qt": "4.5.0",
+        "qtpy": "2.4.3",
+        "scipy": "1.18.1",
+        "shiboken6": "6.11.2",
+        "tensorstore": "0.1.85",
+        "torch": "2.14.0",
+        "virtualenv": "21.7.9",
+        "vispy": "0.17.0",
+        "xarray": "2026.7.0",
+        "zarr": "3.3.0"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Not a platform-specific wheel lock; PyQt5/Qt5/SIP versions are absent."
+    },
+    {
+      "id": "constraints-py3.13",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.13.txt",
+      "sha256_raw": "a318e44e1a95c2a185688810e5187217ec68d6c3f14d4e501624de9c557fa883",
+      "python_minor": "3.13",
+      "file_size_bytes": 11835,
+      "selected_exact_pins": {
+        "app-model": "0.5.1",
+        "dask": "2026.8.0",
+        "fsspec": "2026.7.0",
+        "magicgui": "0.10.2",
+        "napari-plugin-engine": "0.2.1",
+        "npe2": "0.9.0",
+        "numba": "0.67.0",
+        "numpy": "2.5.3",
+        "pandas": "3.0.5",
+        "pint": "0.26.1",
+        "psygnal": "0.16.1",
+        "pydantic": "2.13.5",
+        "pydantic-core": "2.46.5",
+        "pydantic-settings": "2.15.0",
+        "pyopengl": "3.1.10",
+        "pyqt6": "6.11.0",
+        "pyqt6-qt6": "6.11.2",
+        "pyqt6-sip": "13.12.0",
+        "pyside6": "6.11.2",
+        "pyside6-addons": "6.11.2",
+        "pyside6-essentials": "6.11.2",
+        "pytest": "9.1.1",
+        "pytest-qt": "4.5.0",
+        "qtpy": "2.4.3",
+        "scipy": "1.18.1",
+        "shiboken6": "6.11.2",
+        "tensorstore": "0.1.85",
+        "torch": "2.14.0",
+        "virtualenv": "21.7.9",
+        "vispy": "0.17.0",
+        "xarray": "2026.7.0",
+        "zarr": "3.3.0"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Not a platform-specific wheel lock; PyQt5/Qt5/SIP versions are absent."
+    },
+    {
+      "id": "constraints-py3.14",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.14.txt",
+      "sha256_raw": "f6a2c72c50281619b0adee2f4de3859e1b6efe39e3d139adf576b1c80971d146",
+      "python_minor": "3.14",
+      "file_size_bytes": 11835,
+      "selected_exact_pins": {
+        "app-model": "0.5.1",
+        "dask": "2026.8.0",
+        "fsspec": "2026.7.0",
+        "magicgui": "0.10.2",
+        "napari-plugin-engine": "0.2.1",
+        "npe2": "0.9.0",
+        "numba": "0.67.0",
+        "numpy": "2.5.3",
+        "pandas": "3.0.5",
+        "pint": "0.26.1",
+        "psygnal": "0.16.1",
+        "pydantic": "2.13.5",
+        "pydantic-core": "2.46.5",
+        "pydantic-settings": "2.15.0",
+        "pyopengl": "3.1.10",
+        "pyqt6": "6.11.0",
+        "pyqt6-qt6": "6.11.2",
+        "pyqt6-sip": "13.12.0",
+        "pyside6": "6.11.2",
+        "pyside6-addons": "6.11.2",
+        "pyside6-essentials": "6.11.2",
+        "pytest": "9.1.1",
+        "pytest-qt": "4.5.0",
+        "qtpy": "2.4.3",
+        "scipy": "1.18.1",
+        "shiboken6": "6.11.2",
+        "tensorstore": "0.1.85",
+        "torch": "2.14.0",
+        "virtualenv": "21.7.9",
+        "vispy": "0.17.0",
+        "xarray": "2026.7.0",
+        "zarr": "3.3.0"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Not a platform-specific wheel lock; PyQt5/Qt5/SIP versions are absent."
+    },
+    {
+      "id": "constraints-py3.11_min_req",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.11_min_req.txt",
+      "sha256_raw": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "python_minor": "3.11",
+      "file_size_bytes": 0,
+      "selected_exact_pins": {},
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Pinned file is empty; MIN_REQ/tox-min-req requests metadata minima but exact resolved versions are not frozen."
+    },
+    {
+      "id": "constraints-py3.12_examples",
+      "path": ".upstream/napari/resources/constraints/constraints_py3.12_examples.txt",
+      "sha256_raw": "53a18dfa4f4978df41b4c73ab96065f2fbafcdd485c0aca4a999d4e82ff090da",
+      "python_minor": "3.12",
+      "file_size_bytes": 15751,
+      "selected_exact_pins": {
+        "app-model": "0.5.1",
+        "dask": "2026.8.0",
+        "fsspec": "2026.7.0",
+        "magicgui": "0.10.2",
+        "napari-plugin-engine": "0.2.1",
+        "npe2": "0.9.0",
+        "numba": "0.67.0",
+        "numpy": "2.5.3",
+        "pandas": "3.0.5",
+        "pint": "0.26.1",
+        "psygnal": "0.16.1",
+        "pydantic": "2.13.5",
+        "pydantic-core": "2.46.5",
+        "pydantic-settings": "2.15.0",
+        "pyopengl": "3.1.10",
+        "pyqt6": "6.11.0",
+        "pyqt6-qt6": "6.11.2",
+        "pyqt6-sip": "13.12.0",
+        "pyside6": "6.11.2",
+        "pyside6-addons": "6.11.2",
+        "pyside6-essentials": "6.11.2",
+        "pytest": "9.1.1",
+        "pytest-qt": "4.5.0",
+        "qtpy": "2.4.3",
+        "scipy": "1.18.1",
+        "shiboken6": "6.11.2",
+        "tensorstore": "0.1.85",
+        "torch": "2.14.0",
+        "virtualenv": "21.7.9",
+        "vispy": "0.17.0",
+        "xarray": "2026.7.0",
+        "zarr": "3.3.0"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false,
+      "limitation": "Not a platform-specific wheel lock; PyQt5/Qt5/SIP versions are absent."
+    },
+    {
+      "id": "constraints-benchmark",
+      "path": ".upstream/napari/resources/constraints/benchmark.txt",
+      "sha256_raw": "f12bbb8e25d720d97da9fadea1409088429d2771815cb052b190d037fb56747c",
+      "python_minor": "3.12",
+      "selected_exact_pins": {
+        "asv": "0.6.4",
+        "asv-runner": "0.2.1",
+        "build": "1.2.2.post1",
+        "distlib": "0.3.9",
+        "filelock": "3.18.0",
+        "importlib-metadata": "8.6.1",
+        "json5": "0.10.0",
+        "packaging": "24.2",
+        "platformdirs": "4.3.7",
+        "pympler": "1.0.1",
+        "pyproject-hooks": "1.2.0",
+        "pyyaml": "6.0.2",
+        "tabulate": "0.9.0",
+        "virtualenv": "20.29.3",
+        "zipp": "3.21.0"
+      },
+      "complete_resolved_platform_lock": null,
+      "constraint_is_execution_evidence": false
+    }
+  ],
+  "candidate_matrix": {
+    "status": "draft",
+    "origin": "Exact expanded pinned upstream workflow cells. Configuration candidates, not a frozen support cross product or execution proof.",
+    "cells": [
+      {
+        "id": "test_pull_requests-test_initial-1-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test_initial",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test_initial-2-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test_initial",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-1-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-1-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "qapp-fixture subset",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-2-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-3-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-4-pyqt5_no_numba",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "macOS",
+        "runner_label": "macos-15-intel",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": "x86_64",
+        "architecture_source": "explicit pinned CI label/comment",
+        "backend_factor": "pyqt5_no_numba",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-5-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "macOS",
+        "runner_label": "macos-15",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-6-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-22.04",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11_min_req",
+        "minimum_requirements": true,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-7-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.13",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-22.04",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.13",
+        "minimum_requirements": false,
+        "tox_extras": "all_optional",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-8-headless",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-22.04",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "headless",
+        "binding": null,
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.12",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "headless with pinned GUI/rendering exclusions",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": false,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-9-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "testing_extra",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-10-pyqt6_no_numba",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6_no_numba",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-11-pyside6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyside6",
+        "binding": "PySide6",
+        "binding_package_version_from_constraints": "6.11.2",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test-12-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-24.04-arm",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": "aarch64",
+        "architecture_source": "explicit pinned CI label/comment",
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_pull_requests-test_examples-1-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_pull_requests.yml",
+        "job": "test_examples",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.12_examples",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "src/napari/_tests/test_examples.py only",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-1-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-2-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.12",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-3-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.13",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.13",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-4-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-5-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-6-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.12",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-7-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.13",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.13",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-8-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Windows",
+        "runner_label": "windows-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-9-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "macOS",
+        "runner_label": "macos-15",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-10-pyqt5",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-22.04",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt5",
+        "binding": "PyQt5",
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11_min_req",
+        "minimum_requirements": true,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-11-headless",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.11",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-22.04",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "headless",
+        "binding": null,
+        "binding_package_version_from_constraints": null,
+        "qt_runtime_package_version_from_constraints": null,
+        "constraint_profile_id": "constraints-py3.11",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "headless with pinned GUI/rendering exclusions",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": false,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-12-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "testing_extra",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-13-pyside6",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyside6",
+        "binding": "PySide6",
+        "binding_package_version_from_constraints": "6.11.2",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.12",
+        "minimum_requirements": false,
+        "tox_extras": "testing_extra",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test-14-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test",
+        "python_minor_requested": "3.14",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-24.04-arm",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": "aarch64",
+        "architecture_source": "explicit pinned CI label/comment",
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.14",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "upstream pytest profile using original fixtures",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "test_comprehensive-test_examples-1-pyqt6",
+        "source": ".upstream/napari/.github/workflows/test_comprehensive.yml",
+        "job": "test_examples",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt6",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.12_examples",
+        "minimum_requirements": false,
+        "tox_extras": "",
+        "configured_test_scope": "src/napari/_tests/test_examples.py only",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "reusable_pip_test-test_pip_install-1-pyqt6",
+        "source": ".upstream/napari/.github/workflows/reusable_pip_test.yml",
+        "job": "test_pip_install",
+        "python_minor_requested": "3.12",
+        "python_patch": null,
+        "interpreter": "CPython",
+        "os_family": "Linux",
+        "runner_label": "ubuntu-latest",
+        "os_version": null,
+        "runner_image_digest": null,
+        "architecture": null,
+        "architecture_source": null,
+        "backend_factor": "pyqt extra alias; no tox backend factor",
+        "binding": "PyQt6",
+        "binding_package_version_from_constraints": "6.11.0",
+        "qt_runtime_package_version_from_constraints": "6.11.2",
+        "constraint_profile_id": "constraints-py3.12",
+        "minimum_requirements": false,
+        "tox_extras": "testing",
+        "configured_test_scope": "Installed napari and napari_builtins --pyargs; numba uninstalled; sdist built before wheel",
+        "native_qt_sdk_version": null,
+        "compiler_toolchain_lock": null,
+        "gpu_driver_lock": null,
+        "native_qt_bridge_required_for_gui_release_gate": true,
+        "required_for_release": null,
+        "applicability": "unresolved",
+        "evidence_status": "unverified"
+      }
+    ]
+  },
+  "fork_configured_matrix_snapshot": {
+    "source": ".github/workflows/ci.yml",
+    "test_job_product": {
+      "runner_labels": [
+        "ubuntu-latest",
+        "windows-latest",
+        "macos-latest"
+      ],
+      "python_minors": [
+        "3.11",
+        "3.12",
+        "3.13"
+      ],
+      "binding_extra": "qt -> PyQt6"
+    },
+    "upstream_job": {
+      "runner_label": "windows-latest",
+      "python_minor": "3.12",
+      "binding_extra": "qt -> PyQt6",
+      "scope": "tools/run_upstream_tests.py selected cases"
+    },
+    "native_qt_options_explicitly_enabled": false,
+    "fresh_uploaded_wheel_install_job_defined": false,
+    "execution_status": "not asserted",
+    "remaining_matrix_delta": "No Python3.14, alternate binding, native bridge or native architecture contract is established by this CI."
+  },
+  "provider_contract": {
+    "pinned_requirement_profiles_as_written": {
+      "runtime": [
+        "app-model>=0.5.0,<0.6.0",
+        "cachey>=0.2.1",
+        "certifi>=2018.1.18",
+        "dask[array]>=2022.1.1",
+        "imageio>=2.20,!=2.22.1",
+        "jsonschema>=3.2.0",
+        "lazy_loader>=0.3",
+        "magicgui>=0.7.0",
+        "napari-console>=0.1.4",
+        "napari-plugin-engine>=0.2.1",
+        "napari-resources>=1.0.1",
+        "napari-svg>=0.1.8",
+        "npe2>=0.9.0",
+        "numpy>=1.25",
+        "pandas>=1.5.0",
+        "Pillow>=10.0",
+        "pint>=0.17",
+        "platformdirs>=4.3.0",
+        "psutil>=5.9.4",
+        "psygnal>=0.14.2",
+        "pydantic>=2.8.0",
+        "pygments>=2.13.0",
+        "pydantic-extra-types",
+        "pydantic-settings",
+        "PyOpenGL>=3.1.10",
+        "pywin32 ; platform_system == 'Windows'",
+        "PyYAML>=6.0",
+        "qtpy>=2.4.0",
+        "scikit-image[data]>=0.20.0",
+        "scipy>=1.14.0",
+        "superqt>=0.7.8",
+        "tifffile>=2022.7.28",
+        "toolz>=0.12.1",
+        "tqdm>=4.56.0",
+        "typing_extensions>=4.12",
+        "vispy>=0.17.0,<0.18",
+        "wrapt>=1.14.1"
+      ],
+      "testing": [
+        "babel>=2.9.0",
+        "docstring_parser>=0.15",
+        "fsspec>=2023.10.0",
+        "hypothesis>=6.8.0",
+        "lxml[html_clean]>5",
+        "matplotlib >= 3.6.1",
+        "pooch>=1.6.0",
+        "coverage>7",
+        "pretend>=1.0.9",
+        "pytest-qt >=4.4.0",
+        "pytest-pretty>=1.1.0",
+        "pytest>=8.3.5",
+        "pytest-rerunfailures>=15.1",
+        "tensorstore>=0.1.43",
+        "virtualenv>=20.24.7",
+        "xarray>=2023.5.0",
+        "IPython>=7.25.0",
+        "qtconsole>=4.5.1",
+        "rich>=14.0.0",
+        "napari[optional-base, bermuda]"
+      ],
+      "testing_extra": [
+        "torch>=1.13.1"
+      ],
+      "optional-base": [
+        "zarr>=3.0.8",
+        "aiohttp",
+        "napari-metadata>=0.1.0",
+        "napari-plugin-manager >=0.1.10, <0.2.0",
+        "rapidfuzz>=3"
+      ],
+      "optional-numba": [
+        "numba>=0.58.0,<=0.62.1 ; platform_system == 'Darwin' and platform_machine == 'x86_64'",
+        "numba>=0.58.0 ; platform_system != 'Darwin' or platform_machine != 'x86_64'"
+      ],
+      "partsegcore": [
+        "PartSegCore-compiled-backend>=0.15.11"
+      ],
+      "triangle": [
+        "triangle; python_version <= '3.13'"
+      ]
+    },
+    "fork_runtime_requirements_as_written": [
+      "app-model>=0.5.0,<0.6.0",
+      "cachey>=0.2.1",
+      "certifi>=2018.1.18",
+      "dask[array]>=2022.1.1",
+      "imageio>=2.20,!=2.22.1",
+      "jsonschema>=3.2.0",
+      "lazy_loader>=0.3",
+      "magicgui>=0.7.0",
+      "napari-console>=0.1.4",
+      "napari-plugin-engine>=0.2.1",
+      "napari-resources>=1.0.1",
+      "napari-svg>=0.1.8",
+      "npe2>=0.9.0",
+      "numpy>=1.25",
+      "pandas>=1.5.0",
+      "Pillow>=10.0",
+      "pint>=0.17",
+      "platformdirs>=4.3.0",
+      "psutil>=5.9.4",
+      "psygnal>=0.14.2",
+      "pydantic>=2.8.0",
+      "pygments>=2.13.0",
+      "pydantic-extra-types",
+      "pydantic-settings",
+      "PyOpenGL>=3.1.10",
+      "pywin32 ; platform_system == 'Windows'",
+      "PyYAML>=6.0",
+      "qtpy>=2.4.0",
+      "scikit-image[data]>=0.20.0",
+      "scipy>=1.14.0",
+      "superqt>=0.7.8",
+      "tifffile>=2022.7.28",
+      "toolz>=0.12.1",
+      "tqdm>=4.56.0",
+      "typing_extensions>=4.12",
+      "vispy>=0.17.0,<0.18",
+      "wrapt>=1.14.1"
+    ],
+    "fork_test_upstream_requirements_as_written": [
+      "napari[test]",
+      "xarray",
+      "zarr>=3.0.8",
+      "matplotlib",
+      "pytest-qt",
+      "pytest-timeout"
+    ],
+    "required_array_and_io_families_from_plan": [
+      "NumPy",
+      "Dask",
+      "Zarr",
+      "applicable optional providers"
+    ],
+    "testing_provider_obligations": [
+      "TensorStore is in pinned testing; required cases must run in an applicable full-suite profile.",
+      "Torch is in pinned testing_extra; freeze applicability and exact installed artifacts."
+    ],
+    "exact_profile_case_map": null,
+    "platform_resolved_artifact_locks": null,
+    "protocol_dimensions_to_freeze": [
+      "dtype/shape/layout/order and integer range",
+      "lazy/multiscale/task/cancellation/error",
+      "identity/alias/live mutation/copy/restoration/serialization",
+      "subclass/descriptor/private/reflection hooks used by original fixtures or supported plugins",
+      "unit/scalar/event/callback/thread/GC ownership"
+    ],
+    "evidence_status": "unverified"
+  },
+  "plugin_contract": {
+    "runtime_framework_versions_from_regular_constraints": {
+      "npe2": "0.9.0",
+      "napari-plugin-engine": "0.2.1"
+    },
+    "required_contribution_classes": [
+      "reader",
+      "writer",
+      "command",
+      "dock-widget"
+    ],
+    "builtin_manifest_entry_point": {
+      "napari_builtins": "napari_builtins:builtins.yaml"
+    },
+    "representative_plugin_artifacts": [
+      {
+        "distribution": "napari-svg",
+        "version": "0.2.1",
+        "source_revision": "7b25b5324cabf00ed821018992ff7730abb4f589",
+        "wheel_sha256": "9eaa54fbbf9bfd5078b67b7d1edc9eccfd872dab89fd586374909fef4ed89a49",
+        "dependency_lock_sha256": null,
+        "manifest_or_hook_ids": [
+          "napari_svg:napari.yaml",
+          "napari-svg.svg_writer"
+        ],
+        "public_and_private_api_use": null,
+        "workflow_ids": [
+          "real-plugin-interop"
+        ],
+        "matrix_cell_ids": null,
+        "original_reference_report": null,
+        "candidate_report": null
+      },
+      {
+        "distribution": "napari-animation",
+        "version": "0.0.10",
+        "source_revision": "57b9cfb90535a2ef01fbd9a724aa054d0ae01a45",
+        "wheel_sha256": "4caf663226b5b5759125dcaa8056080ab7022d67eb2b11ed84008ba11bedeca6",
+        "dependency_lock_sha256": null,
+        "manifest_or_hook_ids": [
+          "napari_animation:napari.yaml",
+          "napari-animation.make_animation_widget"
+        ],
+        "public_and_private_api_use": null,
+        "workflow_ids": [
+          "real-plugin-interop"
+        ],
+        "matrix_cell_ids": null,
+        "original_reference_report": null,
+        "candidate_report": null
+      },
+      {
+        "distribution": "napari-ome-zarr",
+        "version": "0.10.0",
+        "source_revision": "9bd108496f8adb3a1b08861fea8634bcc7933a4d",
+        "wheel_sha256": "0481a96ec63e4e310bd59a5ee09bc52086ffffb7938f7ac94419253b4ef0262a",
+        "dependency_lock_sha256": null,
+        "manifest_or_hook_ids": [
+          "napari_ome_zarr:napari.yaml",
+          "napari-ome-zarr.get_reader"
+        ],
+        "public_and_private_api_use": null,
+        "workflow_ids": [
+          "real-plugin-interop"
+        ],
+        "matrix_cell_ids": null,
+        "original_reference_report": null,
+        "candidate_report": null
+      },
+      {
+        "distribution": "napari-czifile2",
+        "version": "0.2.5",
+        "source_revision": "384251368eb41d5e8a6ad5b7c2cd5c7f0d1ed9e3",
+        "wheel_sha256": "67c1576a8965beffd2842f6b38b2a6eb209c06aab2ef623edcc6a8e1a824a650",
+        "dependency_lock_sha256": null,
+        "manifest_or_hook_ids": [
+          "napari.plugin:napari-czifile2 = napari_czifile2",
+          "napari_czifile2._reader.napari_get_reader"
+        ],
+        "public_and_private_api_use": null,
+        "workflow_ids": [
+          "real-plugin-interop"
+        ],
+        "matrix_cell_ids": null,
+        "original_reference_report": null,
+        "candidate_report": null
+      }
+    ],
+    "legacy_engine_applicability": {
+      "applicable": true,
+      "reason": "Legacy npe1 plugin compatibility is required through the pinned NPE2 discovery and adapter path: _initialize_plugins discovers include_npe1=True, the napari adapter calls pm.index_npe1_adapters(), and actual Qt window setup indexes those adapters. Preserve real legacy distribution discovery, indexing and applicable reader/writer/command/dock contributions alongside native NPE2 plugins. Exact representative artifacts, applicable contributions per artifact, dependency locks and original/candidate GUI reports remain required and unverified.",
+      "review": {
+        "path": ".artifacts/m0-legacy-plugin-applicability.json",
+        "sha256": "a69c0d9441b506a327ed92c6d937c17d892290e0bc73e69ada7482976edf2724"
+      }
+    },
+    "required_plugin_record_fields": [
+      "distribution",
+      "version",
+      "source_revision",
+      "wheel_sha256",
+      "dependency_lock_sha256",
+      "manifest_or_hook_ids",
+      "public_and_private_api_use",
+      "workflow_ids",
+      "matrix_cell_ids",
+      "original_reference_report",
+      "candidate_report"
+    ],
+    "fixtures_and_docs_examples_prove_real_plugin_parity": false,
+    "evidence_status": "unverified"
+  },
+  "workload_contract": {
+    "status": "draft",
+    "fixed_reference_commit": "595639295a153c84bcb127a9e07d801355440a35",
+    "method_family": "Pinned ASV suites plus separately frozen end-to-end workflow measurements",
+    "upstream_measurement_configuration": {
+      "python_minor": "3.12",
+      "threads": {
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1"
+      },
+      "tool_profile_id": "constraints-benchmark",
+      "qt_selection": {
+        "runner_label": "macos-15",
+        "regex": "^benchmark_qt_.*"
+      },
+      "non_qt_selection": {
+        "runner_label": "ubuntu-latest",
+        "regex": "^benchmark_(?!qt_).*"
+      },
+      "configured_anomaly_factor": 1.5,
+      "anomaly_factor_adopted_as_acceptance_threshold": false,
+      "upstream_baseline_selection": "Latest release dynamically queried; conversion acceptance must use fixed commit."
+    },
+    "external_benchmark_input": {
+      "url": "https://data.napari.dev/triangulation-benchmark-shapes.zip",
+      "sha256": null,
+      "retrieval_version": null,
+      "status": "unresolved"
+    },
+    "pinned_suite_inventory": [
+      {
+        "id": "benchmark_evented_model",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_evented_model.py",
+        "sha256_raw": "1ed8d44e50bf71f85aee54234b5890b0e8ce822fcffbe445e1551a77868026a7",
+        "suites": [
+          {
+            "class": "EventedModelSuite",
+            "line": 38,
+            "measurement_methods": [
+              "time_event_firing",
+              "time_long_connection"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "EventedModelSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_image_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_image_layer.py",
+        "sha256_raw": "43a8bb07e44c87ac646ef68c3012ee21549f9353c7d0d906179b8f0d85a83b94",
+        "suites": [
+          {
+            "class": "Image2DSuite",
+            "line": 12,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_set_data",
+              "time_refresh",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 13)]"
+            },
+            "input_setup_symbol": "Image2DSuite.setup"
+          },
+          {
+            "class": "Image3DSuite",
+            "line": 63,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_set_data",
+              "time_refresh",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 11)]"
+            },
+            "input_setup_symbol": "Image3DSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_import",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_import.py",
+        "sha256_raw": "74a23eb3d38f0faf9fcc77de9ddf35ca3e17a832f00937c861b7e4aa3d9da637",
+        "suites": [
+          {
+            "class": "ImportTimeSuite",
+            "line": 5,
+            "measurement_methods": [
+              "time_import"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": null
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_labels_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_labels_layer.py",
+        "sha256_raw": "754b1b964e189237709cde6dfcaec4083c27b2f13d1adb8bbb38dda64817eda6",
+        "suites": [
+          {
+            "class": "Labels2DSuite",
+            "line": 22,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_set_view_slice",
+              "time_refresh",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_raw_to_displayed",
+              "time_paint_circle",
+              "time_fill",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['n', 'dtype']",
+              "params": "([2**i for i in range(4, 13)], [np.uint8, np.int32])"
+            },
+            "input_setup_symbol": "Labels2DSuite.setup"
+          },
+          {
+            "class": "LabelsDrawing2DSuite",
+            "line": 88,
+            "measurement_methods": [
+              "time_draw"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['n', 'brush_size', 'color_mode', 'contour']",
+              "params": "([512, 3072], [8, 64, 256], ['auto', 'direct'], [0, 1])"
+            },
+            "input_setup_symbol": "LabelsDrawing2DSuite.setup"
+          },
+          {
+            "class": "Labels3DSuite",
+            "line": 151,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_set_view_slice",
+              "time_refresh",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_raw_to_displayed",
+              "time_paint_circle",
+              "time_fill",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['n', 'dtype']",
+              "params": "([2**i for i in range(4, 11)], [np.uint8, np.uint32])"
+            },
+            "input_setup_symbol": "Labels3DSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_points_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_points_layer.py",
+        "sha256_raw": "1b99e87e9006d26c7b449dc6ae7c960857ee96393ab1b171fe444309485d5d04",
+        "suites": [
+          {
+            "class": "Points2DSuite",
+            "line": 19,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_add",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Points2DSuite.setup"
+          },
+          {
+            "class": "Points3DSuite",
+            "line": 68,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Points3DSuite.setup"
+          },
+          {
+            "class": "PointsSlicingSuite",
+            "line": 113,
+            "measurement_methods": [
+              "time_slice_points"
+            ],
+            "parameter_definition_source": {
+              "params": "[True, False]"
+            },
+            "input_setup_symbol": "PointsSlicingSuite.setup"
+          },
+          {
+            "class": "PointsToMaskSuite",
+            "line": 138,
+            "measurement_methods": [
+              "time_to_mask"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['num_points', 'mask_shape', 'point_size']",
+              "params": "[\n        [64, 256, 1024, 4096, 16384],\n        [\n            (256, 256),\n            (512, 512),\n            (1024, 1024),\n            (2048, 2048),\n            (128, 128, 128),\n            (256, 256, 256),\n            (512, 512, 512),\n        ],\n        [5, 10],\n    ]"
+            },
+            "input_setup_symbol": "PointsToMaskSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_python_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_python_layer.py",
+        "sha256_raw": "0246cdf6158c68c8c6461713cede48e9b1e339f56261c285631570172d616b90",
+        "suites": [
+          {
+            "class": "CoerceSymbolsSuite",
+            "line": 6,
+            "measurement_methods": [
+              "time_coerce_symbols1",
+              "time_coerce_symbols2"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "CoerceSymbolsSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_qt_slicing",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_qt_slicing.py",
+        "sha256_raw": "f05d0b35b62308cec37b82a2284ed1360b5cea5856cd2492fd45243e486e22c2",
+        "suites": [
+          {
+            "class": "AsyncImage2DSuite",
+            "line": 51,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_set_view_slice",
+              "time_refresh"
+            ],
+            "parameter_definition_source": {
+              "params": "get_image_params()"
+            },
+            "input_setup_symbol": "AsyncImage2DSuite.setup"
+          },
+          {
+            "class": "QtViewerAsyncImage2DSuite",
+            "line": 93,
+            "measurement_methods": [
+              "time_z_scroll"
+            ],
+            "parameter_definition_source": {
+              "params": "get_image_params()"
+            },
+            "input_setup_symbol": "QtViewerAsyncImage2DSuite.setup"
+          },
+          {
+            "class": "QtViewerAsyncPointsSuite",
+            "line": 128,
+            "measurement_methods": [
+              "time_z_scroll"
+            ],
+            "parameter_definition_source": {
+              "n_points": "[2**i for i in range(12, 18)]",
+              "params": "n_points"
+            },
+            "input_setup_symbol": "QtViewerAsyncPointsSuite.setup"
+          },
+          {
+            "class": "QtViewerAsyncPointsAndImage2DSuite",
+            "line": 154,
+            "measurement_methods": [
+              "time_z_scroll"
+            ],
+            "parameter_definition_source": {
+              "n_points": "[2**i for i in range(12, 18, 2)]",
+              "chunksize": "[256, 512, 1024]",
+              "latency": "[0.05 * i for i in range(3)]",
+              "params": "(n_points, latency, chunksize)"
+            },
+            "input_setup_symbol": "QtViewerAsyncPointsAndImage2DSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_qt_viewer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer.py",
+        "sha256_raw": "51f29087dc6742dd74e6699e828603295273015fbc1928f343b9668a326c61cd",
+        "suites": [
+          {
+            "class": "QtViewerSuite",
+            "line": 8,
+            "measurement_methods": [
+              "time_create_viewer"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "QtViewerSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_qt_viewer_image",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_image.py",
+        "sha256_raw": "43b2b0a9235507d746c571ed2081eb3e6cb8d90ced78a4aaadc25807881aff0c",
+        "suites": [
+          {
+            "class": "QtViewerViewImageSuite",
+            "line": 19,
+            "measurement_methods": [
+              "time_view_image"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 13)]"
+            },
+            "input_setup_symbol": "QtViewerViewImageSuite.setup"
+          },
+          {
+            "class": "QtViewerAddImageSuite",
+            "line": 44,
+            "measurement_methods": [
+              "time_add_image"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 13)]"
+            },
+            "input_setup_symbol": "QtViewerAddImageSuite.setup"
+          },
+          {
+            "class": "QtViewerImageSuite",
+            "line": 66,
+            "measurement_methods": [
+              "time_zoom",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 13)]"
+            },
+            "input_setup_symbol": "QtViewerImageSuite.setup"
+          },
+          {
+            "class": "QtViewerSingleImageSuite",
+            "line": 126,
+            "measurement_methods": [
+              "time_zoom",
+              "time_set_data",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_ndisplay"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "QtViewerSingleImageSuite.setup"
+          },
+          {
+            "class": "QtViewerSingleInvisbleImageSuite",
+            "line": 191,
+            "measurement_methods": [
+              "time_zoom",
+              "time_set_data",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_ndisplay"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "QtViewerSingleInvisbleImageSuite.setup"
+          },
+          {
+            "class": "QtImageRenderingSuite",
+            "line": 256,
+            "measurement_methods": [
+              "time_change_contrast",
+              "time_change_gamma"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 13)]"
+            },
+            "input_setup_symbol": "QtImageRenderingSuite.setup"
+          },
+          {
+            "class": "QtVolumeRenderingSuite",
+            "line": 291,
+            "measurement_methods": [
+              "time_change_contrast",
+              "time_change_gamma"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 10)]"
+            },
+            "input_setup_symbol": "QtVolumeRenderingSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_qt_viewer_labels",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_labels.py",
+        "sha256_raw": "9b16fe66da55ebdb3593b88fb69515df56b971df18160f21aeed49ffa093a544",
+        "suites": [
+          {
+            "class": "QtViewerSingleLabelsSuite",
+            "line": 26,
+            "measurement_methods": [
+              "time_zoom",
+              "time_set_view_slice",
+              "time_refresh",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_raw_to_displayed",
+              "time_paint",
+              "time_fill",
+              "time_on_mouse_move"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "QtViewerSingleLabelsSuite.setup"
+          },
+          {
+            "class": "LabelRenderingSuite2D",
+            "line": 183,
+            "measurement_methods": [
+              "time_iterate_over_z",
+              "time_load_3d",
+              "time_iterate_components",
+              "time_zoom_change"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "LabelRenderingSuite2D.setup"
+          },
+          {
+            "class": "LabelRenderingSuite3D",
+            "line": 211,
+            "measurement_methods": [
+              "time_rotate",
+              "time_iterate_components",
+              "time_zoom_change"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": "LabelRenderingSuite3D.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_qt_viewer_vectors",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_qt_viewer_vectors.py",
+        "sha256_raw": "9e3e38d287cd6c96796280f04f259a2ca5143bc962690ed1ff9120d2b2f39e3b",
+        "suites": [
+          {
+            "class": "QtViewerViewVectorSuite",
+            "line": 16,
+            "measurement_methods": [
+              "time_vectors_refresh",
+              "time_vectors_multi_refresh"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "QtViewerViewVectorSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_shapes_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_shapes_layer.py",
+        "sha256_raw": "171f5f89b13629c9e3a9073189e1c65d521fe7b4e82e13a3f95903c5e18fbcc5",
+        "suites": [
+          {
+            "class": "Shapes2DSuite",
+            "line": 191,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "mem_layer",
+              "mem_data",
+              "time_edit_shape"
+            ],
+            "parameter_definition_source": {
+              "params": "[tuple(2**i for i in range(4, 9)), backends]"
+            },
+            "input_setup_symbol": "Shapes2DSuite.setup"
+          },
+          {
+            "class": "Shape2DEditSuite",
+            "line": 250,
+            "measurement_methods": [
+              "time_set_edge_width",
+              "time_set_edge_color",
+              "time_set_face_color"
+            ],
+            "parameter_definition_source": {
+              "params": "[tuple(2**i for i in range(4, 9)), ('single', 'all')]"
+            },
+            "input_setup_symbol": "Shape2DEditSuite.setup"
+          },
+          {
+            "class": "Shapes3DSuite",
+            "line": 273,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 9)]"
+            },
+            "input_setup_symbol": "Shapes3DSuite.setup"
+          },
+          {
+            "class": "ShapesInteractionSuite",
+            "line": 320,
+            "measurement_methods": [
+              "time_drag_shape",
+              "time_select_shape"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 9)]"
+            },
+            "input_setup_symbol": "ShapesInteractionSuite.setup"
+          },
+          {
+            "class": "_ShapeTriangulationBase",
+            "line": 445,
+            "measurement_methods": [
+              "time_create_layer"
+            ],
+            "parameter_definition_source": {},
+            "input_setup_symbol": null
+          },
+          {
+            "class": "ShapeTriangulationMixed",
+            "line": 633,
+            "measurement_methods": [
+              "time_create_shapes"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['n_shapes', 'shape_type', 'triangulation_backend']",
+              "params": "[\n        (\n            100,\n            3_000,\n        ),\n        ('path', 'polygon'),\n        backend_list_complex,\n    ]"
+            },
+            "input_setup_symbol": "ShapeTriangulationMixed.setup"
+          },
+          {
+            "class": "MeshTriangulationSuite",
+            "line": 669,
+            "measurement_methods": [
+              "time_set_meshes"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['shape_type', 'triangulation_backend']",
+              "params": "[('path', 'polygon'), backend_list_complex]"
+            },
+            "input_setup_symbol": "MeshTriangulationSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_surface_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_surface_layer.py",
+        "sha256_raw": "8f0037c97a3d5e264c1fdcdf0edfbd942d1a70d88d6cb4ee7a4ded2c37b6099d",
+        "suites": [
+          {
+            "class": "Surface2DSuite",
+            "line": 10,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Surface2DSuite.setup"
+          },
+          {
+            "class": "Surface3DSuite",
+            "line": 57,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Surface3DSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_text_manager",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_text_manager.py",
+        "sha256_raw": "f225f141bce0b6a07282e19cf3e0f4ecedf8b96ef9afe352c5ee4dd8d6d62177",
+        "suites": [
+          {
+            "class": "TextManagerSuite",
+            "line": 14,
+            "measurement_methods": [
+              "time_create",
+              "time_refresh",
+              "time_add_iteratively",
+              "time_remove_as_batch"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['n', 'string']",
+              "params": "[\n        [2**i for i in range(4, 18, 2)],\n        [\n            {'constant': 'test'},\n            'string_property',\n            'float_property',\n            '{string_property}: {float_property:.2f}',\n        ],\n    ]"
+            },
+            "input_setup_symbol": "TextManagerSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_tracks_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_tracks_layer.py",
+        "sha256_raw": "3d4b9d39d4110b8f2e0e84ef0ce4de2a8e48034afe920bac1331bee2f46613ff",
+        "suites": [
+          {
+            "class": "TracksSuite",
+            "line": 8,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_update_layer"
+            ],
+            "parameter_definition_source": {
+              "param_names": "['size', 'n_tracks']",
+              "params": "[(5 * np.power(10, np.arange(7))).tolist(), [1, 10, 100, 1000]]"
+            },
+            "input_setup_symbol": "TracksSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      },
+      {
+        "id": "benchmark_vectors_layer",
+        "source": ".upstream/napari/src/napari/benchmarks/benchmark_vectors_layer.py",
+        "sha256_raw": "0f2f8921410843e6a6c1e5c38e489b2c07267ff14c2965e3facd49da01c17f9d",
+        "suites": [
+          {
+            "class": "Vectors2DSuite",
+            "line": 10,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_width",
+              "time_length",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Vectors2DSuite.setup"
+          },
+          {
+            "class": "Vectors3DSuite",
+            "line": 61,
+            "measurement_methods": [
+              "time_create_layer",
+              "time_refresh",
+              "time_set_view_slice",
+              "time_update_thumbnail",
+              "time_get_value",
+              "time_width",
+              "time_length",
+              "mem_layer",
+              "mem_data"
+            ],
+            "parameter_definition_source": {
+              "params": "[2**i for i in range(4, 18, 2)]"
+            },
+            "input_setup_symbol": "Vectors3DSuite.setup"
+          }
+        ],
+        "selected_acceptance_cases": null,
+        "materialized_input_hashes": null,
+        "baseline_measurements": null,
+        "candidate_measurements": null,
+        "acceptance_tolerances": null,
+        "evidence_status": "unverified"
+      }
+    ],
+    "end_to_end_workload_ids": null,
+    "frozen_measurement_protocol": {
+      "hardware_and_os_lock": null,
+      "python_qt_provider_build_lock": null,
+      "gpu_display_and_synchronization": null,
+      "warmup_repetitions_and_statistics": null,
+      "time_memory_and_resource_measurement_methods": null,
+      "workload_parameter_and_environment_skip_policy": null
+    },
+    "numerical_tolerances": null,
+    "image_tolerances": null,
+    "performance_tolerances": null,
+    "universal_speedup_required": false,
+    "runtime_evidence": []
+  },
+  "required_workflows": [
+    {
+      "id": "api-state-contracts",
+      "milestones": [
+        "M0",
+        "M1"
+      ],
+      "required_behavior": "Public and exercised private API/class/schema/signature identity; validation, live mutation/alias/copy/restore, serialization, caches, event/error/reentry order, external provider protocols and GC/thread ownership.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/utils/events/_tests",
+        ".upstream/napari/src/napari/utils/transforms/_tests"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "viewer-layer-state",
+      "milestones": [
+        "M2"
+      ],
+      "required_behavior": "Actual Viewer insert/remove/reorder/select/link, features/text/colors, extents and scene/cursor/overlay transitions; object identity and events.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/_tests/test_viewer.py",
+        ".upstream/napari/src/napari/components/_tests"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "image-labels-roundtrip",
+      "milestones": [
+        "M3"
+      ],
+      "required_behavior": "Open real NumPy/Dask/Zarr and applicable optional-provider inputs; add/reorder/select, change dimensions, render, paint/fill/polygon, undo/redo, save/reopen, close; stale/cancelled/error delivery and close while loading.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/layers/image/_tests",
+        ".upstream/napari/src/napari/layers/labels/_tests",
+        ".upstream/napari/src/napari/components/_tests/test_viewer_labels_io.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "all-seven-layers",
+      "milestones": [
+        "M4"
+      ],
+      "required_behavior": "Image, Labels, Points, Vectors, Surface, Shapes and Tracks: slicing/transforms/selection/editing, geometry, graph/time/tail and 2D/3D interaction.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/layers"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "services-io-settings-cli",
+      "milestones": [
+        "M5",
+        "M8"
+      ],
+      "required_behavior": "Actions/contexts/shortcuts, settings migration/persistence, file/session IO roundtrips, notifications, startup/CLI and builtin plugins.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/settings/_tests",
+        ".upstream/napari/src/napari_builtins/_tests/test_io.py",
+        ".upstream/napari/src/napari/utils/_tests/test_io.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "real-plugin-interop",
+      "milestones": [
+        "M0",
+        "M5",
+        "M6",
+        "M9"
+      ],
+      "required_behavior": "Install representative versioned reader/writer/command/dock-widget plugins; exercise public/used private hooks, Python-created widget/native ownership, canvas identity, event loop and unload/close.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/plugins/_tests/test_npe2.py",
+        ".upstream/napari/src/napari/_qt/_tests/test_plugin_widgets.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "actual-qt-input-window",
+      "milestones": [
+        "M0",
+        "M6"
+      ],
+      "required_behavior": "Real main window/viewer/controls, keyboard/mouse/menu/dialog/preferences/dock/console actions, screenshots and repeated open/close with workers/callbacks active.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/_qt/_tests/test_viewer_qt_integration.py",
+        ".upstream/napari/src/napari/_tests/test_mouse_bindings.py",
+        ".upstream/napari/src/napari/_qt/_tests/test_qt_viewer.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "rendering-and-gpu-cleanup",
+      "milestones": [
+        "M7"
+      ],
+      "required_behavior": "2D/3D/volume image/screenshot comparisons, picking, transforms/colormaps/clipping/overlays, backend/plugin visual interop and GPU release/cleanup on supported drivers.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/_vispy/_tests",
+        ".upstream/napari/src/napari/_tests/test_with_screenshot.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "lifetime-and-interpreter-exit",
+      "milestones": [
+        "M1",
+        "M3",
+        "M6",
+        "M7",
+        "M9"
+      ],
+      "required_behavior": "GC cycles/reference/finalizer reentry, thread/cancellation, repeated close and close while loading, deferred Qt/GPU deletion and interpreter exit with diagnostics enabled.",
+      "pinned_fixture_sources": [
+        ".upstream/napari/src/napari/conftest.py",
+        ".upstream/napari/src/napari/_qt/_tests/test_prune_qt_connections.py"
+      ],
+      "exact_case_ids": null,
+      "input_artifact_hashes": null,
+      "applicable_matrix_cell_ids": null,
+      "ordered_steps": null,
+      "assertion_oracle": "Unchanged pinned original fixtures plus independent baseline comparisons; additional exact workflow oracles must be frozen.",
+      "numerical_tolerances": null,
+      "image_tolerances": null,
+      "evidence_status": "unverified"
+    }
+  ],
+  "full_fixture_contract": {
+    "status": "draft",
+    "original_suite_roots": [
+      ".upstream/napari/src/napari",
+      ".upstream/napari/src/napari_builtins"
+    ],
+    "original_conftest_source": ".upstream/napari/src/napari/conftest.py",
+    "fixture_source_inventory_sha256": null,
+    "expected_collection_per_cell": null,
+    "baseline_skip_xfail_and_deselection_receipts": null,
+    "additional_migration_exclusions_allowed": false,
+    "headless_and_secondary_backend_scopes_are_gui_release_coverage": false,
+    "full_suite_runner_command": null,
+    "full_original_fixtures_required": true
+  },
+  "final_evidence_gates": [
+    {
+      "id": "m0-freeze",
+      "required": "Freeze this record after every applicability/configuration/input/oracle/tolerance choice is resolved and reviewed.",
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "m0-m9-exits",
+      "required": "Every milestone exit for same final sources: authoritative handwritten native runtime responsibilities, reviewed facade/dependency limits and no original application-algorithm fallback.",
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "source-audit",
+      "required": "tools/audit_conversion.py --check-complete exits 0 with current responsibility/dependency hashes and no invalid/unreviewed/unresolved records; source evidence only.",
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "full-upstream-providers-plugins-workflows",
+      "required": "Full pinned original fixtures plus frozen provider/plugin/API/GUI/rendering workflows; collection/outcome comparison, applicable baseline skip/xfail reasons, no migration-induced exclusions or missing required provider coverage.",
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "fresh-native-distributions",
+      "required": "Reproducible sdist-to-wheel and clean outside-checkout wheel installs in every required cell, actual native Qt bridges, exact Python/Qt/SDK/OS/arch/compiler/GPU/dependency/source/wheel/installed-binary provenance.",
+      "evidence_status": "unverified"
+    },
+    {
+      "id": "lifetime-gpu-and-workloads",
+      "required": "GC/reference/thread/cancellation/repeated-close/interpreter-exit/GPU cleanup with diagnostics and all frozen numerical/image/performance tolerances met.",
+      "evidence_status": "unverified"
+    }
+  ],
+  "release_receipt_contract": {
+    "destination": "docs/conversion-release-evidence.json",
+    "status": "not created or asserted here",
+    "required_per_item_fields": [
+      "acceptance_record_sha256",
+      "acceptance_item_id",
+      "matrix_cell_id",
+      "source_inventory_sha256",
+      "baseline_commit",
+      "dependency_lock_sha256",
+      "sdist_sha256",
+      "wheel_sha256",
+      "installed_binary_sha256s",
+      "python_implementation_version_abi",
+      "qt_binding_version_runtime_version_sdk_version",
+      "os_arch_compiler_gpu_driver_display",
+      "commands_cwd_env",
+      "exit_codes",
+      "stdout_stderr_sha256s",
+      "report_sha256s",
+      "collected_case_ids",
+      "passed_failed_skipped_xfailed_deselected_case_ids_and_reasons",
+      "original_reference_evidence",
+      "measured_workload_inputs_protocol_results"
+    ],
+    "same_source_and_artifact_consistency_required": true,
+    "completion_flag_update_requires_review_of_all_gates": true
+  },
+  "draft_schema_contract": {
+    "matrix_cell_required_when_frozen": [
+      "id",
+      "python_patch",
+      "interpreter",
+      "os_version",
+      "runner_image_digest_or_host_fingerprint",
+      "architecture",
+      "binding_and_runtime_versions_if_gui",
+      "native_qt_sdk_version_if_gui",
+      "compiler_toolchain_lock",
+      "dependency_artifact_lock",
+      "gpu_driver_lock_if_rendering",
+      "applicability_with_reason",
+      "required_for_release",
+      "gate_ids"
+    ],
+    "workflow_required_when_frozen": [
+      "id",
+      "exact_case_ids_or_script_sha256",
+      "input_artifact_hashes",
+      "applicable_matrix_cell_ids",
+      "ordered_steps",
+      "reference_output_and_event_oracles",
+      "numerical_and_image_tolerances_with_scope"
+    ],
+    "workload_required_when_frozen": [
+      "id",
+      "source_and_input_hashes",
+      "parameter_cases",
+      "applicable_matrix_cell_ids",
+      "reference_commit_and_artifacts",
+      "measurement_protocol",
+      "predeclared_tolerances"
+    ],
+    "freeze_predicate": "All blocking choices resolved; every required field populated or has specific reviewed nonapplicability reason; source references current. Runtime measurements do not substitute for predeclared policy.",
+    "completion_predicate": "Frozen acceptance plus all current final gates/M0-M9 exits for same sources/artifacts. Draft/missing/unavailable/failed/required-skipped items cannot certify completion."
+  },
+  "unresolved_choices": [
+    {
+      "id": "python-support-boundary",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Pinned metadata admits >=3.11/classifiers 3.11-3.14; tox adds 3.15 while fork CI stops at 3.13.",
+      "required_resolution": "Reconcile metadata/CI with required CPython 3.11-3.14, declare 3.15+ admission policy, and pin exact patch/interpreter/ABI per cell.",
+      "affected_gates": [
+        "matrix",
+        "wheel-release"
+      ]
+    },
+    {
+      "id": "os-and-architecture-applicability",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Mutable runner labels are not exact OS/architecture contracts. CI explicitly names Intel macOS and Linux aarch64 but no complete native-wheel architecture matrix.",
+      "required_resolution": "Freeze supported OS versions/architectures, immutable image/toolchain fingerprints and justified Qt/provider applicability for every combination; pin relevant release-era external support documentation.",
+      "affected_gates": [
+        "matrix",
+        "wheel-release",
+        "actual-qt",
+        "gpu"
+      ]
+    },
+    {
+      "id": "qt-version-and-sdk-locks",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "PyQt6/PySide6 constraints pin package runtimes; PyQt5/Qt5/SIP are absent and native SDKs unspecified. Minimum SDKs do not freeze exact supported runtimes.",
+      "required_resolution": "Resolve exact binding/SIP/Shiboken/runtime versions and platform wheel hashes, matching native SDK/linkage/load provenance. Verify qVersion equals native build version plus actual Viewer/plugin/canvas integration per GUI cell.",
+      "affected_gates": [
+        "matrix",
+        "actual-qt",
+        "wheel-release"
+      ]
+    },
+    {
+      "id": "minimum-and-latest-dependencies",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Pinned minimum constraints are empty; regular constraints are not platform wheel hashes or complete minimum/latest support endpoints.",
+      "required_resolution": "Freeze minimum/latest applicable dependency profiles with platform markers, all transitive versions/artifact hashes and availability. Preserve required providers. Check the as-written Windows PyQt5 Qt marker in actual marker environments.",
+      "affected_gates": [
+        "matrix",
+        "providers",
+        "full-upstream"
+      ]
+    },
+    {
+      "id": "full-fixture-coverage",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Pinned secondary-backend/headless/example jobs have scoped coverage; fork selected runner is narrower than full original fixtures.",
+      "required_resolution": "Freeze expected original case IDs and fixture hashes per applicable GUI/headless cell plus baseline skip/xfail reasons; compare final collection/outcomes. Missing required providers or migration-induced exclusions keep the gate open.",
+      "affected_gates": [
+        "full-upstream"
+      ]
+    },
+    {
+      "id": "provider-protocol-profiles",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Metadata identifies NumPy/Dask/Zarr/TensorStore/xarray and optional Torch/Numba/geometry but not every provider behavior contract.",
+      "required_resolution": "Freeze provider artifact versions/hashes and applicable dtype/layout/lazy/multiscale/alias/copy/serialization/error/private-provider cases, including testing-required TensorStore and testing_extra Torch.",
+      "affected_gates": [
+        "providers",
+        "image-labels",
+        "all-layers"
+      ]
+    },
+    {
+      "id": "representative-real-plugins",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Builtin manifests and mock fixtures are known; a supported real-plugin corpus with exact versions is not frozen.",
+      "required_resolution": "Select real reader/writer/command/dock-widget distributions with exact versions/source/wheel hashes, required NPE2/legacy-engine paths, public/private hook usage, workflows and cells. Resolve dependency compatibility; mock fixtures alone are insufficient.",
+      "affected_gates": [
+        "plugins",
+        "actual-qt"
+      ]
+    },
+    {
+      "id": "gpu-image-environment",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "No pinned GPU/vendor/driver/OpenGL/display/backend matrix or cross-device image policy is defined.",
+      "required_resolution": "Freeze GPU/driver/OpenGL/display/software-renderer configurations and scoped image oracles/tolerances before measurements. Required GPU checks cannot be certified by environmental skips.",
+      "affected_gates": [
+        "gpu",
+        "actual-qt",
+        "workloads"
+      ]
+    },
+    {
+      "id": "workflow-inputs-and-oracles",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Real workflow families are named; exact inputs/cases/event traces/output oracles and additional tolerances remain unspecified.",
+      "required_resolution": "Freeze deterministic dataset hashes, ordered GUI/API/plugin steps and exact reference outcomes for each workflow. Preserve pinned fixture tolerances within their original scope; define extra numerical/image tolerances before measurement.",
+      "affected_gates": [
+        "api",
+        "providers",
+        "plugins",
+        "actual-qt",
+        "gpu",
+        "workloads"
+      ]
+    },
+    {
+      "id": "performance-measurement-policy",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "ASV suites/tools exist, but selection/full-run skip policy, hardware/methods and fork acceptance thresholds are not fixed. Upstream factor 1.5 is its configured anomaly policy.",
+      "required_resolution": "Select exact ASV parameter cases and real end-to-end workloads; hash inputs, freeze warmup/repetitions/statistics/CPU/display/GPU synchronization/time/memory methods and justified tolerances before performance measurements. Measure the fixed-commit baseline and candidate under that same protocol. No universal speedup is assumed.",
+      "affected_gates": [
+        "workloads"
+      ]
+    },
+    {
+      "id": "native-distribution-policy",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Pure-Python upstream builds and fork source installs do not freeze native wheel tags/toolchains/shared runtimes or prove clean installations.",
+      "required_resolution": "Freeze wheel/sdist tags, compiler/SDK/build flags and dependency locks. Require reproducible sdist-to-wheel and fresh outside-checkout installations with installed binary hashes and actual native Qt bridge checks in every required cell.",
+      "affected_gates": [
+        "wheel-release"
+      ]
+    },
+    {
+      "id": "acceptance-validator-and-evidence-index",
+      "status": "open",
+      "blocks_freeze": true,
+      "evidence_gap": "Source-review completion cannot attest full runtime/release parity; this draft implements no composite checker.",
+      "required_resolution": "Validate draft fields/references; implement a completion gate refusing draft/unresolved records and requiring current M0-M9 exits, source review completeness and all same-source report/artifact hashes in docs/conversion-release-evidence.json.",
+      "affected_gates": [
+        "all-final-gates"
+      ]
+    }
+  ],
+  "provisional_required_matrix": {
+    "status": "chosen_reviewed_unfrozen_required_floor",
+    "selection": {
+      "path": ".artifacts/full-conversion-M0-required-matrix-selection.json",
+      "sha256": "13ddda92e9e6a5466dfc004fa89f3a640ed3c56b06a6037ede93452db5bb2e2c",
+      "bytes": 8407
+    },
+    "proposal": {
+      "path": ".artifacts/full-conversion-M0-required-matrix-proposal.json",
+      "sha256": "8070f1fb5f0676665786afa010e26050d20748448e737a53878b9767e012f7e6",
+      "bytes": 154548
+    },
+    "independent_review": {
+      "path": ".artifacts/full-conversion-M0-required-matrix-review.json",
+      "sha256": "23f2af06a3b1cd7b9be16379a202630cb1d8246a41819176a804ad00cfe55970",
+      "bytes": 7057
+    },
+    "required_rows": 34,
+    "configured_modes_preserved": 32,
+    "exact_locks_frozen": false,
+    "exhaustive_support_or_exclusion_certificate": false,
+    "runtime_parity_proven": false,
+    "release_parity_proven": false,
+    "remaining_choice_owner_and_exit_source": ".artifacts/full-conversion-M0-required-matrix-proposal.json",
+    "headless_sdist_to_wheel_explicitly_required": true
+  }
+}

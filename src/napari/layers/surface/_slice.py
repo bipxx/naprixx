@@ -1,0 +1,77 @@
+from naparixx import native as _native
+
+import warnings
+from dataclasses import dataclass, field
+
+import numpy as np
+import numpy.typing as npt
+
+from napari.layers.base._slice import _next_request_id
+from napari.layers.surface._surface_constants import SurfaceProjectionMode
+from napari.layers.utils._slice_input import _SliceInput, _ThickNDSlice
+
+OptArray = npt.NDArray | None
+
+
+@dataclass(frozen=True)
+class _SurfaceSliceResponse:
+    """Contains all the output data of slicing a surface layer.
+
+    Attributes
+    ----------
+    vertices : array like
+        Sliced vertices coordinates.
+    faces : array like
+        Faces reindexed for the sliced vertices.
+    slice_input : _SliceInput
+        Describes the slicing plane or bounding box in the layer's dimensions.
+    request_id : int
+        The identifier of the request from which this was generated.
+    """
+
+    vertices: np.ndarray = field(repr=False)
+    faces: np.ndarray = field(repr=False)
+    values: np.ndarray | None = field(repr=False)
+    vertex_colors: np.ndarray | None = field(repr=False)
+    texcoords: np.ndarray | None = field(repr=False)
+    slice_input: _SliceInput
+    request_id: int
+
+
+@dataclass(frozen=True)
+class _SurfaceSliceRequest:
+    """A callable that stores all the input data needed to slice a Surface layer.
+
+    This should be treated a deeply immutable structure, even though some
+    fields can be modified in place. It is like a function that has captured
+    all its inputs already.
+
+    In general, the calling an instance of this may take a long time, so you may
+    want to run it off the main thread.
+
+    Attributes
+    ----------
+    slice_input : _SliceInput
+        Describes the slicing plane or bounding box in the layer's dimensions.
+    data : Any
+        The layer's data field, which is the main input to slicing.
+    data_slice : _ThickNDSlice
+        The slicing coordinates and margins in data space.
+    others
+        See the corresponding attributes in `Layer` and `Points`.
+    """
+
+    slice_input: _SliceInput
+    data: tuple = field(repr=False)
+    vertex_colors: np.ndarray | None = field(repr=False)
+    texcoords: np.ndarray | None = field(repr=False)
+    data_slice: _ThickNDSlice = field(repr=False)
+    projection_mode: SurfaceProjectionMode
+    id: int = field(default_factory=_next_request_id)
+
+    def __call__(self) -> _SurfaceSliceResponse:
+        # Return early if no data
+        return _native.surface_slice_request(self)
+
+    def _empty_response(self) -> _SurfaceSliceResponse:
+        return _native.surface_empty_response(self)

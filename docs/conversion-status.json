@@ -1,0 +1,101 @@
+{
+  "schema": "naparixx.public-source-conversion-status.v1",
+  "recorded_utc": "2026-10-21T01:40:39.988931+00:00",
+  "repository": "https://github.com/bipxx/naprixx",
+  "publication_type": "in-progress development source",
+  "baseline": {
+    "version": "0.9.2",
+    "commit": "595639295a153c84bcb127a9e07d801355440a35"
+  },
+  "complete_application_port": false,
+  "milestones": {
+    "M0": "open",
+    "M1": "open",
+    "M2": "open",
+    "M3": "open",
+    "M4": "open",
+    "M5": "open",
+    "M6": "open",
+    "M7": "open",
+    "M8": "open",
+    "M9": "open"
+  },
+  "accepted_scope": "Finite handwritten C++ control for13 shared Labels/indexing edit/write/cache policies and11 expressions. Genuine Python functions/aliases and actual Layer dictionary, backend data and raw/view arrays remain authoritative. Actual installed Windows/CP312/PyQt6 qualification passed37 new cases and retained569 cases, including9 actual Viewer/canvas cases. Full frontend geometry/mouse/save/lifetime/class/module/provider/platform/M0-M9 parents remain OPEN.",
+  "accepted_installed": {
+    "processes": 31,
+    "raw_cases": 606,
+    "distinct_cases": 606,
+    "duplicates": 0,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "source_binary_drift": 0
+  },
+  "installed_configuration": {
+    "os": "Windows",
+    "python": "CPython 3.12",
+    "qt_binding": "PyQt6"
+  },
+  "native_named_functions": 13,
+  "native_expressions": {
+    "generator": 6,
+    "comprehension": 5
+  },
+  "responsibility_audit": {
+    "reviewed": 692,
+    "unreviewed": 6193,
+    "invalid": 0,
+    "partial": 667,
+    "dependency_operations": 63
+  },
+  "owned_source_fingerprints": [
+    {
+      "path": "cpp/labels.cpp",
+      "sha256": "9b66de3ebfe013823e55ecf11e87db033c43426813a9ce8f23f21f660dd43ce5",
+      "bytes": 115346
+    },
+    {
+      "path": "src/napari/layers/labels/labels.py",
+      "sha256": "64d325117af60cd82bb13c006057811a72f84419dbd6c14acbf7342942565aac",
+      "bytes": 87344
+    },
+    {
+      "path": "src/napari/utils/_indexing.py",
+      "sha256": "65c4c936cb947d3e03c295c0ce5b6c545aeb75b42472cef450cd702d18df540d",
+      "bytes": 2891
+    },
+    {
+      "path": "src/naparixx/_native.pyi",
+      "sha256": "856f9e2cfe8630b118a174c87cbb71e858e26effd97f24062b0d6672b7d07500",
+      "bytes": 273910
+    },
+    {
+      "path": "src/naparixx/_labels_edit.py",
+      "sha256": "46a37004d15bec6f29d4db601eb7bead4a1919ae90ab30036686361d7180aae7",
+      "bytes": 136866
+    }
+  ],
+  "local_evidence": {
+    "checkpoint": {
+      "path": ".artifacts/labels-native-edit-publication-owner-production-checkpoint.json",
+      "sha256": "b6ae23d96d8cd974c1676b5c50651f5bd80a4b2a6234cfac7650103ef7f761b1",
+      "bytes": 9521
+    },
+    "installed_review": {
+      "path": ".artifacts/labels-native-edit-publication-owner-installed-review/installed-evidence-review.json",
+      "sha256": "7468fd6a7252deadff32ddb3d8b670dca2d25e944f22361e354df9d859171e2f",
+      "bytes": 199505
+    },
+    "checkpoint_review": {
+      "path": ".artifacts/labels-native-edit-publication-owner-checkpoint-review/checkpoint-review.json",
+      "sha256": "3d52ead657c04889b27ad54d833e56dd2278be2e19e85d1551c45f31050c0f90",
+      "bytes": 9024
+    },
+    "raw_archive_published": false
+  },
+  "clean_shutdown_proven": false,
+  "release_parity_proven": false,
+  "clean_clone_full_test_suite_reproducible": false,
+  "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
+  "next_work": "Labels frontend stroke/fill/polygon and actual mouse control: freeze Labels.paint, fill, paint_polygon, _draw and required owned helper/mouse callees against pinned source; reuse accepted history/write/cache/numeric kernels and close remaining default helper dispatch; include required property/exception policies and obtain contracts before native implementation. Real plugin save/reload and cancellation/close remain required workflow children."
+}

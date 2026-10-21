@@ -1,0 +1,11 @@
+{
+  "project": "napari",
+  "version": "0.9.2",
+  "tag": "v0.9.2",
+  "commit": "595639295a153c84bcb127a9e07d801355440a35",
+  "repository": "https://github.com/napari/napari.git",
+  "release": "https://github.com/napari/napari/releases/tag/v0.9.2",
+  "verified_on": "2026-10-09",
+  "source_layout": "src/napari",
+  "license": "BSD-3-Clause"
+}

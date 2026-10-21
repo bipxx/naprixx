@@ -1,0 +1,20 @@
+# Test-only oracle from the verified dictionary-stage fork.
+# Prior full-file SHA256: 59ca82d6dbe43e1d92419c90be94a734293f137fccbdc21dd0d4b287495dc545
+# BSD-3-Clause; see licenses/napari-BSD-3-Clause.txt.
+
+class GridCanvas:
+    @model_validator(mode="after")
+    def _sync_native_state(self):
+        self._native_state.update(self.stride, self.shape, self.enabled, self.spacing)
+        return self
+
+    def __copy__(self):
+        result = super().__copy__()
+        result._native_state = copy(self._native_state)
+        return result
+
+    def model_copy(self, *, update=None, deep=False):
+        result = super().model_copy(update=update, deep=deep)
+        result._sync_native_state()
+        return result
+
