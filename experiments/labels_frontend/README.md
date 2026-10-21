@@ -460,6 +460,18 @@ guards, so original-body exclusion there uses static converted-code admission.
 These finite cases do not approve arbitrary profile failures, monitoring,
 cross-thread collection or the complete VM-stack/carrier lifetime ABI.
 
+`grid_carrier_unwind_child.py` adds eighteen cyclic-owner controls: four result
+families and two provider errors, with normal completion or a profiler failure
+at the first selector C_CALL or C_RETURN. Cyclic witnesses survive collection
+while completion is suspended, then must be collected after normal return or
+exceptional unwind. Each call also reenters the same function and preserves an
+ambient handled exception. Successful source returns receive the same cycle;
+original provider exceptions are accessible through the native carrier only,
+so those two error cases do not claim symmetric cycle injection. Source
+profilers fail at RETURN. Outcomes and release checks agree, while profile-event
+and exception-chain parity remain unaccepted. This is finite lifetime evidence,
+not approval of arbitrary profilers or the complete observer/GC ABI.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

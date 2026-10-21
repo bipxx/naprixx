@@ -19,9 +19,17 @@ DIRECTORY=Path(__file__).resolve().parent
 ROOT=DIRECTORY.parents[1]
 
 
-def run(probe,code,shells,policy,mode,native):
+class CarrierProfileFailure(BaseException):
+    pass
+
+
+class CarrierCycleWitness:
+    pass
+
+
+def run(probe,code,shells,policy,mode,native,cycle=False,reject=False):
     wrapper=LineProbe(probe,opcodes=True,completion=True)
-    refs=[];checks=[];nested=[];entered=False
+    refs=[];checks=[];nested=[];entered=False;cycle_refs=[]
     def invoke(function,args):
         nonlocal entered
         if native:
@@ -34,11 +42,23 @@ def run(probe,code,shells,policy,mode,native):
         selected=function.__code__
         def callback(frame,event,arg):
             nonlocal entered
-            if entered or frame.f_code is not selected:return
+            if frame.f_code is not selected:return
+            if entered:
+                if native and reject=='c_return' and event=='c_return' and getattr(arg,'__name__',None)=='_labels_frontend_grid_return_at':
+                    assert all(ref() is not None for ref in cycle_refs)
+                    raise CarrierProfileFailure('completion observer failure')
+                return
             if native:
                 if event!='c_call' or getattr(arg,'__name__',None)!='_labels_frontend_grid_return_at':return
             elif event!='return':return
             entered=True
+            if cycle:
+                value=probe.grid_completion_carrier_probe(frame)[0] if native else arg
+                if hasattr(value,'__dict__'):
+                    witness=CarrierCycleWitness();witness.owner=value
+                    value._carrier_cycle=witness;cycle_refs.append(weakref.ref(witness))
+                    del witness
+                del value
             def identity():
                 carrier=probe.grid_completion_carrier_probe(frame)
                 return id(carrier),id(carrier[0]),carrier[1],carrier[2]
@@ -51,6 +71,7 @@ def run(probe,code,shells,policy,mode,native):
             position=(frame.f_lasti,frame.f_lineno,tuple(sorted(frame.f_locals)))
             handled=sys.exception()
             gc.collect()
+            assert all(ref() is not None for ref in cycle_refs)
             if native:
                 assert identity()==before
                 assert all(ref() is not None for ref in refs)
@@ -61,22 +82,31 @@ def run(probe,code,shells,policy,mode,native):
             except BaseException as error:
                 nested.append(('raise',type(error).__name__,str(error)))
             gc.collect()
+            assert all(ref() is not None for ref in cycle_refs)
             assert sys.exception() is handled
             assert position==(frame.f_lasti,frame.f_lineno,tuple(sorted(frame.f_locals)))
             if native:
                 assert identity()==before
                 assert all(ref() is not None for ref in refs)
             checks.append(True)
+            if reject and (not native or reject!='c_return'):
+                raise CarrierProfileFailure('completion observer failure')
         previous=sys.getprofile()
         sys.setprofile(callback)
         try:return function(*args)
         finally:sys.setprofile(previous)
-    if policy=='getitem':result=getter.run(probe,code,shells,mode,False,invoke=invoke)
-    else:result=indices.run(probe,code,shells['_grid_indices'],mode,False,invoke=invoke)
+    try:
+        if policy=='getitem':result=getter.run(probe,code,shells,mode,False,invoke=invoke)
+        else:result=indices.run(probe,code,shells['_grid_indices'],mode,False,invoke=invoke)
+    except CarrierProfileFailure as error:
+        assert reject
+        result=('profile-failure',type(error).__name__,str(error))
+    else:assert not reject
     assert entered and checks==[True] and len(nested)==1
     gc.collect()
     assert all(ref() is None for ref in refs)
-    return result,nested,len(refs)
+    assert all(ref() is None for ref in cycle_refs)
+    return (result,nested,len(refs),len(cycle_refs)) if cycle or reject else (result,nested,len(refs))
 
 
 def main():
