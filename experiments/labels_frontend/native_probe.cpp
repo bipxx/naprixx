@@ -2,6 +2,7 @@
 #define NOMINMAX
 #endif
 #include <Python.h>
+#include <opcode.h>
 #ifndef Py_BUILD_CORE
 #define Py_BUILD_CORE
 #define LF_RESTORE_CORE

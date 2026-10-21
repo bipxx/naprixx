@@ -120,8 +120,33 @@ def instructions(code):
     return tuple(rows)
 
 
+def _completion_bridge():
+    if (lambda: None)(73):
+        pass
+        pass
+        pass
+        return None
+    if (lambda: None)(74):
+        pass
+        pass
+        pass
+        return None
+    if (lambda: None)(75):
+        pass
+        pass
+        pass
+        return None
+    if (lambda: None)(76):
+        pass
+        pass
+        pass
+        return None
+
+
 class LineProbe:
-    def __init__(self,probe,opcodes=False): self.probe,self.opcodes=probe,opcodes
+    def __init__(self,probe,opcodes=False,completion=False):
+        self.probe,self.opcodes=probe,opcodes
+        self.completion=(_completion_bridge.__code__,tuples(profile(_completion_bridge.__code__))) if completion else None
 
     def prepare_grid_function_probe(self,*args):
         original=args[0].__code__
@@ -131,13 +156,13 @@ class LineProbe:
             if children:
                 child=children[0]; payload=result.co_consts[-1]
                 converted=self.probe.prepare_grid_line_transport_probe(payload[2],child,
-                    tuples(profile(child)),comprehension_positions(child),instructions(child) if self.opcodes else None)
+                    tuples(profile(child)),comprehension_positions(child),instructions(child) if self.opcodes else None,self.completion)
                 result=result.replace(co_consts=(*result.co_consts[:-1],(*payload[:2],converted)))
             return self.probe.prepare_grid_line_transport_probe(result,original,
-                tuples(profile(original)),getter_positions(original),instructions(original) if self.opcodes else None)
+                tuples(profile(original)),getter_positions(original),instructions(original) if self.opcodes else None,self.completion)
         if args[5]!=1: return result
         return self.probe.prepare_grid_line_transport_probe(result,original,
-            tuples(profile(original)),positions(original),instructions(original) if self.opcodes else None)
+            tuples(profile(original)),positions(original),instructions(original) if self.opcodes else None,self.completion)
 
     def invoke(self,function,args):
         return self.probe.call_grid_line_transport_probe(function,args)

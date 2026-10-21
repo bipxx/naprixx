@@ -9,8 +9,8 @@ import grid_indices_locals_child as indices
 DIRECTORY=Path(__file__).resolve().parent;ROOT=DIRECTORY.parents[1]
 MODES=tuple(('getitem',mode) for mode in ('sparse','dense','single','complex-grid','callback-error'))+tuple(('indices',mode) for mode in ('dense','sparse','callback-error'))
 
-def run(probe,code,shells,mode,native,tracing,policy):
-    wrapper=LineProbe(probe,opcodes=True);frames=[];events=[]
+def run(probe,code,shells,mode,native,tracing,policy,completion=False,direct=False):
+    wrapper=LineProbe(probe,opcodes=True,completion=completion);frames=[];events=[]
     owners={(c.co_filename,c.co_qualname) for c in walk(code)}
     def observe(name,frame):
         if not any(item is frame for item in frames):frames.append(frame)
@@ -25,10 +25,10 @@ def run(probe,code,shells,mode,native,tracing,policy):
     try:
         if policy=='getitem':
             result=getter.run(wrapper if native else probe,code,shells,mode,native,
-                invoke=wrapper.invoke if native else None,observe=observe)
+                invoke=wrapper.invoke if native and not direct else None,observe=observe)
         else:
             result=indices.run(wrapper if native else probe,code,shells['_grid_indices'],mode,native,
-                invoke=wrapper.invoke if native else None,observe=observe)
+                invoke=wrapper.invoke if native and not direct else None,observe=observe)
         assert sys.gettrace() is (trace if tracing else None)
     finally:sys.settrace(None);controller.f_trace_opcodes=previous
     assert frames
@@ -47,9 +47,10 @@ def main():
     rows=[]
     tracings=(None,'line','opcode')
     if '--traced-only' in sys.argv:tracings=('line','opcode')
+    if '--direct-call' in sys.argv:tracings=(None,)
     for tracing in tracings:
         for policy,mode in MODES:
-            before=run(probe,fresh(policy),shells,mode,False,tracing,policy);after=run(probe,fresh(policy),shells,mode,True,tracing,policy)
+            before=run(probe,fresh(policy),shells,mode,False,tracing,policy);after=run(probe,fresh(policy),shells,mode,True,tracing,policy,'--completion-transport' in sys.argv,'--direct-call' in sys.argv)
             rows.append({'policy':policy,'mode':mode,'tracing':tracing,'policy_values_equal':before[0]==after[0],
                 'events_equal':before[1]==after[1],'retained_equal':before[2]==after[2],
                 'first_event_difference':next(((i,a,b) for i,(a,b) in enumerate(zip(before[1],after[1])) if a!=b),None),
@@ -57,6 +58,8 @@ def main():
                 'source':before[2],'native':after[2]})
     equal=all(c['policy_values_equal'] and c['events_equal'] and c['retained_equal'] for c in rows)
     print(json.dumps({'status':'PASS_FINITE_RETAINED_FRAMES' if equal else 'OPEN_RETAINED_FRAME_GAP','controls':len(rows),'cases':rows,'python':sys.version,
+        'completion_transport':'--completion-transport' in sys.argv,
+        'direct_call':'--direct-call' in sys.argv,
         'complete_frame_abi_accepted':False,'default_application_enabled':False}))
     return 0 if equal else 1
 if __name__=='__main__':raise SystemExit(main())

@@ -48,6 +48,7 @@ struct LFGridLinePosition {
     int previous_line;
     _Py_CODEUNIT* previous_instruction;
     _Py_CODEUNIT* projected_instruction;
+    bool restore = true;
     LFGridLinePosition(PyFrameObject* value, PyCodeObject* code, int offset, int line)
         : frame(value), previous_line(value->f_lineno) {
 #if PY_VERSION_HEX >= 0x030D0000
@@ -62,6 +63,7 @@ struct LFGridLinePosition {
         value->f_lineno = line;
     }
     ~LFGridLinePosition() {
+        if(!restore)return;
 #if PY_VERSION_HEX >= 0x030D0000
         frame->f_frame->instr_ptr = previous_instruction;
 #else
@@ -249,6 +251,7 @@ void lfgt_line(const LFGridFastLocals& locals, int index) {
 }
 
 void lfgt_return(const LFGridFastLocals& locals,int index) {
+    if(locals.completion)*locals.completion=index;
     if(!lfgt_driver) return;
     auto found=lfgt_driver->states.find(locals.frame);
     if(found!=lfgt_driver->states.end()) found->second.return_point=index;
@@ -300,8 +303,10 @@ struct LFGridGetterLines {
     nb::object returned(nb::object result,int point) const {lfgo_op(locals,"return");lfgt_return(locals,point);return result;}
 };
 
+#include "grid_completion_transport.inc"
+
 nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple profile, nb::tuple points,
-                        nb::object instructions) {
+                        nb::object instructions,nb::object completion) {
     if (!PyCode_Check(replacement.ptr()) || !PyCode_Check(original.ptr()) ||
         !lf_grid_profile_code(original, profile) || points.size() < 2 || points.size() > 512)
         throw nb::type_error("complete grid source compiler controls required");
@@ -344,10 +349,13 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
             nb::handle(PyTuple_GET_ITEM(old, 2)), points, instructions);
     }
     if (PyList_SetItem(constants.ptr(), count - 1, payload.release().ptr()) < 0) throw nb::python_error();
+    int stacksize=shell->co_stacksize;
+    if(!completion.is_none())lfgr_prepare(bytes,constants,source,shell,points,completion,stacksize);
     nb::dict keywords;
     keywords["co_code"] = nb::bytes(bytes.data(), bytes.size());
     keywords["co_linetable"] = nb::borrow<nb::object>(source->co_linetable);
     keywords["co_consts"] = lh_check(PySequence_Tuple(constants.ptr()));
+    keywords["co_stacksize"] = nb::int_(stacksize);
     nb::object replace = lh_check(PyObject_GetAttrString(replacement.ptr(), "replace"));
     nb::object arguments = nb::tuple();
     nb::object result=lh_check(PyObject_Call(replace.ptr(), arguments.ptr(), keywords.ptr()));
@@ -357,7 +365,8 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
 
 void lfgt_exports(nb::module_& module) {
     module.def("prepare_grid_line_transport_probe", &lfgt_prepare,nb::arg("replacement"),nb::arg("original"),
-        nb::arg("profile"),nb::arg("points"),nb::arg("instructions").none()=nb::none());
+        nb::arg("profile"),nb::arg("points"),nb::arg("instructions").none()=nb::none(),
+        nb::arg("completion").none()=nb::none());
     module.def("call_grid_line_transport_probe", [](nb::object function, nb::tuple arguments) {
         LFGridLineDriver scope;
         try {return lh_check(PyObject_CallObject(function.ptr(), arguments.ptr()));}

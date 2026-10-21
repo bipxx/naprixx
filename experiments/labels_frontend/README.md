@@ -403,6 +403,26 @@ positions still expose the transport shim and remain required work. The finite
 traced result does not qualify full dead-frame, traceback, lifetime or observer
 ABI compatibility.
 
+The opt-in `LineProbe(..., completion=True)` / `--completion-transport`
+prototype routes normal completion to the source RETURN_VALUE instruction.
+C++ chooses the endpoint; an inert, compile-only bridge template supplies VM
+call/jump transport. The template's lambda bodies are replaced with a native
+selector and are never executed or retained by the prepared function. A
+short-lived result/tag tuple occupies the VM operand stack for multi-return
+getters; the native selector transfers its value back to that same stack slot.
+Single-return indices/comprehension frames use a direct completion jump.
+Provider-error unwind keeps its source completion position through the explicit
+call adapter. This adds no owning frame reference or application-state mirror.
+`grid_completion_controls_child.py` explicitly selects this prototype when
+reusing the existing source comparisons; the default protocol stays unchanged.
+
+The twenty-four retained-frame cases pass with this protocol on the checked
+adapter path. A separate direct-call diagnostic preserves two provider-error
+completion failures; its six normal-return cases pass. Direct-call error handling,
+carrier/VM-stack GC and lifetime review, reentry, C profiling/monitoring, other
+provider/SDK configurations and independent ABI approval remain required before
+integration or default activation.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

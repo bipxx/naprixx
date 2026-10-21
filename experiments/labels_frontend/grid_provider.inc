@@ -13,6 +13,7 @@ namespace nx {
 struct LFGridFastLocals {
     PyFrameObject* frame;
     PyCodeObject* code;
+    int* completion = nullptr;
     PyObject*& slot(const char* name) const {
         for (int i = 0; i < code->co_nlocals; ++i)
             if (PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(code->co_localsplusnames, i), name) == 0)
@@ -139,14 +140,26 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         // Source positions stay active inside provider callbacks, but the
         // interpreter must resume its physical transport instruction on exit.
         LFGridLinePosition physical(frame,actual,PyFrame_GetLasti(frame),PyFrame_GetLineNumber(frame));
+        int completion=-1;LFGridFastLocals locals{frame,actual,&completion};
+        try {
         source.source_metadata = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 1));
         lh_metadata_values(source.source_metadata, 0);
         lh_metadata_values(source.source_metadata, 1);
         nb::object comprehension = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 2));
-        if (entry == -2) return lf_grid_sparse_comp(source, {frame, actual}).release().ptr();
-        if(entry==0)return lf_grid_getitem(source,{frame,actual},comprehension).release().ptr();
-        try {return lf_grid_indices(source,{frame,actual}).release().ptr();}
-        catch(nb::python_error& error) {lfgt_exception({frame,actual},error,true);throw;}
+        nb::object result;
+        if(entry==-2)result=lf_grid_sparse_comp(source,locals);
+        else if(entry==0)result=lf_grid_getitem(source,locals,comprehension);
+        else {
+            try {result=lf_grid_indices(source,locals);}
+            catch(nb::python_error& error) {lfgt_exception(locals,error,true);throw;}
+        }
+        nb::object routes=lfgr_routes(actual);
+        if(routes.is_valid() && PyTuple_GET_SIZE(routes.ptr())>1) {
+            if(completion<0)throw nb::type_error("native completion endpoint is missing");
+            return nb::make_tuple(result,nb::int_(completion)).release().ptr();
+        }
+        return result.release().ptr();
+        } catch(nb::python_error&) {lfgr_error_completion(locals,physical);throw;}
     } catch (...) { lf_adapter_error(); return nullptr; }
 }
 PyMethodDef lf_grid_frame_definition = {
