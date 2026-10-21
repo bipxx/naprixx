@@ -20,7 +20,7 @@ if sys.version_info >= (3, 12):
     MODES += ['restore', 'restore-error']
 
 
-def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None, allow_empty=False):
+def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None, allow_empty=False, observe=None):
     events, retained, parents, called = [], [], [], set()
 
     def normalize(value):
@@ -47,6 +47,7 @@ def run(probe, code, shells, mode, native, invoke=None, namespace_setup=None, al
 
     def callback(event, frame, *args):
         assert frame.f_code.co_name in ('__getitem__', '<listcomp>') and frame.f_globals is namespace
+        if observe is not None: observe(event,frame)
         retained.append(frame)
         if frame.f_code.co_name == '__getitem__': parents.append(frame)
         error = sys.exception()

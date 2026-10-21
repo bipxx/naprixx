@@ -73,6 +73,15 @@ struct LFGridLinePosition {
     }
 };
 
+void lfgt_set_position(const LFGridFastLocals& locals,int offset,int line) {
+#if PY_VERSION_HEX >= 0x030D0000
+    locals.frame->f_frame->instr_ptr=_PyCode_CODE(locals.code)+offset/2;
+#else
+    locals.frame->f_frame->prev_instr=_PyCode_CODE(locals.code)+offset/2;
+#endif
+    locals.frame->f_lineno=line;
+}
+
 struct LFGridLineDriver {
     PyThreadState* thread = PyThreadState_Get();
     Py_tracefunc previous = thread->c_tracefunc;
@@ -179,13 +188,12 @@ int lfgt_proxy(PyObject*, PyFrameObject* frame, int what, PyObject* arg) {
 #include "grid_opcode_trace.inc"
 
 void lfgt_line(const LFGridFastLocals& locals, int index) {
-    if (!lfgt_driver || !lfgt_driver->callback ||
-        PyThreadState_Get()->c_tracefunc != lfgt_proxy || PyThreadState_Get()->tracing) return;
+    if (!lfgt_driver || PyThreadState_Get()->tracing) return;
     nb::object points = lfgt_points(locals.code);
     if (!points.is_valid()) return;
     if(index<0 || index>=PyTuple_GET_SIZE(points.ptr())) throw nb::type_error("native source line index changed");
     lfgo_align(locals, PyLong_AsLong(PyTuple_GET_ITEM(PyTuple_GET_ITEM(points.ptr(), index), 0)));
-    if (!locals.frame->f_trace_lines) return;
+    if (!lfgt_driver->callback || PyThreadState_Get()->c_tracefunc!=lfgt_proxy || !locals.frame->f_trace_lines) return;
     PyThreadState* thread = PyThreadState_Get();
     PyThreadState_EnterTracing(thread);
     int status;

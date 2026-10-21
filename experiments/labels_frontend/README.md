@@ -311,6 +311,28 @@ and only then reset between oracles with the public
 This preserves the observed interpreter quirk; it is not full observer or
 lifetime approval. General failures and out-of-event frame positions remain open.
 
+Run `grid_provider_traced_position_child.py` for sixteen provider-position
+controls on each minor: eight policies with one invocation and eight with
+eight invocations. Canonical source positions remain active during native
+operations and Python calls, including when no opcode event is requested;
+physical interpreter positions are restored at the native boundary. The
+passing controls require opcode instrumentation, which keeps source operations
+deoptimized. They compare positions inside provider callbacks, not only trace
+events. Existing exception, trace-disable and callback-error controls remain.
+
+Run `grid_position_reuse_child.py` for one hundred native calls inside one
+untraced transport scope. Each native frame entry resets its disposable
+instruction cursor, so a recycled frame address cannot inherit a completed
+cursor. The retained initial failure demonstrates this lifecycle defect.
+
+Run `grid_provider_position_child.py` without flags for the strict thirty-two
+case comparison, including untraced first-call and repeated-call histories.
+It currently exits 1 on 3.11/3.12 because adaptive attribute/subscript inlining
+changes positions; the measured 3.13 cohort exits 0. Policy results agree in
+all measured cases. Preserve those untraced failures as required ABI work.
+Adaptive specialization, general out-of-event/dead-frame positions and complete
+provider/frame qualification are not accepted by these controls.
+
 Grid source tracing, unchecked-slot deletion, exact temporary release/exception fidelity
 and precise `arange`/`empty`/`result_type`/reshape
 primitive approvals remain required before acceptance. Other provider versions

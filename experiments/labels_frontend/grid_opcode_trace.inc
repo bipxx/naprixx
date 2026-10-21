@@ -57,8 +57,6 @@ LFGridOpcodeContext lfgo_context(const LFGridFastLocals& locals) {
     lfgo_validate(locals.code, nb::handle(rows));
     auto found = lfgt_driver->states.find(locals.frame);
     if (found == lfgt_driver->states.end()) return {};
-    if(PyThreadState_Get()->c_tracefunc!=lfgt_proxy && !(
-        !PyThreadState_Get()->c_tracefunc && found->second.trailing_opcode)) return {};
     return {nb::borrow<nb::object>(rows), &found->second};
 }
 PyObject* lfgo_row(const LFGridOpcodeContext& context) {
@@ -67,20 +65,36 @@ PyObject* lfgo_row(const LFGridOpcodeContext& context) {
     return PyTuple_GET_ITEM(context.rows.ptr(),context.state->cursor);
 }
 void lfgo_emit(const LFGridFastLocals& locals, PyObject* row) {
-    if (!locals.frame->f_trace_opcodes) return;
-    auto found=lfgt_driver->states.find(locals.frame);
-    if(PyThreadState_Get()->c_tracefunc!=lfgt_proxy &&
-       (found==lfgt_driver->states.end() || !found->second.trailing_opcode)) return;
-    if(found!=lfgt_driver->states.end()) found->second.trailing_opcode=false;
     int offset = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,0)));
     int line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,4)));
-    LFGridLinePosition position(locals.frame,locals.code,offset,line);
-    PyThreadState* thread = PyThreadState_Get();
-    PyThreadState_EnterTracing(thread);
-    int status = lfgt_driver->callback(lfgt_driver->previous_object.ptr(),locals.frame,PyTrace_OPCODE,Py_None);
-    PyThreadState_LeaveTracing(thread);
-    if (status < 0) {lfgt_callback_error(locals.frame,offset,line,PyTrace_OPCODE);throw nb::python_error();}
-    if (position.jumped()) throw nb::type_error("native opcode pilot does not implement debugger jumps");
+    auto found=lfgt_driver->states.find(locals.frame);
+    if (!locals.frame->f_trace_opcodes || (PyThreadState_Get()->c_tracefunc!=lfgt_proxy &&
+       (found==lfgt_driver->states.end() || !found->second.trailing_opcode))) {
+        lfgt_set_position(locals,offset,line);return;
+    }
+    if(found!=lfgt_driver->states.end()) found->second.trailing_opcode=false;
+    {
+        LFGridLinePosition position(locals.frame,locals.code,offset,line);
+        PyThreadState* thread = PyThreadState_Get();
+        PyThreadState_EnterTracing(thread);
+        int status = lfgt_driver->callback(lfgt_driver->previous_object.ptr(),locals.frame,PyTrace_OPCODE,Py_None);
+        PyThreadState_LeaveTracing(thread);
+        if (status < 0) {lfgt_callback_error(locals.frame,offset,line,PyTrace_OPCODE);throw nb::python_error();}
+        if (position.jumped()) throw nb::type_error("native opcode pilot does not implement debugger jumps");
+    }
+    lfgt_set_position(locals,offset,line);
+}
+void lfgo_python_call_position(const LFGridFastLocals& locals,nb::handle function) {
+#if PY_VERSION_HEX < 0x030D0000
+    PyObject* callable=PyMethod_Check(function.ptr())?PyMethod_GET_FUNCTION(function.ptr()):function.ptr();
+    if(!PyFunction_Check(callable))return;
+    auto context=lfgo_context(locals);if(!context.state)return;
+    PyObject* previous=PyTuple_GET_ITEM(context.rows.ptr(),context.state->cursor-1);
+    PyObject* next=lfgo_row(context);
+    int offset=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(next,0)))-2;
+    int line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(previous,4)));
+    lfgt_set_position(locals,offset,line);
+#endif
 }
 void lfgo_seek(const LFGridOpcodeContext& context, long offset) {
     for (Py_ssize_t i=0;i<PyTuple_GET_SIZE(context.rows.ptr());++i)
@@ -210,6 +224,7 @@ struct LFGridObservedOps {
 #endif
             lfgt_error_point(locals,error_point);
         }
+        lfgo_python_call_position(locals,function);
         PyObject* result=PyObject_Vectorcall(function.ptr(),raw.data(),args.size(),kw.size()?names.ptr():nullptr);
         function.reset(); for (auto& value:values) value.reset(); names.reset();
         if(result && point>=0) lfgt_error_point(locals,-1);

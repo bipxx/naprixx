@@ -130,6 +130,11 @@ PyObject* lf_grid_frame(PyObject*, PyObject* arguments) {
         if (!PyTuple_CheckExact(payload.ptr()) || (PyTuple_GET_SIZE(payload.ptr()) < 3 || PyTuple_GET_SIZE(payload.ptr()) > 5) ||
             PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(payload.ptr(), 0), "naparixx.grid.v2") != 0)
             throw nb::type_error("Grid policy payload changed");
+        if(lfgt_driver && PyTuple_GET_SIZE(payload.ptr())==5)
+            lfgt_driver->states[frame]=LFGridOpcodeState{};
+        // Source positions stay active inside provider callbacks, but the
+        // interpreter must resume its physical transport instruction on exit.
+        LFGridLinePosition physical(frame,actual,PyFrame_GetLasti(frame),PyFrame_GetLineNumber(frame));
         source.source_metadata = nb::borrow<nb::object>(PyTuple_GET_ITEM(payload.ptr(), 1));
         lh_metadata_values(source.source_metadata, 0);
         lh_metadata_values(source.source_metadata, 1);
