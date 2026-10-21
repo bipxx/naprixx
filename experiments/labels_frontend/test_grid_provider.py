@@ -245,3 +245,15 @@ def test_grid_trace_callback_reentry():
     assert result.returncode==0,result.stdout+'\n'+result.stderr
     data=json.loads(result.stdout)
     assert data['controls']==64 and data['nested_prepared_code_release_checked']
+
+
+def test_grid_active_completion_carrier_gc():
+    directory=Path(__file__).resolve().parent
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    env['PYTHONPATH']=str(Path(env['NAPARIXX_FRONTEND_PROBE_DIR']).resolve())
+    result=subprocess.run([sys.executable,'-B',str(directory/'grid_carrier_gc_child.py')],
+        env=env,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stdout+'\n'+result.stderr
+    data=json.loads(result.stdout)
+    assert data['controls']==9 and not data['profile_event_parity_claimed']
+    assert sum(row['weak_result_release_checks'] for row in data['cases'])==4

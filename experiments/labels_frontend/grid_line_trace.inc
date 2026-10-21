@@ -362,6 +362,40 @@ nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple p
 }
 
 void lfgt_exports(nb::module_& module) {
+    module.def("grid_completion_carrier_probe",[](nb::handle value) {
+        if(!PyFrame_Check(value.ptr()))throw nb::type_error("frame required");
+        auto* frame=reinterpret_cast<PyFrameObject*>(value.ptr());
+        nb::object owner=lh_check(reinterpret_cast<PyObject*>(PyFrame_GetCode(frame)));
+        auto* code=reinterpret_cast<PyCodeObject*>(owner.ptr());
+        if(!lfgr_routes(code).is_valid())throw nb::type_error("completion frame required");
+        // Only the first selector C_CALL profile callback has an intact
+        // carrier. Completed frames may contain stale, non-owning stack bits.
+        PyThreadState* state=PyThreadState_Get();
+        PyFrameObject* current=PyEval_GetFrame();
+        nb::object parent=current?nb::borrow<nb::object>(reinterpret_cast<PyObject*>(current)):nb::object();
+        while(parent.is_valid() && parent.ptr()!=value.ptr())
+            parent=nb::steal<nb::object>(reinterpret_cast<PyObject*>(PyFrame_GetBack(reinterpret_cast<PyFrameObject*>(parent.ptr()))));
+        if(!state->tracing || !state->c_profilefunc || !parent.is_valid())
+            throw nb::type_error("selector profile callback required");
+        nb::object raw=lh_check(PyObject_GetAttrString(owner.ptr(),"co_code"));
+        const auto* bytes=reinterpret_cast<const unsigned char*>(PyBytes_AS_STRING(raw.ptr()));
+        bool selector=false,admitted=false;
+        for(Py_ssize_t offset=0;offset<PyBytes_GET_SIZE(raw.ptr());offset+=2) {
+            if(bytes[offset]==LOAD_CONST && bytes[offset+1]<PyTuple_GET_SIZE(code->co_consts)) {
+                PyObject* constant=PyTuple_GET_ITEM(code->co_consts,bytes[offset+1]);
+                if(PyCFunction_Check(constant) && PyCFunction_GET_FUNCTION(constant)==lfgr_at)selector=true;
+            }
+            if(selector && bytes[offset]==CALL) {
+                admitted=offset==PyFrame_GetLasti(frame);break;
+            }
+        }
+        if(!admitted)throw nb::type_error("first selector C_CALL required");
+        PyObject* carrier=frame->f_frame->localsplus[code->co_nlocalsplus];
+        if(!carrier || !PyTuple_CheckExact(carrier) || PyTuple_GET_SIZE(carrier)!=3 ||
+           !PyLong_CheckExact(PyTuple_GET_ITEM(carrier,1)) || !PyBool_Check(PyTuple_GET_ITEM(carrier,2)))
+            throw nb::type_error("live completion carrier required");
+        return nb::borrow<nb::object>(carrier);
+    });
     module.def("grid_trace_state_probe",[](nb::handle value) {
         if(!PyFrame_Check(value.ptr()))throw nb::type_error("frame required");
         auto* frame=reinterpret_cast<PyFrameObject*>(value.ptr());

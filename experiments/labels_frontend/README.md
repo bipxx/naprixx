@@ -447,6 +447,19 @@ The nested fixture therefore uses the same observer setup for both oracles.
 checks do not approve general reentry, active-carrier GC, audit hooks, cross-thread
 observers or the complete VM-stack/lifetime ABI.
 
+`grid_carrier_gc_child.py` checks nine further source/native cases at completion.
+The native profiler stops at the first selector C_CALL, before the VM-stack
+carrier is unwrapped. A restricted read-only diagnostic verifies carrier,
+result/exception and endpoint identity across explicit collection and a nested
+call to the same converted function. Four weak-referenceable results must stay
+alive there and be released after the fixture drops its holders. The suspended
+frame and caller handled exception must survive the nested call. The source
+oracle uses its RETURN profile event; this is a lifetime/value comparison and
+does not claim profile-event parity. Profiling callbacks suppress nested profile
+guards, so original-body exclusion there uses static converted-code admission.
+These finite cases do not approve arbitrary profile failures, monitoring,
+cross-thread collection or the complete VM-stack/carrier lifetime ABI.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete
