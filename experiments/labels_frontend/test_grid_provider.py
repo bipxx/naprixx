@@ -190,7 +190,8 @@ if sys.version_info[:2]==(3,12):
         assert result.returncode==0,result.stdout+'\n'+result.stderr
         assert json.loads(result.stdout)['controls']==8
 
-    @pytest.mark.parametrize('option',['--lines','--opcodes','--toggle','--warm-opcodes','--skip-attributes'])
+    @pytest.mark.parametrize('option',['--lines','--opcodes','--toggle','--warm-opcodes','--skip-attributes',
+        '--inside-disable','--inside-local-off','--inside-enable','--inside-replace'])
     def test_grid_python312_property_instrumentation_transitions(option):
         directory=Path(__file__).resolve().parent
         env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')

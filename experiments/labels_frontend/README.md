@@ -382,6 +382,16 @@ instruction instrumentation is removed, including at entry on early-failing
 paths. These finite transitions do not qualify arbitrary monitoring tools,
 in-call changes, other threads or full observer ABI.
 
+`--inside-disable`, `--inside-local-off`, `--inside-enable` and
+`--inside-replace` change the tracer from the first property callback in each
+invocation. They compare the remaining source events, callback identity,
+positions, all forty outcomes and exception-context chains. Starting or replacing
+a tracer is detected by the native driver before its next source operation or
+exception dispatch; the latest user tracer is retained on return. In 3.12,
+exception dispatch also synchronizes code-wide instrumentation before unwind.
+The controls cover this specific provider-callback transition, not general
+trace-object lifetimes, audit hooks, C tracers, reentry or monitoring tools.
+
 This remains an experimental 3.12 observer component. The 3.11 quickening path,
 other specialization/descriptor kinds and their specialized-input handoff,
 instrumentation transitions, PEP 523, cross-thread behavior and complete

@@ -50,6 +50,7 @@ struct LFGridOpcodeContext {
 };
 LFGridOpcodeContext lfgo_context(const LFGridFastLocals& locals) {
     if (!lfgt_driver || PyThreadState_Get()->tracing) return {};
+    lfgt_driver->refresh();
     PyObject* constants = locals.code->co_consts;
     PyObject* payload = PyTuple_GET_ITEM(constants,PyTuple_GET_SIZE(constants)-1);
     if (!PyTuple_CheckExact(payload) || PyTuple_GET_SIZE(payload) != 5) return {};

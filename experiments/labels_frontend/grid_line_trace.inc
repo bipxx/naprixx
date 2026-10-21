@@ -99,6 +99,16 @@ struct LFGridLineDriver {
         lfgt_driver = this;
         if (previous) PyEval_SetTrace(lfgt_proxy, previous_object.ptr());
     }
+    void refresh() {
+        // A provider callback may install a tracer while native policy is
+        // running. Adopt that current callback and restore it at scope exit.
+        if(thread->c_tracefunc && thread->c_tracefunc!=lfgt_proxy) {
+            previous=thread->c_tracefunc;
+            previous_object=nb::borrow<nb::object>(thread->c_traceobj);
+            callback=previous;
+            PyEval_SetTrace(lfgt_proxy,previous_object.ptr());
+        }
+    }
     ~LFGridLineDriver() {
         // A trace callback may replace or disable tracing. Preserve that choice.
         if (thread->c_tracefunc == lfgt_proxy)

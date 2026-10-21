@@ -2,6 +2,8 @@
 // entering the source except handler. The original policy is never executed.
 void lfgt_exception(const LFGridFastLocals& locals,nb::python_error& error,bool escaping) {
     if(!lfgt_driver || PyThreadState_Get()->tracing) return;
+    lfgt_driver->refresh();
+    lfga_sync(locals);
     auto found=lfgt_driver->states.find(locals.frame);
     if(found==lfgt_driver->states.end()) return;
     auto& state=found->second;

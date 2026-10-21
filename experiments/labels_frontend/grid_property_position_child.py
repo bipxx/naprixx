@@ -19,7 +19,7 @@ MODES=('cold','hot','same-code','replace-property','has-getattr',
 
 
 def run(probe,code,shells,mode,native,trace_mode=None):
-    wrapper=LineProbe(probe,opcodes=True);positions=[];events=[];ready=False;phase=None
+    wrapper=LineProbe(probe,opcodes=True);positions=[];events=[];ready=False;phase=None;changed=False;active_trace=None
     owner=(code.co_filename,code.co_qualname)
     owners={(item.co_filename,item.co_qualname) for item in walk(code)}
     def traceback_positions(tb):
@@ -35,8 +35,13 @@ def run(probe,code,shells,mode,native,trace_mode=None):
         error=sys.exception()
         actual=(arg[0].__name__,str(arg[1]),traceback_positions(arg[2])) if event=='exception' else None
         events.append((event,frame.f_code.co_qualname,frame.f_lineno,frame.f_lasti,
-                       tuple(sorted(frame.f_locals)),actual,None if error is None else (type(error).__name__,str(error))))
+                       tuple(sorted(frame.f_locals)),actual,None if error is None else (type(error).__name__,str(error)),
+                       'replacement' if sys.gettrace() is replacement else 'initial'))
         return trace
+    def replacement(frame,event,arg):
+        result=trace(frame,event,arg)
+        return replacement if result is not None else None
+    active_trace=trace
     def raised(error):
         chain=[];seen=set()
         while error is not None and id(error) not in seen:
@@ -48,9 +53,18 @@ def run(probe,code,shells,mode,native,trace_mode=None):
             chain.append((type(error).__name__,str(error),tuple(trace)));error=error.__context__
         return ('raised',tuple(chain))
     def observe(name,frame):
+        nonlocal phase,changed,active_trace
         if ready:positions.append((name,frame.f_code.co_qualname,frame.f_lineno,frame.f_lasti))
+        if ready and not changed and name=='slice-step' and trace_mode in ('inside-disable','inside-local-off','inside-enable','inside-replace'):
+            changed=True
+            if trace_mode=='inside-disable':phase=None;sys.settrace(None)
+            elif trace_mode=='inside-enable':
+                phase='opcode';frame.f_trace=trace;frame.f_trace_opcodes=True;sys.settrace(trace)
+            elif trace_mode=='inside-replace':
+                active_trace=replacement;frame.f_trace=replacement;sys.settrace(replacement)
+            else:frame.f_trace_opcodes=False
     def invoke(function,args):
-        nonlocal ready,phase
+        nonlocal ready,phase,changed,active_trace
         kind=type(args[1][0]);old=vars(kind)['__getattribute__']
         cells=dict(zip(old.__code__.co_freevars,(cell.cell_contents for cell in old.__closure__)))
         callback=cells['callback']
@@ -95,7 +109,10 @@ def run(probe,code,shells,mode,native,trace_mode=None):
         controller=sys._getframe();previous_opcodes=controller.f_trace_opcodes
         try:
             for iteration in range(40):
+                changed=False;active_trace=trace
                 phase=('opcode','line',None)[iteration%3] if trace_mode=='toggle' else None if trace_mode=='handoff' else trace_mode
+                if trace_mode in ('inside-disable','inside-local-off','inside-replace'):phase='opcode'
+                elif trace_mode=='inside-enable':phase=None
                 if trace_mode=='skip':
                     phase=(None,'opcode',None)[iteration%3]
                     function.__globals__['len']=fail_len if phase else original_len
@@ -104,14 +121,17 @@ def run(probe,code,shells,mode,native,trace_mode=None):
                 try:result=wrapper.invoke(function,args) if native else function(*args)
                 except BaseException as error:result=raised(error)
                 outcomes.append(result)
-                assert sys.gettrace() is (trace if phase else None)
+                assert sys.gettrace() is (active_trace if phase else None)
+                if trace_mode in ('inside-disable','inside-local-off','inside-enable','inside-replace'):assert changed
         finally:sys.settrace(None);controller.f_trace_opcodes=previous_opcodes
         return outcomes
     result=getter.run(probe,code,shells,'sparse',False,invoke=invoke,observe=observe)
     assert positions and sys.gettrace() is None
     if trace_mode and trace_mode!='handoff':
-        assert events and any(event[0]=='call' for event in events)
-        assert any(event[0]=='opcode' for event in events)==(trace_mode in ('opcode','toggle','skip'))
+        assert events
+        if trace_mode!='inside-enable':assert any(event[0]=='call' for event in events)
+        if trace_mode!='inside-enable' or mode not in ('runtime-cold','runtime-hot','typeerror-hot'):
+            assert any(event[0]=='opcode' for event in events)==(trace_mode in ('opcode','toggle','skip','inside-disable','inside-local-off','inside-enable','inside-replace'))
     return result[0],positions,events
 
 
@@ -124,7 +144,13 @@ def main():
     def fresh():return next(item for item in walk(compile(data,str(source),'exec',dont_inherit=True)) if item.co_qualname==row['qualname'])
     shells={};path=DIRECTORY/'grid_shells.py';exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),shells)
     rows=[]
-    trace_mode='skip' if '--skip-attributes' in sys.argv else 'handoff' if '--warm-opcodes' in sys.argv else 'toggle' if '--toggle' in sys.argv else 'opcode' if '--opcodes' in sys.argv else 'line' if '--lines' in sys.argv else None
+    options={'--skip-attributes':'skip','--warm-opcodes':'handoff','--toggle':'toggle',
+             '--opcodes':'opcode','--lines':'line','--inside-disable':'inside-disable',
+             '--inside-local-off':'inside-local-off','--inside-enable':'inside-enable',
+             '--inside-replace':'inside-replace'}
+    selected=[value for option,value in options.items() if option in sys.argv]
+    assert len(selected)<=1
+    trace_mode=selected[0] if selected else None
     for mode in MODES:
         before=run(probe,fresh(),shells,mode,False,trace_mode);after=run(probe,fresh(),shells,mode,True,trace_mode)
         rows.append({'mode':mode,'policy_values_equal':before[0]==after[0],'positions_equal':before[1]==after[1],
