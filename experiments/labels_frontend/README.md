@@ -266,6 +266,17 @@ positions, jumps, profiling/monitoring/general observer ABI and permanent
 activation remain open. The original Python policies are never executed in
 the native comparisons.
 
+Run `grid_getter_opcode_child.py` for sixteen getter opcode controls on 3.11
+and seventeen on 3.12/3.13. These retain the normal line/state comparisons and
+add mutations at local-load, call and local-store events. Opcode presence is
+asserted; the original policies remain test oracles only. Native hooks cover
+container creation, canonical local operations, calls, indexing, branching and
+comprehension frames. The 3.11 line at comprehension GET_ITER is delivered
+before the operation; a queued opcode at the try NOP is delivered once when
+global tracing is disabled. The 3.13 conditional comparison converts truth
+inside COMPARE_OP before its branch event. Error/fallback opcode transport and
+complete observer/lifetime compatibility are still open.
+
 The fallback pilot additionally compares twenty controls on each supported
 minor. Caught length errors retain the source traceback before entering the
 handler. Escaping regular/complex `arange` errors retain the active handled

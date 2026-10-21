@@ -61,7 +61,7 @@ def main():
                 sys.settrace(trace)
                 try:
                     if policy=='getitem':
-                        pilot=LineProbe(probe) if native and ('--line-transport' in sys.argv or '--opcode-transport' in sys.argv) else None
+                        pilot=LineProbe(probe,opcodes='--opcode-transport' in sys.argv) if native and ('--line-transport' in sys.argv or '--opcode-transport' in sys.argv) else None
                         result=getitem.run(pilot if pilot else probe,code,shells,'sparse',native,
                             invoke=pilot.invoke if pilot else None)
                     else:

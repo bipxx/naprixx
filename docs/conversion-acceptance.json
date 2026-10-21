@@ -193,7 +193,7 @@
     },
     {
       "path": "docs/full-conversion-plan.md",
-      "sha256_raw": "63b2ac93247a3b99a8c0a386c51ab740ebb0af106fd52429f1212c19acdd9e2e",
+      "sha256_raw": "eb520164f92090671b42835de7044b70f56067c0fd306eebbffd55ee5d69f62e",
       "purpose": "M0-M9 contract and final evidence gates",
       "locator": "Final evidence gates, milestone table"
     },

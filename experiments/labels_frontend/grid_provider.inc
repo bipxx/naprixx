@@ -49,24 +49,40 @@ struct LFGridFastLocals {
 nb::object lf_grid_comprehension_body(LabelsHistoryLocals& source, const LFGridFastLocals& locals,
                                       nb::object& iterator) {
     bool child=PyUnicode_CompareWithASCIIString(locals.code->co_name,"<listcomp>")==0;
+    LFGridObservedOps O{locals};
     if(child) lfgt_line(locals,0);
-    nb::object result = lh_check(PyList_New(0));
+    nb::object result = O.list();
+    if(child) {lfgo_op(locals,"load",".0");iterator=locals.load(".0");}
     if(!child) lfgt_line(locals,67);
     try {
 #if PY_VERSION_HEX >= 0x030D0000
     // 3.13's inlined comprehension re-applies GET_ITER after clearing the
     // saved locals and allocating its list. A foreign iterator may redirect it.
-    if(!child) iterator=lh_iter(std::move(iterator));
+    if(!child) iterator=O.iter(std::move(iterator));
 #endif
-    while (nb::object pair = lfgt_next(locals,iterator,child?3:68)) {
+    while (nb::object pair = ([&](){
+        long target=lfgo_op(locals,"next");nb::object value=lfgt_next(locals,iterator,child?3:68);
+        if(!value.is_valid()) {
+            lfgo_branch(locals,target);auto context=lfgo_context(locals);
+            if(context.state && PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(lfgo_row(context),1),"END_FOR")==0) {
+                ++context.state->cursor;
+                if(PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(lfgo_row(context),1),"POP_TOP")==0)++context.state->cursor;
+            }
+        }
+        return value;
+    })()) {
         if(child) lfgt_line(locals,1);
-        auto values = lf_unpack(std::move(pair), 2);
+        auto values = O.unpack(std::move(pair));
+        lfgo_op(locals,"store","_x");
         locals.store("_x", std::move(values[0]));
+        lfgo_op(locals,"store","_t");
         locals.store("_t", std::move(values[1]));
         lfgt_line(locals,child?2:69);
-        nb::object arange = lh_attr(source, lh_global(source, "_nx"), "arange");
-        nb::object value = lh_call(std::move(arange), {LFG(locals.load("_x"))},
-                                   {LFG(locals.load("_t"))}, lh_kw(source, "dtype"));
+        lfgo_op(locals,"global","_nx");
+        nb::object arange = O.attr(source, lh_global(source, "_nx"), "arange");
+        nb::object value = O.call(std::move(arange), {LFG(([&](){lfgo_op(locals,"load","_x");return locals.load("_x");})())},
+                                   {LFG(([&](){lfgo_op(locals,"load","_t");return locals.load("_t");})())}, lh_kw(source, "dtype"));
+        lfgo_op(locals,"append");
         if (PyList_Append(result.ptr(), value.ptr()) < 0) throw nb::python_error();
         lfgt_line(locals,child?3:68);
     }
@@ -78,11 +94,12 @@ nb::object lf_grid_comprehension_body(LabelsHistoryLocals& source, const LFGridF
         throw;
     }
     iterator.reset();
+    if(child) lfgo_op(locals,"return");
     return result;
 }
 
 nb::object lf_grid_sparse_comp(LabelsHistoryLocals& source, const LFGridFastLocals& locals) {
-    nb::object iterator = locals.load(".0");
+    nb::object iterator;
     return lf_grid_comprehension_body(source, locals, iterator);
 }
 

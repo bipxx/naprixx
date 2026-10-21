@@ -69,6 +69,8 @@ PyObject* lfgo_row(const LFGridOpcodeContext& context) {
 void lfgo_emit(const LFGridFastLocals& locals, PyObject* row) {
     if (!locals.frame->f_trace_opcodes) return;
     auto found=lfgt_driver->states.find(locals.frame);
+    if(PyThreadState_Get()->c_tracefunc!=lfgt_proxy &&
+       (found==lfgt_driver->states.end() || !found->second.trailing_opcode)) return;
     if(found!=lfgt_driver->states.end()) found->second.trailing_opcode=false;
     int offset = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,0)));
     int line=static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(row,4)));
@@ -138,7 +140,11 @@ void lfgo_align(const LFGridFastLocals& locals,long offset) {
         if (PyLong_AsLong(PyTuple_GET_ITEM(row,0))==offset) return;
         if (PyTuple_GET_SIZE(actions)) {
             auto action=lfgo_action(PyTuple_GET_ITEM(actions,0));
-            if (action.first!="jump") throw nb::type_error("native line skipped a source operand");
+            if (action.first!="jump") {
+                PyErr_Format(PyExc_TypeError,"native line %ld skipped %s:%s at %ld",offset,
+                    action.first.c_str(),action.second.c_str(),PyLong_AsLong(PyTuple_GET_ITEM(row,0)));
+                throw nb::python_error();
+            }
             long target=PyLong_AsLong(PyTuple_GET_ITEM(row,3));
             lfgo_emit(locals,row); lfgo_seek(context,target);
         } else {++context.state->cursor; lfgo_emit(locals,row);}
@@ -148,6 +154,30 @@ void lfgo_align(const LFGridFastLocals& locals,long offset) {
 
 struct LFGridObservedOps {
     const LFGridFastLocals& locals;
+    nb::object list(std::initializer_list<LHExpr> items={}) {
+        std::vector<nb::object> values;for(const auto& item:items) values.push_back(item());
+        std::string count=std::to_string(values.size());lfgo_op(locals,"list",count.c_str());
+        nb::object result=lh_check(PyList_New(values.size()));
+        for(size_t i=0;i<values.size();++i) PyList_SET_ITEM(result.ptr(),i,values[i].release().ptr());
+        return result;
+    }
+    nb::object pack(nb::object first,nb::object second) {
+        lfgo_op(locals,"tuple","2");return nb::make_tuple(first,second);
+    }
+    nb::object item(nb::object value,nb::object key) {
+        lfgo_op(locals,"item");return lh_item(std::move(value),std::move(key));
+    }
+    nb::object index(const LHExpr& value,const LHExpr& key) {
+        nb::object receiver=value(),index=key();return item(std::move(receiver),std::move(index));
+    }
+    void set_index(const LHExpr& value,const LHExpr& receiver,const LHExpr& key) {
+        nb::object item=value(),target=receiver(),index=key();
+        setitem(std::move(item),std::move(target),std::move(index));
+    }
+    bool is_none(nb::object value) {
+        long target=lfgo_op(locals,"not-none");bool result=value.is_none();
+        value.reset();if(!result)lfgo_branch(locals,target);return result;
+    }
     nb::object constant(nb::object value) {lfgo_op(locals,"const"); return value;}
     nb::object tuple(nb::object value) {lfgo_op(locals,"tuple","1"); return nb::make_tuple(value);}
     nb::object binary(binaryfunc operation,nb::object left,nb::object right,const char* name) {

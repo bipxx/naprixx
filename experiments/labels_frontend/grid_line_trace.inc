@@ -208,7 +208,7 @@ struct LFGridGetterLines {
             found->second.escaping_error=true;
         }
     }
-    nb::object returned(nb::object result,int point) const {lfgt_return(locals,point);return result;}
+    nb::object returned(nb::object result,int point) const {lfgo_op(locals,"return");lfgt_return(locals,point);return result;}
 };
 
 nb::object lfgt_prepare(nb::object replacement, nb::object original, nb::tuple profile, nb::tuple points,

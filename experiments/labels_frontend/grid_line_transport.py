@@ -90,7 +90,8 @@ def instructions(code):
         'LOAD_ATTR':'attr','LOAD_METHOD':'attr','BINARY_OP':'binary','BUILD_TUPLE':'tuple',
         'BUILD_SLICE':'build-slice','BINARY_SLICE':'slice','BINARY_SUBSCR':'item','STORE_SUBSCR':'setitem',
         'GET_ITER':'iter','FOR_ITER':'next','UNPACK_SEQUENCE':'unpack','RETURN_VALUE':'return',
-        'LOAD_CONST':'const'}
+        'LOAD_CONST':'const','BUILD_LIST':'list','LIST_APPEND':'append','CALL_FUNCTION_EX':'starcall',
+        'COMPARE_OP':'compare','LOAD_FAST_AND_CLEAR':'take','MAKE_FUNCTION':'function'}
     combined={'LOAD_FAST_LOAD_FAST':('load','load'),'STORE_FAST_STORE_FAST':('store','store'),
               'STORE_FAST_LOAD_FAST':('store','load')}
     rows=[]
@@ -102,14 +103,16 @@ def instructions(code):
             action=tuple(zip(combined[name],names))
         elif name in simple:
             kind=simple[name]
-            value=str(item.argval) if kind in ('global','load','store','attr') else (
-                item.argrepr if kind=='binary' else str(item.arg) if kind in ('tuple','build-slice','unpack','const') else '')
+            value=str(item.argval) if kind in ('global','load','store','attr','take','compare') else (
+                item.argrepr if kind=='binary' else str(item.arg) if kind in ('tuple','list','build-slice','unpack','const') else '')
             action=((kind,value),)
         elif name=='TO_BOOL': action=(('truth',''),)
+        elif name.startswith('POP_JUMP') and name.endswith('NOT_NONE'): action=(('not-none',''),)
         elif name.startswith('POP_JUMP'): action=(('branch-truth' if separate_truth else 'truth',''),)
         elif name in ('CALL','CALL_KW'): action=(('call',''),)
         elif name.startswith('JUMP'): action=(('jump',''),)
-        else: assert name in ('RESUME','PUSH_NULL','PRECALL','KW_NAMES','END_FOR','POP_TOP'),name
+        else: assert name in ('RESUME','PUSH_NULL','PRECALL','KW_NAMES','END_FOR','POP_TOP',
+                              'NOP','SWAP','COPY','PUSH_EXC_INFO','POP_EXCEPT','CHECK_EXC_MATCH','RERAISE'),name
         target=item.argval if name=='FOR_ITER' or 'JUMP' in name else -1
         rows.append((item.offset,name,action,target))
     return tuple(rows)
@@ -126,10 +129,10 @@ class LineProbe:
             if children:
                 child=children[0]; payload=result.co_consts[-1]
                 converted=self.probe.prepare_grid_line_transport_probe(payload[2],child,
-                    tuples(profile(child)),comprehension_positions(child))
+                    tuples(profile(child)),comprehension_positions(child),instructions(child) if self.opcodes else None)
                 result=result.replace(co_consts=(*result.co_consts[:-1],(*payload[:2],converted)))
             return self.probe.prepare_grid_line_transport_probe(result,original,
-                tuples(profile(original)),getter_positions(original))
+                tuples(profile(original)),getter_positions(original),instructions(original) if self.opcodes else None)
         if args[5]!=1: return result
         return self.probe.prepare_grid_line_transport_probe(result,original,
             tuples(profile(original)),positions(original),instructions(original) if self.opcodes else None)
