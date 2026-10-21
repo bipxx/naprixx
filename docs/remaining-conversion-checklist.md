@@ -101,7 +101,7 @@ these figures describe this snapshot rather than a conversion percentage.
 | Remaining reviewed gaps | 667 partial implementations and287 tracked Python application delegations; required parents remain open |
 | Review classifications | 667 partial,20 facade and5 adapter;63 narrowly reviewed dependency operations |
 | Platform evidence | Installed acceptance on CPython 3.12/Windows/PyQt6; C++ syntax checks on 3.11/3.12/3.13 do not establish other installed configurations |
-| Current candidate | Frontend paint/fill/polygon and mouse ownership selection is in progress; shared edit/write/cache13+11 is accepted. Required helper default dispatch/property/exception policies join the new closure. |
+| Current candidate | All50 selected frontend bodies and seven lazy expressions have handwritten drafts. Latest isolated CP312 revision passed24 expression-order cases plus77 prior regressions; a19-case harness passed separately on3.11 and3.13. These are prototype observations, not installed acceptance. See [local evidence](../.artifacts/labels-native-frontend-edit-owner-expression-order-stage/progress.json). |
 | Completion gates | All M0–M9 OPEN; acceptance contract is still draft and unfrozen |
 | Cleanup | [No new disposable output](../.artifacts/labels-native-edit-publication-owner-production-cleanup-inventory.json);75 actual app/build/before/failure receipts;5038 unchanged genuine caches preserved |
 | Accepted finite work | Shared Labels edit/write/cache13+11 and history controls have finite acceptance, retaining prior Color/Theme/schema work. Whole class/module/canonical/provider/private/lifetime/release parents remain open |
@@ -142,7 +142,7 @@ and lifecycle remain required workflow children.
 
 | Next work | Suggested execution | Required result |
 | --- | --- | --- |
-| Freeze frontend paint/fill/polygon/mouse closure and contracts | Sol High; Extra High generator/alias/error/lifetime review | Preserve accepted606/31 and reuse native history/write/cache/numeric kernels. Name all required frontend/helper/property/exception policies, qualify actual public-before contracts on this pair, then implement/review the handwritten C++ closure |
+| Review and admit frontend paint/fill/polygon/mouse closure | Sol High; Extra High generator/alias/error/lifetime review | Reuse the reviewed50-body/21-site selection,43 qualified before cases and handwritten drafts. Review canonical producer provenance, atomic handoff, full locals/tracing/release ABI and required provider policies; integrate only after effective source/ABI approval, then qualify actual Viewer behavior while retaining accepted606/31. |
 | Complete Color/RGBA class, protocols, schema and module lifecycle | Sol Extra High; Max for one demonstrated hard blocker | Native authority preserves genuine aliases/subclasses, public protocols, validation, serialization and reload |
 | Complete Theme/EventedModel canonical state through M1 | Sol Extra High; Ultra for disjoint owners | One authoritative storage path through construction/mutation/copy/dump/restore and observers |
 | Resolve lifetime and required frame/platform contracts | Sol Extra High; Medium for fixed runners | Controlled reproductions and applicable installed evidence resolve the remaining requirements |

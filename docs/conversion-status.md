@@ -29,10 +29,21 @@ other installed configurations and final release parity remain required work.
 Individual process reports retain nanobind shutdown diagnostics; passing tests
 do not establish clean application shutdown.
 
-The next work covers frontend paint/fill/polygon and mouse control, required
-property and exception policies, helper paths with Python fallbacks, and the
-brush grid-construction policy. Its source and contract proposals are under
-review; no next-stage native result is claimed.
+The frontend candidate has handwritten drafts for all 50 selected bodies and
+seven lazy generator-expression policies. Its latest isolated revision uses
+source-named generator frames and shared closure cells, and creates expression
+functions before evaluating their iterables. It passed 24 focused cases and 77
+earlier regression cases on CPython 3.12. A dependency-free 19-case harness also
+passed on each of CPython 3.11 and 3.13; these repeats are separate runtime scopes.
+The [local candidate evidence](../.artifacts/labels-native-frontend-edit-owner-expression-order-stage/progress.json)
+records the sources, binaries, results and remaining limits. Cleanup removed
+38,851,185 bytes of settled compiler/linker intermediates while preserving
+reusable dependencies and all 2,845 accepted inputs.
+
+This candidate is not installed or accepted. Canonical module/class/decorator
+provenance, atomic handoff, full fast-local/tracing/release compatibility,
+default grid and required provider policies, independent effective source/ABI
+review, and real Viewer/shutdown qualification remain required.
 
 See the [execution checklist](remaining-conversion-checklist.md),
 [master plan](full-conversion-plan.md), and [build instructions](../README.md).

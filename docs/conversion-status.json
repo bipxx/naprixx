@@ -1,6 +1,6 @@
 {
   "schema": "naparixx.public-source-conversion-status.v1",
-  "recorded_utc": "2026-10-21T01:40:39.988931+00:00",
+  "recorded_utc": "2026-10-21T04:29:30.035085+00:00",
   "repository": "https://github.com/bipxx/naprixx",
   "publication_type": "in-progress development source",
   "baseline": {
@@ -91,11 +91,34 @@
       "sha256": "3d52ead657c04889b27ad54d833e56dd2278be2e19e85d1551c45f31050c0f90",
       "bytes": 9024
     },
-    "raw_archive_published": false
+    "raw_archive_published": false,
+    "frontend_candidate": {
+      "path": ".artifacts/labels-native-frontend-edit-owner-expression-order-stage/progress.json",
+      "sha256": "2c4dee07d0c2d138572007ea3359671f96e50da41b3599cfdb7d22234dfaeb0a",
+      "bytes": 15282
+    }
   },
   "clean_shutdown_proven": false,
   "release_parity_proven": false,
   "clean_clone_full_test_suite_reproducible": false,
   "clean_clone_limitation": "Some tests require ignored local before-snapshots/receipts not reconstructed by fetch_upstream; CI remains enabled; portable packaging is required follow-up.",
-  "next_work": "Labels frontend stroke/fill/polygon and actual mouse control: freeze Labels.paint, fill, paint_polygon, _draw and required owned helper/mouse callees against pinned source; reuse accepted history/write/cache/numeric kernels and close remaining default helper dispatch; include required property/exception policies and obtain contracts before native implementation. Real plugin save/reload and cancellation/close remain required workflow children."
+  "next_work": "Review and implement canonical module/class/decorator provenance and atomic full50 handoff; complete source target/parent fast locals, tracing, local-release/error/GC/frame ABI and default grid/required provider policies. Obtain independent effective source/ABI approval before integration; then reuse43 qualified before cases and606 accepted regressions with real Viewer/shutdown checks. Real plugin save/reload and cancellation/close remain required.",
+  "frontend_candidate": {
+    "status": "isolated handwritten draft; not installed or accepted",
+    "source_bodies": 50,
+    "expression_format_yield_sites": 21,
+    "lazy_expressions": 7,
+    "cp312_new_cases": 24,
+    "cp312_regression_cases": 77,
+    "cp312_processes": 3,
+    "crossminor_harness_cases_per_runtime": 19,
+    "crossminor_runtimes": [
+      "3.11.11",
+      "3.13.8"
+    ],
+    "canonical_admission_proven": false,
+    "full_frame_abi_proven": false,
+    "cleanup_removed_bytes": 38851185,
+    "accepted_inputs_held": 2845
+  }
 }
